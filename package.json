@@ -1,0 +1,22 @@
+{
+  "name": "mutual-api-server",
+  "version": "1.0.0",
+  "description": "The app server api for the mutual app.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=development nodemon index.js",
+    "migrate": "knex migrate:latest --knexfile db/knexfile.js",
+    "seed": "knex seed:run --knexfile db/knexfile.js"
+  },
+  "author": "Great Okonkwo",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^3.27.1",
+    "knex": "^1.0.3",
+    "pg": "^8.7.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
