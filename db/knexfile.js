@@ -20,6 +20,7 @@ module.exports = {
       directory: './migrations',
     },
     seeds: { directory: './seeds' },
+    debug: true,
     useNullAsDefault: true
   },
 
@@ -35,7 +36,7 @@ module.exports = {
       max: 10
     },
     migrations: {
-      tableName: 'knex_migrations'
+      directory: './migrations',
     }
   },
 
@@ -47,8 +48,9 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      tableName: 'knex_migrations'
-    }
+      directory: './migrations',
+    },
+    useNullAsDefault: true
   }
 
 };

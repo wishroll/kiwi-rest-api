@@ -8,6 +8,12 @@ const knex = require('knex')(knexConfig["development"]);
 /*
     The root route returns the curre
 */
+fastify.addHook('onResponse', (request, reply, done) => {
+    // Some code
+    console.log(reply.getResponseTime());
+    done();
+});
+
 fastify.get('/', (req, res) => {
     return res.send({ status: 'Hello world' });
 });
@@ -16,16 +22,61 @@ fastify.get('/home', (req, res) => {
 
 });
 
-fastify.get('/users/:id', (req, res) => {
+fastify.get('/users', (req, res) => {
+    const limit = req.query['limit'];
+    const offset = req.query['offset'];
+    console.log(limit, offset);
     knex('users')
     .select('*')
+    .limit(limit)
+    .offset(offset)
+    .orderBy('id', 'asc')
     .then((users) => {
-        return res.status(200).send(users);
+        if (users.length > 0) {
+            return res.status(200).send(users);
+        } else {
+            return res.status(404).send();
+        }
     })
     .catch((err) => {
         console.error(err);
         return res.status(500).send({success: false, message: "An error occured"});
     })
+});
+
+fastify.get('/users/:id', (req, res) => {
+    knex('users')
+    .select('id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at')
+    .where({id: req.params["id"]})
+    .then((user) => {
+        if (user) {
+            return res.status(200).send(user);
+        } else {
+            return res.status(404).send();
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: "An error occured"});
+    })
+});
+
+fastify.put('/users/:id', (req, res) => {
+    console.log(req.body);
+    const updateParams = {};
+    updateParams["display_name"] = req.body['display_name']
+    knex('users')
+    .select('id')
+    .where({id: req.params["id"]})
+    .update(updateParams, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at'])
+    .then((user) => {
+        console.log(user);
+        return res.status(200).send(user);
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: "An error occured"});
+    });
 });
 
 fastify.get('/chat_rooms', (req, res) => {

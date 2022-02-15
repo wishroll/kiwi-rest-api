@@ -4,11 +4,17 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('users', (table) => {
-      table.increments('id');
+      // knex.raw("CREATE EXTENSION IF NOT EXISTS uuid-ossp");
+      table.bigIncrements('id').unique({indexName: 'index_id_users', deferrable: 'immediate'});
+      table.uuid('uuid', {useBinaryUuid: true}).notNullable().defaultTo(knex.raw('gen_random_uuid()')).unique({indexName: 'index_uuid_users', deferrable: 'immediate'});
       table.string('display_name', 255);
-      table.string('phone_number', 255).notNullable();
-      table.timestamps();
+      table.string('phone_number', 255).unique({indexName: 'index_unique_phone_number_users', deferrable: 'immediate'}).notNullable();
+      table.timestamps(true, true);
       table.string('avatar_url', 255);
+      table.unique(['id', 'phone_number'], {
+        indexName: 'index_id_phone_number_users',
+        deferrable: 'immediate'
+      })
   })
 };
 
