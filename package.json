@@ -14,7 +14,8 @@
   "dependencies": {
     "fastify": "^3.27.1",
     "knex": "^1.0.3",
-    "pg": "^8.7.3"
+    "pg": "^8.7.3",
+    "twilio": "^3.74.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6",
