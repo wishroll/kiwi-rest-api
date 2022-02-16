@@ -1,18 +1,13 @@
 const fastify = require('fastify')({
     logger: true
   })
-const PORT = process.env.PORT || 3000; 
+const { port, environment } = require('./config');
+const PORT = port || 3000; 
 const knexConfig = require('./db/knexfile');
 //initialize knex
-const knex = require('knex')(knexConfig["development"]);
-/*
-    The root route returns the curre
-*/
-fastify.addHook('onResponse', (request, reply, done) => {
-    // Some code
-    console.log(reply.getResponseTime());
-    done();
-});
+const knex = require('knex')(knexConfig[environment]);
+const {phone} = require('phone');
+const twilioClient = require('./web_services/twilio_client');
 
 fastify.get('/', (req, res) => {
     return res.send({ status: 'Hello world' });
@@ -20,6 +15,80 @@ fastify.get('/', (req, res) => {
 
 fastify.get('/home', (req, res) => {
 
+});
+
+/**
+ * 
+ */
+fastify.post('/signup/validate', (req, res) => {
+    let phoneNumber = req.body["phone_number"];
+    const countryCode = req.body["country_code"];
+    phoneNumber = phone(phoneNumber, {country: countryCode})['phoneNumber'];
+    // console.log(`This is the phone number given in the request body ${phoneNumber}`);
+    if (phoneNumber !== null) {
+        knex('users')
+        .select('phone_number')
+        .where({phone_number: phoneNumber})
+        .limit(1)
+        .then((rows) => {
+            if (rows.length > 0) {
+                return res.status(409).send();
+            } else {
+                return res.status(200).send();
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).send({success: false, message: `An error occured: ${error.message}`});
+        })
+    } else {
+        return res.status(400).send();
+    }
+});
+
+fastify.post('/signup/send-token', (req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, {country: countryCode})["phoneNumber"];
+    if (phoneNumber !== null) {
+        twilioClient.sendToken(phoneNumber, (verification, error) => {
+            if (error !== null) {
+                //handle error
+                console.log(error);
+                return res.status(error["status"]).send({success: false, message: `An error occured: ${error.message}`});
+            } else if (verification !== null) {
+                console.log("Verification token recieved", verification);
+                return res.status(201).send({success: true, message: `Verification token created and sent: ${verification["status"]}`});
+            }
+        });
+    } else {
+        return res.status(400).send();  
+    }
+});
+
+fastify.post('/signup/verify', (req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const token = req.body['token'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, {country: countryCode})["phoneNumber"];
+    if ((phoneNumber !== null && phoneNumber !== undefined) && token !== undefined) {
+        twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
+            if (error !== null) {
+                //handle error
+                console.log(error);
+                return res.status(error["status"]).send({success: false, message: `An error occured: ${error.message}`}); 
+            } else if (verificationChecks !== null) {
+                console.log("Verification Token verified!");
+                return res.status(200).send({success: true, message: `Verification Token verified: ${verificationChecks.status}`});
+            }
+        });
+    } else {
+        return res.status(400).send();
+    }
+});
+
+fastify.post('/signup', (req, res) => {
+    let phoneNumber
 });
 
 fastify.get('/users', (req, res) => {
@@ -31,16 +100,16 @@ fastify.get('/users', (req, res) => {
     .limit(limit)
     .offset(offset)
     .orderBy('id', 'asc')
-    .then((users) => {
-        if (users.length > 0) {
-            return res.status(200).send(users);
+    .then((rows) => {
+        if (rows.length > 0) {
+            return res.status(200).send(rows);
         } else {
             return res.status(404).send();
         }
     })
     .catch((err) => {
         console.error(err);
-        return res.status(500).send({success: false, message: "An error occured"});
+        return res.status(500).send({success: false, message: `An error occured: ${err.message}`});
     })
 });
 
@@ -48,8 +117,9 @@ fastify.get('/users/:id', (req, res) => {
     knex('users')
     .select('id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at')
     .where({id: req.params["id"]})
-    .then((user) => {
-        if (user) {
+    .then((rows) => {
+        if (rows.length > 0) {
+            const user = rows[0];
             return res.status(200).send(user);
         } else {
             return res.status(404).send();
@@ -57,7 +127,7 @@ fastify.get('/users/:id', (req, res) => {
     })
     .catch((err) => {
         console.error(err);
-        return res.status(500).send({success: false, message: "An error occured"});
+        return res.status(500).send({success: false, message: `An error occured: ${err.message}`});
     })
 });
 
@@ -88,13 +158,7 @@ fastify.get('/chat_rooms/:id', (req, res) => {
 fastify.get('/chat_rooms/:id/messages', (req, res) => {
 
 });
-fastify.post('/signup', (req, res) => {
-
-});
 fastify.post('/login', (req, res) => {
-
-});
-fastify.post('/signup/verifiy-phone-number', (req, res) => {
 
 });
 
