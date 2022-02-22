@@ -5,6 +5,15 @@ const fastify = require('fastify')({
 fastify.register(require('fastify-jwt'), {
     secret: masterKey
   })
+
+fastify.decorate("authenticate", async (req, res) => {
+    try {
+        await req.jwtVerify();
+    } catch (err) {
+        res.send(err);   
+    }
+});
+
 const PORT = port || 3000; 
 const knexConfig = require('./db/knexfile');
 //initialize knex
@@ -16,8 +25,32 @@ const redisClient = require('./redis_client');
 
 
 
-fastify.get('/', (req, res) => {
-    return res.send({ status: 'Hello world' });
+fastify.get('/', {onRequest: [fastify.authenticate]}, (req, res) => {
+  const limit = req.query["limit"];
+  const offset = req.query["offset"];
+  knex("answers")
+  .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
+    .join("users", 'answers.user_id', '=', 'users.id')
+    .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.body as prompt_body', 'prompts.created_at as prompt_created_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
+    .orderBy("answers.created_at", "desc")
+    .limit(limit)
+    .offset(offset)
+    .then((rows) => {
+        if (rows.length > 0) {
+            let data = []
+            rows.forEach(row => {
+                data.push({id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: {id: row["prompt_id"], uuid: row["prompt_uuid"], body: row["prompt_body"], created_at: row["prompt_created_at"]}, user: {id: row["user_id"], uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"]}})
+            });
+            console.log(data);
+            return res.status(200).send(data);
+        } else {
+            return res.status(404).send();
+        } 
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: `An error occured: ${err.message}`});
+    });
 });
 
 fastify.get('/home', (req, res) => {
@@ -175,13 +208,18 @@ fastify.get('/users', (req, res) => {
     })
 });
 
-fastify.get('/users/:id', (req, res) => {
+/**
+ * Returns a specific user
+ */
+const response = {200: {type: 'object', properties: {id: {type: 'number'}, uuid: {type: 'string'}, display_name: {type: 'string'}, created_at: {type: 'string'}, updated_at: {type: 'string'}}}}
+fastify.get('/users/:id', {onRequest: [fastify.authenticate], schema: {response: response}}, (req, res) => {
+    console.log(`This is the user that was decoded from the payload: ${req.user.uuid}`);
     knex('users')
-    .select('id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at')
+    .select('id', 'uuid', 'display_name', 'created_at', 'updated_at')
     .where({id: req.params["id"]})
-    .then((isAvailable) => {
-        if (isAvailable.length > 0) {
-            const user = isAvailable[0];
+    .then((rows) => {
+        if (rows.length > 0) {
+            const user = rows[0];
             return res.status(200).send(user);
         } else {
             return res.status(404).send();
@@ -192,6 +230,39 @@ fastify.get('/users/:id', (req, res) => {
         return res.status(500).send({success: false, message: `An error occured: ${err.message}`});
     })
 });
+
+/**
+ * Returns a users answers to various prompts
+ */
+fastify.get('/users/:user_id/answers', {onRequest: [fastify.authenticate]}, (req, res) => {
+    const limit = req.query['limit'];
+    const offset = req.query['offset'];
+    knex('answers')
+    .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
+    .join("users", 'answers.user_id', '=', 'users.id')
+    .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.body as prompt_body', 'prompts.created_at as prompt_created_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
+    .where({user_id: req.params['user_id']})
+    .limit(limit)
+    .offset(offset)
+    .orderBy('prompts.id', 'asc')
+    .then((rows) => {
+        if (rows.length > 0) {
+            let data = []
+            rows.forEach(row => {
+                data.push({id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: {id: row["prompt_id"], uuid: row["prompt_uuid"], body: row["prompt_body"], created_at: row["prompt_created_at"]}, user: {id: row["user_id"], uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"]}})
+            });
+            console.log(data);
+            return res.status(200).send(data);
+        } else {
+            return res.status(404).send();
+        }
+    })
+    .catch((err) => {
+        console.log(err);
+        return res.status(500).send({success: false, message: `An error occured: ${err.message}`});
+    });
+}); 
+
 
 fastify.put('/users/:id', (req, res) => {
     console.log(req.body);
@@ -211,15 +282,76 @@ fastify.put('/users/:id', (req, res) => {
     });
 });
 
+/**
+ * Creates a new answer to a prompt
+ */
+fastify.post('/prompts/:prompt_id/answers', {onRequest: [fastify.authenticate]}, (req, res) => {
+    // authenticate user before hand
+});
+
+/**
+ * Updates the answer for a specified prompt
+ * 
+ */
+fastify.put('/prompts/:prompt_id/answers/:id', (req, res) => {
+
+});
+
+/**
+ * Returns a specific answer to a specific prompt 
+ */
+fastify.get('/prompts/:prompt_id/answers/:id', {onRequest: [fastify.authenticate]}, (req, res) => {
+    const promptId = req.params["prompt_id"];
+    const id = req.params["id"];
+    knex("answers")
+    .join("users", 'answers.user_id', '=', 'users.id')
+    .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
+    .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.body as prompt_body', 'prompts.created_at as prompt_created_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
+    .where("answers.id", "=", id)
+    .limit(1)
+    .then((rows) => {
+        if (rows.length > 0) {
+            const row = rows[0];
+            let data = {id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: {id: row["prompt_id"], uuid: row["prompt_uuid"], body: row["prompt_body"], created_at: row["prompt_created_at"]}, user: {id: row["user_id"], uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"]}}
+            console.log(data);
+            return res.status(200).send(data);
+        } else {
+            return res.status(404).send();
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: "An error occured"});
+    });
+});
+
+
+
+
 fastify.get('/chat_rooms', (req, res) => {
 
 });
+
 fastify.get('/chat_rooms/:id', (req, res) => {
 
 });
+
 fastify.get('/chat_rooms/:id/messages', (req, res) => {
 
 });
+
+fastify.post('/chat_rooms/:id/messages', (req, res) => {
+
+});
+
+fastify.delete('/chat_rooms/:chat_room_id/messages/:id', (req, res) => {
+
+});
+
+fastify.delete('/chat_rooms/:id', (req, res) => {
+
+});
+
 fastify.post('/login', (req, res) => {
 
 });
