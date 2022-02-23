@@ -328,16 +328,102 @@ fastify.get('/prompts/:prompt_id/answers/:id', {onRequest: [fastify.authenticate
 
 
 
-fastify.get('/chat_rooms', (req, res) => {
-
+fastify.get('/chat_rooms', {onRequest: [fastify.authenticate]}, (req, res) => {
+    const limit = req.query['limit'] || 10;
+    const offset = req.query['offset'];
+    const userId = req.user.id;
+    knex('chat_rooms')
+    .join('chat_room_users', 'chat_rooms.id', '=', 'chat_room_users.chat_room_id')
+    .join('users', 'chat_room_users.user_id', '=', 'users.id')
+    .select(['chat_rooms.id as chat_rooms_id', 'chat_rooms.uuid as chat_rooms_uuid', 'chat_rooms.created_at as chat_rooms_created_at', 'chat_rooms.updated_at as chat_rooms_updated_at'])
+    .where('users.id', '=', userId)
+    .limit(limit)
+    .offset(offset)
+    .orderBy('chat_rooms.updated_at', 'desc')
+    .then((rows) => {
+        if (rows.length > 0) {
+            let data = [];
+            rows.forEach((row) => {
+                data.push({id: row['chat_rooms_id'], uuid: row['chat_rooms_uuid'], created_at: row['chat_rooms_created_at'], updated_at: row['chat_rooms_updated_at'], })
+            });
+            res.send(data);
+        } else {
+            res.status(404).send();
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: "An error occured"});
+    });
 });
 
-fastify.get('/chat_rooms/:id', (req, res) => {
-
+fastify.get('/chat_rooms/:id', {onRequest: [fastify.authenticate]}, (req, res) => {
+    const userId = req.user.id;
+    knex('chat_rooms')
+    .join('chat_room_users', 'chat_rooms.id', '=', 'chat_room_users.chat_room_id')
+    .join('users', 'chat_room_users.user_id', '=', 'users.id')
+    .select(['chat_rooms.id as chat_rooms_id', 'chat_rooms.uuid as chat_rooms_uuid', 'chat_rooms.created_at as chat_rooms_created_at', 'chat_rooms.updated_at as chat_rooms_updated_at'])
+    .where('users.id', '=', userId)
+    .then((rows) => {
+        if (rows.length > 0) {
+            const row = rows[0];
+            let data = {id: row["chat_rooms_id"], uuid: row["chat_rooms_uuid"], created_at: row["chat_rooms_created_at"], updated_at: row["chat_rooms_updated_at"]};
+            console.log(data);
+            return res.status(200).send(data);  
+        } else {
+            res.status(404).send();
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: "An error occured"});
+    })
 });
 
-fastify.get('/chat_rooms/:id/messages', (req, res) => {
+fastify.get('/chat_rooms/:id/messages', {onRequest: [fastify.authenticate]}, (req, res) => {
+    const userId = req.user.id;
+    const limit = req.query['limit'] || 10;
+    const offset = req.query[''];
+    const chatRoomId = req.params['id'];
+    knex('messages')
+    .join('chat_rooms', 'messages.chat_room_id', '=', 'chat_rooms.id')
+    .join('chat_room_users', 'chat_rooms.id', '=', 'chat_room_users.chat_room_id')
+    .join('users', 'chat_room_users.user_id', '=', 'users.id')
+    .where('chat_rooms.id', '=', chatRoomId)
+    .where('chat_room_users.user_id', '=', userId)
+    .where('chat_room_users.chat_room_id', '=', chatRoomId)
+    .select(['messages.body as messages_body', 'messages.id as messages_id', 'messages.uuid as messages_uuid', 'messages.kind as messages_kind', 'messages.created_at as messages_created_at', 'messages.updated_at as messages_updated_at', 'users.id as users_id', 'users.uuid as users_uuid', 'users.display_name as users_display_name'])
+    .limit(limit)
+    .offset(offset)
+    .orderBy('messages.created_at', 'desc')
+    .then((rows) => {
+        if (rows.length > 0) {
+            let data = [];
+            rows.forEach(row => {
+                const id = row['messages_id'];
+                const message = {id: row['messages_id'], uuid: row['messages_uuid'], kind: row['messages_kind'], body: row['messages_body'], created_at: row['messages_created_at'], updated_at: row['messages_updated_at'], user: {id: row['users_id'], uuid: row['users_uuid'], display_name: row['users_display_name']}}
+                knex('attachments')
+                .where('attachments.attachable_id', '=', id)
+                .where('attachments.attachable_type', 'messages')
+                .where('attachments.name', '=', 'media_item')
+                .then((rows) => {
+                    if(rows.length > 0) {
+                        rows.map((row) => {
+                            message['media_attachment'] = {id: row['id'], uuid: row['uuid']}
+                        })
+                    } else {
 
+                    }
+                })
+            });
+        } else {
+            res.status(404).send();
+        }
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).send({success: false, message: "An error occured"});
+    });
 });
 
 fastify.post('/chat_rooms/:id/messages', (req, res) => {

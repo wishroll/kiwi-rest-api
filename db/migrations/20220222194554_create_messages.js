@@ -12,11 +12,7 @@ exports.up = function(knex) {
         table.bigInteger('chat_room_user_id').notNullable().references('chat_room_users.id');
         table.timestamps(true, true);
         table.text('body');
-        table.string('kind', 255).notNullable();
-        table.unique(['id', 'chat_room_id', 'chat_room_user_id'], {
-            indexName: 'index_id_chat_room_id_chat_room_user_id',
-            deferrable: 'immediate'
-        });
+        table.string('kind', 255).notNullable().index();
     });
 };
 

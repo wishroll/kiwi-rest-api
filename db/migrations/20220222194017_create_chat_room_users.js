@@ -9,7 +9,7 @@ exports.up = function(knex) {
     table.bigInteger('chat_room_id').notNullable().references('chat_rooms.id');
     table.bigInteger('user_id').notNullable().references('users.id');
     table.timestamps(true, true);
-    table.unique(['id', 'chat_room_id', 'user_id'], {
+    table.unique(['chat_room_id', 'user_id'], {
         indexName: 'index_id_chat_room_id_user_id',
         deferrable: 'immediate'
     });
