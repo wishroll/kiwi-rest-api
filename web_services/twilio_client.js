@@ -5,7 +5,7 @@ const serviceId = process.env.VERIFY_SERVICE_ID;
 const client = twilio(accountSid, authToken);
 exports.sendToken = (phoneNumber, callback) => {    
     client.verify
-            .services(serviceId)
+            .services(serviceId) 
              .verifications
              .create({to: phoneNumber, channel: 'sms'})
              .then( (verification) => {
