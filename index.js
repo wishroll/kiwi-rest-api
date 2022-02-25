@@ -399,23 +399,7 @@ fastify.get('/chat_rooms/:id/messages', {onRequest: [fastify.authenticate]}, (re
     .then((rows) => {
         if (rows.length > 0) {
             let data = [];
-            rows.forEach(row => {
-                const id = row['messages_id'];
-                const message = {id: row['messages_id'], uuid: row['messages_uuid'], kind: row['messages_kind'], body: row['messages_body'], created_at: row['messages_created_at'], updated_at: row['messages_updated_at'], user: {id: row['users_id'], uuid: row['users_uuid'], display_name: row['users_display_name']}}
-                knex('attachments')
-                .where('attachments.attachable_id', '=', id)
-                .where('attachments.attachable_type', 'messages')
-                .where('attachments.name', '=', 'media_item')
-                .then((rows) => {
-                    if(rows.length > 0) {
-                        rows.map((row) => {
-                            message['media_attachment'] = {id: row['id'], uuid: row['uuid']}
-                        })
-                    } else {
-
-                    }
-                })
-            });
+            res.status(200).send();
         } else {
             res.status(404).send();
         }
