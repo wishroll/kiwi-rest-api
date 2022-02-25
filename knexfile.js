@@ -44,7 +44,8 @@ module.exports = {
     client: 'postgresql',
     connection: {
       host: process.env.DATABASE_URL,
-      username: process.env.DATABASE_USERNAME,
+      port: process.env.DATABASE_PORT,
+      user: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME
     },
