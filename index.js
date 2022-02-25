@@ -15,7 +15,7 @@ fastify.decorate("authenticate", async (req, res) => {
 });
 
 const PORT = port || 3000; 
-const knexConfig = require('./db/knexfile');
+const knexConfig = require('./knexfile');
 //initialize knex
 const knex = require('knex')(knexConfig[environment]);
 const {phone} = require('phone');
@@ -287,6 +287,21 @@ fastify.put('/users/:id', (req, res) => {
  */
 fastify.post('/prompts/:prompt_id/answers', {onRequest: [fastify.authenticate]}, (req, res) => {
     // authenticate user before hand
+    const userId = req.user.id;
+    const answer = req.body['answer'];
+    const promptId = req.params['prompt_id'];
+    knex('answers')
+    .insert({body: answer, prompt_id: promptId, user_id: userId}, ['id', 'uuid', 'body', 'created_at', 'updated_at'])
+    .then((rows) => {
+        if (rows.length > 0) {
+            res.status(201).send(rows);
+        } else {
+            res.status(500).send({error: `Couldn't Create new answer`});
+        }
+    })
+    .catch((err) => {
+        return res.status(500).send({success: false, message:  `An error occured: ${err}`});
+    });
 });
 
 /**
