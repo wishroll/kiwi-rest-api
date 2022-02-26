@@ -20,6 +20,9 @@
     "redis": "^4.0.3",
     "twilio": "^3.74.0"
   },
+  "engines": {
+    "node": "16.x"
+  },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6",
     "dotenv": "^16.0.0",
