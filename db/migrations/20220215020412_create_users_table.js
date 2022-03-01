@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('users', (table) => {
-      // knex.raw("CREATE EXTENSION IF NOT EXISTS uuid-ossp");
+      knex.raw("CREATE EXTENSION IF NOT EXISTS pgcrypto");
       table.bigIncrements('id').unique({indexName: 'index_id_users', deferrable: 'immediate'});
       table.uuid('uuid', {useBinaryUuid: true}).notNullable().defaultTo(knex.raw('gen_random_uuid()')).unique({indexName: 'index_uuid_users', deferrable: 'immediate'});
       table.string('display_name', 255);

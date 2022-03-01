@@ -8,8 +8,8 @@ module.exports = {
     client: 'postgresql',
     connection: {
       host: '127.0.0.1',
-      username: 'postgres',
-      password: 'postgres',
+      username: 'greatokonkwo',
+      password: 'greatokonkwo',
       database: 'mutual-api-server-development'
     },
     pool: {
@@ -48,7 +48,7 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './db/migrations',
+      directory: '/migrations',
     },
     useNullAsDefault: true
   }

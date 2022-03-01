@@ -6,6 +6,7 @@ const { table } = require("console");
  */
 exports.up = function(knex) {
     return knex.schema.createTable('messages', (table) => {
+      knex.raw("CREATE EXTENSION IF NOT EXISTS pgcrypto");
         table.bigIncrements('id').notNullable().unique({indexName: 'index_id_messages', deferrable: 'immediate'});
         table.uuid('uuid', {useBinaryUuid: true}).notNullable().defaultTo(knex.raw('gen_random_uuid()')).unique({indexName: 'index_uuid_messages', deferrable: 'immediate'});
         table.bigInteger('chat_room_id').notNullable().references('chat_rooms.id');
