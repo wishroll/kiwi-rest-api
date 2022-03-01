@@ -1,1 +1,1 @@
-web: node index.js; heroku run npm migrate 
+web: node index.js
