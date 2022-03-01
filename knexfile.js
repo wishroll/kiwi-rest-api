@@ -44,7 +44,6 @@ module.exports = {
     client: 'postgresql',
     connection: {
       connectionString: process.env.DATABASE_URL,
-      ssl: false
     },
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
