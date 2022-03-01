@@ -48,7 +48,7 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: '/db/migrations',
+      directory: 'migrations',
     },
     useNullAsDefault: true
   }

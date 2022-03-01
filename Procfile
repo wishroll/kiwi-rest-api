@@ -1,1 +1,1 @@
-web: node index.js; node 
+web: node index.js; npm migrate 
