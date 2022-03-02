@@ -24,14 +24,14 @@ const redisClient = require('./redis_client');
 
 
 
-
+// const feedResponse = {200: {type: 'object', properties: {responses: {type: 'array', items: {type: 'object', properties: {id: {type: 'number'}, uuid: {type: 'string'}, created_at: {type: 'date'}, updated_at: {type: 'date'}, body: {type: 'string'}, prompt: {id: {type: 'number'}, uuid: {type: 'string'}, body: {type: 'string'}, created_at: {type: 'date'}}, user: {id: {type: 'number'}, uuid: {type: 'string'}, display_name: {type: 'string'
 fastify.get('/', {onRequest: [fastify.authenticate]}, (req, res) => {
   const limit = req.query["limit"];
   const offset = req.query["offset"];
   knex("answers")
   .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
     .join("users", 'answers.user_id', '=', 'users.id')
-    .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.body as prompt_body', 'prompts.created_at as prompt_created_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
+    .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.body as prompt_body', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
     .orderBy("answers.created_at", "desc")
     .limit(limit)
     .offset(offset)
@@ -39,7 +39,7 @@ fastify.get('/', {onRequest: [fastify.authenticate]}, (req, res) => {
         if (rows.length > 0) {
             let data = []
             rows.forEach(row => {
-                data.push({id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: {id: row["prompt_id"], uuid: row["prompt_uuid"], body: row["prompt_body"], created_at: row["prompt_created_at"]}, user: {id: row["user_id"], uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"]}})
+                data.push({id: parseInt(row["answer_id"]), uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: {id: parseInt(row["prompt_id"]), uuid: row["prompt_uuid"], body: row["prompt_body"], created_at: row["prompt_created_at"], updated_at: row["prompt_updated_at"]}, user: {id: parseInt(row["user_id"]), uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"]}})
             });
             console.log(data);
             return res.status(200).send(data);
@@ -167,7 +167,7 @@ fastify.post('/signup', (req, res) => {
                         console.log(`This is the userId: ${id}. This is the uuid ${uuid}`);
                         const token = fastify.jwt.sign({id: id, uuid: uuid}, {expiresIn: '365 days'})
                         redisClient.client.del(cacheKey).then((_) => {console.log(`Finished deleting: ${cacheKey} from the cache`)});
-                        return res.status(201).send({user: user, access: token});
+                        return res.status(201).send({id: id, uuid: uuid, access_token: token});
                     } else {
                         return res.status(500).send({message: `An error occured: Couldn't create new user`});
                     }
@@ -264,13 +264,14 @@ fastify.get('/users/:user_id/answers', {onRequest: [fastify.authenticate]}, (req
 }); 
 
 
-fastify.put('/users/:id', (req, res) => {
+fastify.put('/users', {onRequest: [fastify.authenticate]}, (req, res) => {
     console.log(req.body);
+    const userId = req.user.id;
     const updateParams = {};
     updateParams["display_name"] = req.body['display_name']
     knex('users')
     .select('id')
-    .where({id: req.params["id"]})
+    .where({id: userId})
     .update(updateParams, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at'])
     .then((user) => {
         console.log(user);
@@ -279,6 +280,22 @@ fastify.put('/users/:id', (req, res) => {
     .catch((err) => {
         console.error(err);
         return res.status(500).send({success: false, message: "An error occured"});
+    });
+});
+
+fastify.post('/prompts', {onRequest: [fastify.authenticate]}, (req, res) => {
+    const body = req.body['body'];
+    knex('prompts')
+    .insert({body: body}, ['id', 'uuid', 'created_at', 'updated_at'])
+    .then((rows) => {
+        if(rows.length > 0) {
+            res.status(201).send(rows);
+        } else {
+            res.status(500).send({error: `Couldn't Create new answer`}); 
+        }
+    })
+    .catch((err) => {
+        return res.status(500).send({success: false, message:  `An error occured: ${err}`});
     });
 });
 
