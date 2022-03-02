@@ -6,7 +6,10 @@ const redis = require('redis');
         exports.client = client;
         console.log(`Redis client ${client}`);
     } else if (process.env.NODE_ENV === 'production') {
-        client = redis.createClient({url: process.env.REDIS_URL});
+        client = redis.createClient({url: process.env.REDIS_URL, socket: {
+            tls: true,
+            rejectUnauthorized: false
+          }});
         exports.client = client;
     }
     client.on('error', (err) => console.log('Redis Client Error', err));
