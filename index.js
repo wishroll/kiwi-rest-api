@@ -385,7 +385,7 @@ fastify.get('/chat_rooms', {onRequest: [fastify.authenticate]}, (req, res) => {
             rows.forEach((row) => {
                 data.push({id: row['chat_rooms_id'], uuid: row['chat_rooms_uuid'], created_at: row['chat_rooms_created_at'], updated_at: row['chat_rooms_updated_at'], })
             });
-            res.send(data);
+            res.status(200).send(data);
         } else {
             res.status(404).send();
         }
@@ -451,6 +451,36 @@ fastify.get('/chat_rooms/:id/messages', {onRequest: [fastify.authenticate]}, (re
 
 fastify.post('/chat_rooms/:id/messages', (req, res) => {
 
+});
+
+fastify.post('/prompts/:prompt_id/answers/:answer_id/messages', {onRequest: [fastify.authenticate]}, async (req, res) => {
+    const currentUserId = req.user.id;
+    const messagedUserId = req.body['user_id'];
+    const requestMessage = req.body['message'];
+    // Given multiple user_ids, does a chat room exit where chat_room_users with the given user_ids share the same chat_room_id
+    const chatRoomUsers = await knex('chat_room_users').select(['chat_room_users.chat_room_id'])
+    .where('chat_room_users.user_id', messagedUserId)
+    .intersect((knex) => {
+        knex.select(['chat_room_users.chat_room_id'])
+        .from('chat_room_users')
+        .where('chat_room_users.user_id', currentUserId)
+    }); 
+    if(chatRoomUsers.length > 0) {
+        const chat_room_id = chatRoomUsers[0].chat_room_id;
+        const chat_room_user_ids = await knex('chat_room_users').select('chat_room_users.id').where({chat_room_id: parseInt(chat_room_id), user_id: currentUserId});
+        const chat_room_user_id = chat_room_user_ids[0].id;
+        const responseMessage = await knex('messages').insert({body: requestMessage, chat_room_id: parseInt(chat_room_id), chat_room_user_id: parseInt(chat_room_user_id), kind: 'text'}, ['id', 'uuid', 'created_at', 'updated_at', 'body']);
+        return res.status(200).send(responseMessage);
+    } else {
+        const chat_rooms = await knex('chat_rooms').insert({}, ['id']);
+        const chat_room_id = parseInt(chat_rooms[0].id);
+        const chat_room_user_ones = await knex('chat_room_users').insert({chat_room_id: chat_room_id, user_id: messagedUserId}, ['id']);
+        const messaged_chat_room_user_id = parseInt(chat_room_user_ones[0].id);
+        const chat_room_user_twos = await knex('chat_room_users').insert({chat_room_id: chat_room_id, user_id: currentUserId}, ['id']);
+        const messaging_chat_room_user_id = parseInt(chat_room_user_twos[0].id);
+        const message = await knex('messages').insert({body: requestMessage, chat_room_id: chat_room_id, chat_room_user_id: messaged_chat_room_user_id, kind: 'text'}, ['id', 'uuid', 'created_at', 'updated_at', 'body']);
+        return res.status(200).send(message);
+    }
 });
 
 fastify.delete('/chat_rooms/:chat_room_id/messages/:id', (req, res) => {
