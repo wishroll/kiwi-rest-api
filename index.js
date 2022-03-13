@@ -28,18 +28,20 @@ const redisClient = require('./redis_client');
 fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
     const limit = req.query["limit"];
     const offset = req.query["offset"];
+    const currentUserId = req.user.id;
     knex("answers")
         .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
         .join("users", 'answers.user_id', '=', 'users.id')
-        .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.body as prompt_body', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
-        .orderBy("answers.created_at", "desc")
+        .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
+        .where("answers.user_id", "!=", currentUserId)
+        .orderByRaw("random()")
         .limit(limit)
         .offset(offset)
         .then((rows) => {
             if (rows.length > 0) {
                 let data = []
                 rows.forEach(row => {
-                    data.push({ id: parseInt(row["answer_id"]), uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: parseInt(row["prompt_id"]), uuid: row["prompt_uuid"], body: row["prompt_body"], created_at: row["prompt_created_at"], updated_at: row["prompt_updated_at"] }, user: { id: parseInt(row["user_id"]), uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"] } })
+                    data.push({ id: parseInt(row["answer_id"]), uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: parseInt(row["prompt_id"]), uuid: row["prompt_uuid"], title: row["prompt_title"], created_at: row["prompt_created_at"], updated_at: row["prompt_updated_at"] }, user: { id: parseInt(row["user_id"]), uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"] } })
                 });
                 return res.status(200).send(data);
             } else {
@@ -290,14 +292,15 @@ fastify.put('/users', { onRequest: [fastify.authenticate] }, (req, res) => {
 });
 
 fastify.post('/prompts', { onRequest: [fastify.authenticate] }, (req, res) => {
-    const body = req.body['body'];
+    const title = req.body['title'];
+    const subtitle = req.body['subtitle']
     knex('prompts')
-        .insert({ body: body }, ['id', 'uuid', 'created_at', 'updated_at'])
+        .insert({ title: title }, ['id', 'uuid', 'created_at', 'updated_at'])
         .then((rows) => {
             if (rows.length > 0) {
                 res.status(201).send(rows);
             } else {
-                res.status(500).send({ error: `Couldn't Create new answer` });
+                res.status(500).send({ error: `Couldn't Create new prompt` });
             }
         })
         .catch((err) => {
@@ -305,26 +308,53 @@ fastify.post('/prompts', { onRequest: [fastify.authenticate] }, (req, res) => {
         });
 });
 
+fastify.get('/prompts', async (req, res) => {
+    try {
+        const prompts = await knex('prompts')
+            .select()
+        if (prompts.length > 0) {
+            console.log(prompts);
+            return res.status(200).send(prompts);
+        } else {
+            return res.status(404).send(prompts);
+        }
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+});
 /**
  * Creates a new answer to a prompt
  */
-fastify.post('/prompts/:prompt_id/answers', { onRequest: [fastify.authenticate] }, (req, res) => {
+fastify.post('/prompts/:prompt_id/answers', { onRequest: [fastify.authenticate] }, async (req, res) => {
     // authenticate user before hand
     const userId = req.user.id;
     const answer = req.body['answer'];
     const promptId = req.params['prompt_id'];
-    knex('answers')
-        .insert({ body: answer, prompt_id: promptId, user_id: userId }, ['id', 'uuid', 'body', 'created_at', 'updated_at'])
-        .then((rows) => {
-            if (rows.length > 0) {
-                res.status(201).send(rows);
-            } else {
-                res.status(500).send({ error: `Couldn't Create new answer` });
-            }
-        })
-        .catch((err) => {
-            return res.status(500).send({ success: false, message: `An error occured: ${err}` });
-        });
+    const existingAnswer = await knex('answers').select(['id', 'prompt_id', 'user_id']).where({ user_id: userId, prompt_id: promptId }).first();
+    if (existingAnswer) {
+        try {
+            const updatedAnswer = await knex('answers')
+                .select('id')
+                .where({ id: existingAnswer.id })
+                .update({ body: answer }, ['id', 'uuid', 'body', 'created_at', 'updated_at', 'prompt_id', 'user_id'])
+            return res.status(200).send(updatedAnswer); 
+        } catch (error) {
+            return res.status(500).send({message: `An error occured ${error}`});
+        }
+    } else {
+        knex('answers')
+            .insert({ body: answer, prompt_id: promptId, user_id: userId }, ['id', 'uuid', 'body', 'created_at', 'updated_at'])
+            .then((rows) => {
+                if (rows.length > 0) {
+                    return res.status(201).send(rows);
+                } else {
+                    return res.status(500).send({ error: `Couldn't Create new answer` });
+                }
+            })
+            .catch((err) => {
+                return res.status(500).send({ success: false, message: `An error occured: ${err}` });
+            });
+    }
 });
 
 /**
@@ -383,14 +413,24 @@ fastify.get('/chat_rooms', { onRequest: [fastify.authenticate] }, async (req, re
         let chat_room_users = [];
         await Promise.all(chatRooms.map(async (row) => {
             const chatRoomId = parseInt(row['chat_rooms_id']);
-            const message = await knex('messages').select().where({ chat_room_id: chatRoomId }).orderBy('messages.created_at', 'desc').first();
+            const message = await knex('messages').select(['id', 'uuid', 'kind', 'created_at', 'updated_at', 'answer_id', 'body', 'chat_room_user_id']).where({ chat_room_id: chatRoomId }).orderBy('messages.created_at', 'desc').first();
+            if (message && message.answer_id) {
+                const chatRoomUser = await knex('chat_room_users').select('user_id').where({ id: message.chat_room_user_id }).first();
+                const user = await knex('users').select(['id', 'uuid', 'display_name', 'avatar_url']).where({ id: chatRoomUser.user_id }).first();
+                const answer = await knex('answers').select().where({ id: parseInt(message.answer_id) }).first();
+                const prompt = await knex('prompts').select().where({ id: parseInt(answer.prompt_id) }).first();
+                answer["prompt"] = prompt;
+                message['user'] = user;
+                message['answer'] = answer;
+                console.log(message);
+            }
             const chatRoomUsers = await knex('users').join('chat_room_users', 'chat_room_users.user_id', '=', 'users.id')
                 .select(['users.id as id', 'users.uuid as uuid', 'users.display_name as display_name', 'users.avatar_url as avatar_url'])
                 .where('chat_room_users.chat_room_id', '=', chatRoomId)
                 .where('chat_room_users.user_id', '!=', userId)
                 .distinct('users.id');
-                data.push({id: row['chat_rooms_id'], uuid: row['chat_rooms_uuid'], created_at: row['chat_rooms_created_at'], updated_at: row['chat_rooms_updated_at'], recent_message: message, chat_room_users: chatRoomUsers})
-            }))
+            data.push({ id: row['chat_rooms_id'], uuid: row['chat_rooms_uuid'], created_at: row['chat_rooms_created_at'], updated_at: row['chat_rooms_updated_at'], recent_message: message, chat_room_users: chatRoomUsers })
+        }))
         res.status(200).send(data);
     } else {
         res.status(404).send();
@@ -456,6 +496,7 @@ fastify.post('/chat_rooms/:id/messages', (req, res) => {
 
 fastify.post('/prompts/:prompt_id/answers/:answer_id/messages', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const currentUserId = req.user.id;
+    const answerId = req.params.answer_id;
     const messagedUserId = req.body['user_id'];
     const requestMessage = req.body['message'];
     // Given multiple user_ids, does a chat room exit where chat_room_users with the given user_ids share the same chat_room_id
@@ -470,7 +511,7 @@ fastify.post('/prompts/:prompt_id/answers/:answer_id/messages', { onRequest: [fa
         const chat_room_id = chatRoomUsers[0].chat_room_id;
         const chat_room_user_ids = await knex('chat_room_users').select('chat_room_users.id').where({ chat_room_id: parseInt(chat_room_id), user_id: currentUserId });
         const chat_room_user_id = chat_room_user_ids[0].id;
-        const responseMessage = await knex('messages').insert({ body: requestMessage, chat_room_id: parseInt(chat_room_id), chat_room_user_id: parseInt(chat_room_user_id), kind: 'text' }, ['id', 'uuid', 'created_at', 'updated_at', 'body']);
+        const responseMessage = await knex('messages').insert({ answer_id: answerId, body: requestMessage, chat_room_id: parseInt(chat_room_id), chat_room_user_id: parseInt(chat_room_user_id), kind: 'text' }, ['id', 'uuid', 'created_at', 'updated_at', 'body']);
         return res.status(200).send(responseMessage);
     } else {
         const chat_rooms = await knex('chat_rooms').insert({}, ['id']);
@@ -479,7 +520,7 @@ fastify.post('/prompts/:prompt_id/answers/:answer_id/messages', { onRequest: [fa
         const messaged_chat_room_user_id = parseInt(chat_room_user_ones[0].id);
         const chat_room_user_twos = await knex('chat_room_users').insert({ chat_room_id: chat_room_id, user_id: currentUserId }, ['id']);
         const messaging_chat_room_user_id = parseInt(chat_room_user_twos[0].id);
-        const message = await knex('messages').insert({ body: requestMessage, chat_room_id: chat_room_id, chat_room_user_id: messaged_chat_room_user_id, kind: 'text' }, ['id', 'uuid', 'created_at', 'updated_at', 'body']);
+        const message = await knex('messages').insert({ answer_id: answerId, body: requestMessage, chat_room_id: chat_room_id, chat_room_user_id: messaging_chat_room_user_id, kind: 'text' }, ['id', 'uuid', 'created_at', 'updated_at', 'body']);
         return res.status(200).send(message);
     }
 });
@@ -493,6 +534,11 @@ fastify.delete('/chat_rooms/:id', (req, res) => {
 });
 
 fastify.post('/login', (req, res) => {
+
+});
+
+fastify.post('/logout', { onRequest: [fastify.authenticate] }, (req, res) => {
+    const userId = req.user.id;
 
 });
 

@@ -17,7 +17,7 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './migrations',
+      directory: './db/migrations',
     },
     seeds: { directory: './seeds' },
     debug: true,
