@@ -42,16 +42,13 @@ module.exports = {
 
   production: {
     client: 'postgresql',
-    connection: {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    },
+    connection: process.env.DATABASE_URL,
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: 'migrations',
+      directory: './db/migrations',
     },
     useNullAsDefault: true
   }
