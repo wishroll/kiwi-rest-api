@@ -43,7 +43,7 @@ module.exports = {
   production: {
     client: 'postgresql',
     connection: {
-      connectionString: "mutuals-database-2.cbnjgsccdjeo.us-east-2.rds.amazonaws.com",
+      connectionString: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false }
     },
     pool: {
@@ -51,7 +51,7 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './db/migrations',
+      directory: '/db/migrations',
     },
     useNullAsDefault: true
   }
