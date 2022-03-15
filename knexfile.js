@@ -42,7 +42,7 @@ module.exports = {
 
   production: {
     client: 'postgresql',
-    connection: process.env.DATABASE_URL,
+    connection: "mutuals-database-2.cbnjgsccdjeo.us-east-2.rds.amazonaws.com",
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
       max: process.env.MAX_CONNECTIONS || 100
