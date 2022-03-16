@@ -53,7 +53,8 @@ module.exports = {
     },
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
-      max: process.env.MAX_CONNECTIONS || 100
+      max: process.env.MAX_CONNECTIONS || 100,
+      propagateCreateError: false
     },
     migrations: {
       directory: './db/migrations',
