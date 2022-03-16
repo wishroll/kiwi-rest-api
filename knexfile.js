@@ -43,8 +43,13 @@ module.exports = {
   production: {
     client: 'postgresql',
     connection: {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
+      host: process.env.DATABASE_URL,
+      port: process.env.DATABASE_PORT,
+      user: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE,
+      charset: 'utf8'
+
     },
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
@@ -53,6 +58,7 @@ module.exports = {
     migrations: {
       directory: './db/migrations',
     },
+    seeds: { directory: './db/seeds' },
     useNullAsDefault: true
   }
 
