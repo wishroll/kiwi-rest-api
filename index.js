@@ -107,6 +107,17 @@ fastify.post('/signup/validate', (req, res) => {
     }
 });
 
+fastify.post('/login/validate', async (req, res) => {
+    let phoneNumber = req.body["phone_number"];
+    const countryCode = req.body["country_code"];
+    phoneNumber = phone(phoneNumber, { country: countryCode })['phoneNumber'];
+    if(phoneNumber == undefined || phoneNumber == null) {
+        return res.status(400).send();
+    }
+    const rows = await knex('users').select('phone_number').where({phone_number: phoneNumber}).first();
+    return rows ? res.status(200).send() : res.status(404).send();
+});
+
 fastify.post('/signup/send-token', (req, res) => {
     let phoneNumber = req.body['phone_number'];
     const countryCode = req.body['country_code'];
@@ -173,7 +184,7 @@ fastify.post('/signup', (req, res) => {
                                 console.log(user);
                                 const id = parseInt(user["id"]); const uuid = user["uuid"];
                                 console.log(`This is the userId: ${id}. This is the uuid ${uuid}`);
-                                const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' })
+                                const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' });
                                 redisClient.client.del(cacheKey).then((_) => { console.log(`Finished deleting: ${cacheKey} from the cache`) });
                                 return res.status(201).send({ id: id, uuid: uuid, access_token: token });
                             } else {
@@ -533,8 +544,16 @@ fastify.delete('/chat_rooms/:id', (req, res) => {
 
 });
 
-fastify.post('/login', (req, res) => {
-
+fastify.post('/login', async(req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
+    if(phoneNumber == undefined || phoneNumber == null) {
+        return res.status(400).send();
+    }
+    const user = await knex('users').select(['id', 'uuid']).where({phone_number: phoneNumber}).first();
+    const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' });
+    return res.status(200).send({access_token: token});
 });
 
 fastify.post('/logout', { onRequest: [fastify.authenticate] }, (req, res) => {
