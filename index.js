@@ -118,6 +118,24 @@ fastify.post('/login/validate', async (req, res) => {
     return rows ? res.status(200).send() : res.status(404).send();
 });
 
+fastify.post('/login/send-token', (req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
+    if(phoneNumber == undefined || phoneNumber == null || phoneNumber == '') {
+        return res.status(400).send();
+    }
+    twilioClient.sendToken(phoneNumber, (verification, error) => {
+        if(error) {
+            console.log(error);
+            return res.status(error['status']).send({message: `An error occured: ${error.message}`});
+        } else if (verification) {
+            console.log(`Verification token recieved ${verification}`);
+            return res.status(201).send({message: `Verification token created and sent: ${verification["status"]}`});
+        }
+    });
+});
+
 fastify.post('/signup/send-token', (req, res) => {
     let phoneNumber = req.body['phone_number'];
     const countryCode = req.body['country_code'];
