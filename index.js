@@ -88,12 +88,12 @@ fastify.post('/login', async (req, res) => {
         return res.status(400).send();
     }
     const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber);
-    const token = await redisClient.get(cacheKey);
+    const token = await redisClient.client.get(cacheKey);
     if (token) {
         const user = await knex('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first();
         const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' });
         redisClient.client.del(cacheKey).then((_) => { console.log(`Finished deleting: ${cacheKey} from the cache`) });
-        return res.status(200).send({ access_token: token });
+        return res.status(200).send({ access_token: token});
     } else {
         return res.status(401).send({ message: 'Unable to verify' });
     }
@@ -210,7 +210,7 @@ fastify.post('/signup', (req, res) => {
     const countryCode = req.body['country_code'];
     phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
     if (phoneNumber !== null && phoneNumber !== undefined) {
-        const cacheKey = `verified-phone-number-${phoneNumber}`;
+        const cacheKey = signupVerifiedCacheKey(phoneNumber);
         redisClient.client.get(cacheKey)
             .then((token) => {
                 if (token) {
@@ -223,7 +223,7 @@ fastify.post('/signup', (req, res) => {
                                 console.log(`This is the userId: ${id}. This is the uuid ${uuid}`);
                                 const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' });
                                 redisClient.client.del(cacheKey).then((_) => { console.log(`Finished deleting: ${cacheKey} from the cache`) });
-                                return res.status(201).send({ id: id, uuid: uuid, access_token: token });
+                                return res.status(201).send({access_token: token });
                             } else {
                                 return res.status(500).send({ message: `An error occured: Couldn't create new user` });
                             }
