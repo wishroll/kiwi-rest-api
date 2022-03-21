@@ -22,41 +22,89 @@ const { phone } = require('phone');
 const twilioClient = require('./web_services/twilio_client');
 const redisClient = require('./redis_client');
 
+fastify.post('/login/validate', async (req, res) => {
+    let phoneNumber = req.body["phone_number"];
+    const countryCode = req.body["country_code"];
+    phoneNumber = phone(phoneNumber, { country: countryCode })['phoneNumber'];
+    if (phoneNumber == undefined || phoneNumber == null) {
+        return res.status(400).send();
+    }
+    const rows = await knex('users').select('phone_number').where({ phone_number: phoneNumber }).first();
+    return rows ? res.status(200).send() : res.status(404).send();
+});
 
+fastify.post('/login/send-token', (req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
+    if (phoneNumber == undefined || phoneNumber == null || phoneNumber == '') {
+        return res.status(400).send();
+    }
+    twilioClient.sendToken(phoneNumber, (verification, error) => {
+        if (error) {
+            console.log(error);
+            return res.status(error['status']).send({ message: `An error occured: ${error.message}` });
+        } else if (verification) {
+            console.log(`Verification token recieved ${verification}`);
+            return res.status(201).send({ message: `Verification token created and sent: ${verification["status"]}` });
+        }
+    });
+});
 
-// const feedResponse = {200: {type: 'object', properties: {responses: {type: 'array', items: {type: 'object', properties: {id: {type: 'number'}, uuid: {type: 'string'}, created_at: {type: 'date'}, updated_at: {type: 'date'}, body: {type: 'string'}, prompt: {id: {type: 'number'}, uuid: {type: 'string'}, body: {type: 'string'}, created_at: {type: 'date'}}, user: {id: {type: 'number'}, uuid: {type: 'string'}, display_name: {type: 'string'
-fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
-    const limit = req.query["limit"];
-    const offset = req.query["offset"];
-    const currentUserId = req.user.id;
-    knex("answers")
-        .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
-        .join("users", 'answers.user_id', '=', 'users.id')
-        .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
-        .where("answers.user_id", "!=", currentUserId)
-        .orderByRaw("random()")
-        .limit(limit)
-        .offset(offset)
-        .then((rows) => {
-            if (rows.length > 0) {
-                let data = []
-                rows.forEach(row => {
-                    data.push({ id: parseInt(row["answer_id"]), uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: parseInt(row["prompt_id"]), uuid: row["prompt_uuid"], title: row["prompt_title"], created_at: row["prompt_created_at"], updated_at: row["prompt_updated_at"] }, user: { id: parseInt(row["user_id"]), uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"] } })
-                });
-                return res.status(200).send(data);
+fastify.post('/login/verify', (req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const token = req.body['token'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
+    if (phoneNumber === '+16462471839' && token === '000000') {
+        const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber);
+        redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
+        return res.status(200).send({ success: true });
+    }
+    if (!phoneNumber || !token) {
+        return res.status(400).send();
+    } else {
+        twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
+            if (error != null) {
+                return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else {
-                return res.status(404).send();
+                const cacheKey = `login-verified-phone-number-${phoneNumber}`;
+                redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
+                console.log("Verification Token verified!");
+                return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
             }
         })
-        .catch((err) => {
-            console.error(err);
-            return res.status(500).send({ success: false, message: `An error occured: ${err.message}` });
-        });
-});
-
-fastify.get('/home', (req, res) => {
+    }
 
 });
+
+const loginVerifiedPhoneNumberCacheKey = (phoneNumber) => { return `login-verified-phone-number-${phoneNumber}` };
+
+fastify.post('/login', async (req, res) => {
+    let phoneNumber = req.body['phone_number'];
+    const countryCode = req.body['country_code'];
+    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
+    if (phoneNumber == undefined || phoneNumber == null) {
+        return res.status(400).send();
+    }
+    const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber);
+    const token = await redisClient.get(cacheKey);
+    if (token) {
+        const user = await knex('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first();
+        const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' });
+        redisClient.client.del(cacheKey).then((_) => { console.log(`Finished deleting: ${cacheKey} from the cache`) });
+        return res.status(200).send({ access_token: token });
+    } else {
+        return res.status(401).send({ message: 'Unable to verify' });
+    }
+});
+
+fastify.post('/logout', { onRequest: [fastify.authenticate] }, (req, res) => {
+    const userId = req.user.id;
+
+});
+
+const signupVerifiedCacheKey = (phoneNumber) => { return `signup-verified-phone-number ${phoneNumber}` };
 
 /**
  * 
@@ -107,35 +155,6 @@ fastify.post('/signup/validate', (req, res) => {
     }
 });
 
-fastify.post('/login/validate', async (req, res) => {
-    let phoneNumber = req.body["phone_number"];
-    const countryCode = req.body["country_code"];
-    phoneNumber = phone(phoneNumber, { country: countryCode })['phoneNumber'];
-    if(phoneNumber == undefined || phoneNumber == null) {
-        return res.status(400).send();
-    }
-    const rows = await knex('users').select('phone_number').where({phone_number: phoneNumber}).first();
-    return rows ? res.status(200).send() : res.status(404).send();
-});
-
-fastify.post('/login/send-token', (req, res) => {
-    let phoneNumber = req.body['phone_number'];
-    const countryCode = req.body['country_code'];
-    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
-    if(phoneNumber == undefined || phoneNumber == null || phoneNumber == '') {
-        return res.status(400).send();
-    }
-    twilioClient.sendToken(phoneNumber, (verification, error) => {
-        if(error) {
-            console.log(error);
-            return res.status(error['status']).send({message: `An error occured: ${error.message}`});
-        } else if (verification) {
-            console.log(`Verification token recieved ${verification}`);
-            return res.status(201).send({message: `Verification token created and sent: ${verification["status"]}`});
-        }
-    });
-});
-
 fastify.post('/signup/send-token', (req, res) => {
     let phoneNumber = req.body['phone_number'];
     const countryCode = req.body['country_code'];
@@ -163,7 +182,7 @@ fastify.post('/signup/verify', (req, res) => {
     phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
 
     if (phoneNumber === '+16462471839' && token === '000000') {
-        const cacheKey = `verified-phone-number-${phoneNumber}`;
+        const cacheKey = signupVerifiedCacheKey(phoneNumber);
         redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
         return res.status(200).send({ success: true });
     }
@@ -175,7 +194,7 @@ fastify.post('/signup/verify', (req, res) => {
                 console.log(error);
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else if (verificationChecks !== null) {
-                const cacheKey = `verified-phone-number-${phoneNumber}`;
+                const cacheKey = signupVerifiedCacheKey(phoneNumber);
                 redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
                 console.log("Verification Token verified!");
                 return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
@@ -221,6 +240,40 @@ fastify.post('/signup', (req, res) => {
     } else {
         return res.status(400).send({ message: `Bad Request: missing phone number` });
     }
+});
+
+// const feedResponse = {200: {type: 'object', properties: {responses: {type: 'array', items: {type: 'object', properties: {id: {type: 'number'}, uuid: {type: 'string'}, created_at: {type: 'date'}, updated_at: {type: 'date'}, body: {type: 'string'}, prompt: {id: {type: 'number'}, uuid: {type: 'string'}, body: {type: 'string'}, created_at: {type: 'date'}}, user: {id: {type: 'number'}, uuid: {type: 'string'}, display_name: {type: 'string'
+fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
+    const limit = req.query["limit"];
+    const offset = req.query["offset"];
+    const currentUserId = req.user.id;
+    knex("answers")
+        .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
+        .join("users", 'answers.user_id', '=', 'users.id')
+        .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
+        .where("answers.user_id", "!=", currentUserId)
+        .orderByRaw("random()")
+        .limit(limit)
+        .offset(offset)
+        .then((rows) => {
+            if (rows.length > 0) {
+                let data = []
+                rows.forEach(row => {
+                    data.push({ id: parseInt(row["answer_id"]), uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: parseInt(row["prompt_id"]), uuid: row["prompt_uuid"], title: row["prompt_title"], created_at: row["prompt_created_at"], updated_at: row["prompt_updated_at"] }, user: { id: parseInt(row["user_id"]), uuid: row["user_uuid"], display_name: row["user_display_name"], avatar_url: row["user_avatar_url"] } })
+                });
+                return res.status(200).send(data);
+            } else {
+                return res.status(404).send();
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).send({ success: false, message: `An error occured: ${err.message}` });
+        });
+});
+
+fastify.get('/home', (req, res) => {
+
 });
 
 fastify.get('/users', (req, res) => {
@@ -366,9 +419,9 @@ fastify.post('/prompts/:prompt_id/answers', { onRequest: [fastify.authenticate] 
                 .select('id')
                 .where({ id: existingAnswer.id })
                 .update({ body: answer }, ['id', 'uuid', 'body', 'created_at', 'updated_at', 'prompt_id', 'user_id'])
-            return res.status(200).send(updatedAnswer); 
+            return res.status(200).send(updatedAnswer);
         } catch (error) {
-            return res.status(500).send({message: `An error occured ${error}`});
+            return res.status(500).send({ message: `An error occured ${error}` });
         }
     } else {
         knex('answers')
@@ -562,22 +615,8 @@ fastify.delete('/chat_rooms/:id', (req, res) => {
 
 });
 
-fastify.post('/login', async(req, res) => {
-    let phoneNumber = req.body['phone_number'];
-    const countryCode = req.body['country_code'];
-    phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
-    if(phoneNumber == undefined || phoneNumber == null) {
-        return res.status(400).send();
-    }
-    const user = await knex('users').select(['id', 'uuid']).where({phone_number: phoneNumber}).first();
-    const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' });
-    return res.status(200).send({access_token: token});
-});
 
-fastify.post('/logout', { onRequest: [fastify.authenticate] }, (req, res) => {
-    const userId = req.user.id;
 
-});
 
 fastify.listen(PORT, '0.0.0.0', (err, add) => {
     if (err) {
