@@ -334,7 +334,7 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
     knex('answers')
         .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
         .join("users", 'answers.user_id', '=', 'users.id')
-        .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.subtitle as prompt_subtitle', 'prompts.created_at as prompt_created_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as users_display_name', 'users.avatar_url as users_avatar_url'])
+        .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.subtitle as prompt_subtitle', 'prompts.created_at as prompt_created_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
         .where({ user_id: req.params['user_id'] })
         .limit(limit)
         .offset(offset)
@@ -343,7 +343,7 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
             if (rows.length > 0) {
                 let data = []
                 rows.forEach(row => {
-                    data.push({ id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: row["prompt_id"], uuid: row["prompt_uuid"], title: row["prompt_title"], subtitle: row['prompt_subtitle'], created_at: row["prompt_created_at"]}, user: {id: row['users_id'], uuid: row['users_uuid'], display_name: row['users_display_name'], avatar_url: row['users_avatar_url']} })
+                    data.push({ id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: row["prompt_id"], uuid: row["prompt_uuid"], title: row["prompt_title"], subtitle: row['prompt_subtitle'], created_at: row["prompt_created_at"]}, user: {id: row['user_id'], uuid: row['user_uuid'], display_name: row['user_display_name'], avatar_url: row['user_avatar_url']} })
                 });
                 return res.status(200).send(data);
             } else {
