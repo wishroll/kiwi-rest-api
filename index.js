@@ -42,10 +42,8 @@ fastify.post('/login/send-token', (req, res) => {
     }
     twilioClient.sendToken(phoneNumber, (verification, error) => {
         if (error) {
-            console.log(error);
             return res.status(error['status']).send({ message: `An error occured: ${error.message}` });
         } else if (verification) {
-            console.log(`Verification token recieved ${verification}`);
             return res.status(201).send({ message: `Verification token created and sent: ${verification["status"]}` });
         }
     });
@@ -58,7 +56,11 @@ fastify.post('/login/verify', (req, res) => {
     phoneNumber = phone(phoneNumber, { country: countryCode })["phoneNumber"];
     if (phoneNumber === '+16462471839' && token === '000000') {
         const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber);
-        redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
+        try {
+            redisClient.client.set(cacheKey, token);
+        } catch (error) {
+            
+        }
         return res.status(200).send({ success: true });
     }
     if (!phoneNumber || !token) {
@@ -69,8 +71,11 @@ fastify.post('/login/verify', (req, res) => {
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else {
                 const cacheKey = `login-verified-phone-number-${phoneNumber}`;
-                redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
-                console.log("Verification Token verified!");
+                try {
+                    redisClient.client.set(cacheKey, token);
+                } catch (error) {
+                    
+                }
                 return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
             }
         })
@@ -113,10 +118,8 @@ fastify.post('/signup/validate', (req, res) => {
     let phoneNumber = req.body["phone_number"];
     const countryCode = req.body["country_code"];
     phoneNumber = phone(phoneNumber, { country: countryCode })['phoneNumber'];
-    console.log(`This is the phone number given in the request body ${phoneNumber}`);
     if (phoneNumber !== null) {
         const cacheKey = `phone-number-is-available-${phoneNumber}`;
-        console.log("This is the cache key", cacheKey);
         redisClient.client.get(cacheKey)
             .then((isAvailable) => {
                 if (isAvailable !== undefined && isAvailable !== null) {
@@ -142,7 +145,6 @@ fastify.post('/signup/validate', (req, res) => {
                             }
                         })
                         .catch((err) => {
-                            console.error(err);
                             return res.status(500).send({ success: false, message: `An error occured: ${error.message}` });
                         })
                 }
@@ -163,10 +165,8 @@ fastify.post('/signup/send-token', (req, res) => {
         twilioClient.sendToken(phoneNumber, (verification, error) => {
             if (error !== null) {
                 //handle error  
-                console.log(error);
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else if (verification !== null) {
-                console.log("Verification token recieved", verification);
                 return res.status(201).send({ success: true, message: `Verification token created and sent: ${verification["status"]}` });
             }
         });
@@ -183,7 +183,11 @@ fastify.post('/signup/verify', (req, res) => {
 
     if (phoneNumber === '+16462471839' && token === '000000') {
         const cacheKey = signupVerifiedCacheKey(phoneNumber);
-        redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
+        try {
+            redisClient.client.set(cacheKey, token);
+        } catch (error) {
+            
+        }
         return res.status(200).send({ success: true });
     }
 
@@ -191,12 +195,14 @@ fastify.post('/signup/verify', (req, res) => {
         twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
             if (error !== null) {
                 //handle error
-                console.log(error);
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else if (verificationChecks !== null) {
                 const cacheKey = signupVerifiedCacheKey(phoneNumber);
-                redisClient.client.set(cacheKey, token).then((_) => console.log("Cache Set the token that verifies a users phone number"));
-                console.log("Verification Token verified!");
+                try {
+                    redisClient.client.set(cacheKey, token);
+                } catch (error) {
+                    
+                }
                 return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
             }
         });
@@ -218,11 +224,13 @@ fastify.post('/signup', (req, res) => {
                         .then((rows) => {
                             if (rows.length > 0) {
                                 const user = rows[0];
-                                console.log(user);
                                 const id = parseInt(user["id"]); const uuid = user["uuid"];
-                                console.log(`This is the userId: ${id}. This is the uuid ${uuid}`);
                                 const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' });
-                                redisClient.client.del(cacheKey).then((_) => { console.log(`Finished deleting: ${cacheKey} from the cache`) });
+                                try {
+                                    redisClient.client.del(cacheKey);
+                                } catch (error) {
+                                    
+                                }
                                 return res.status(201).send({access_token: token });
                             } else {
                                 return res.status(500).send({ message: `An error occured: Couldn't create new user` });
@@ -267,7 +275,6 @@ fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
             }
         })
         .catch((err) => {
-            console.error(err);
             return res.status(500).send({ success: false, message: `An error occured: ${err.message}` });
         });
 });
@@ -279,7 +286,6 @@ fastify.get('/home', (req, res) => {
 fastify.get('/users', (req, res) => {
     const limit = req.query['limit'];
     const offset = req.query['offset'];
-    console.log(limit, offset);
     knex('users')
         .select('*')
         .limit(limit)
@@ -293,7 +299,6 @@ fastify.get('/users', (req, res) => {
             }
         })
         .catch((err) => {
-            console.error(err);
             return res.status(500).send({ success: false, message: `An error occured: ${err.message}` });
         })
 });
@@ -342,7 +347,6 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
                 rows.forEach(row => {
                     data.push({ id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: row["prompt_id"], uuid: row["prompt_uuid"], title: row["prompt_title"], subtitle: row['prompt_subtitle'], created_at: row["prompt_created_at"], user: {id: row['users_id'], uuid: row['users_uuid'], display_name: row['users_display_name'], avatar_url: row['users_avatar_url']} }})
                 });
-                console.log(data);
                 return res.status(200).send(data);
             } else {
                 return res.status(404).send();
