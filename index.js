@@ -343,7 +343,7 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
             if (rows.length > 0) {
                 let data = []
                 rows.forEach(row => {
-                    data.push({ id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: row["prompt_id"], uuid: row["prompt_uuid"], title: row["prompt_title"], subtitle: row['prompt_subtitle'], created_at: row["prompt_created_at"], user: {id: row['users_id'], uuid: row['users_uuid'], display_name: row['users_display_name'], avatar_url: row['users_avatar_url']} }})
+                    data.push({ id: row["answer_id"], uuid: row["answer_uuid"], created_at: row["answer_created_at"], updated_at: row["answer_updated_at"], body: row["answer_body"], prompt: { id: row["prompt_id"], uuid: row["prompt_uuid"], title: row["prompt_title"], subtitle: row['prompt_subtitle'], created_at: row["prompt_created_at"]}, user: {id: row['users_id'], uuid: row['users_uuid'], display_name: row['users_display_name'], avatar_url: row['users_avatar_url']} })
                 });
                 return res.status(200).send(data);
             } else {
