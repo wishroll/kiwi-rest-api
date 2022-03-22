@@ -308,11 +308,9 @@ fastify.get('/users', (req, res) => {
  */
 const response = { 200: { type: 'object', properties: { id: { type: 'number' }, uuid: { type: 'string' }, display_name: { type: 'string' }, created_at: { type: 'string' }, updated_at: { type: 'string' }, avatar_url: {type: 'string'} } } }
 fastify.get('/users/:id', { onRequest: [fastify.authenticate], schema: { response: response } }, (req, res) => {
-    console.log(`This is the user that was decoded from the payload: ${req.user.uuid}`);
     knex('users')
         .select('id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url')
         .where({ id: req.params["id"] })
-        .orWhere({uuid: req.params['id']})
         .first()
         .then((user) => {
             if (user) {
