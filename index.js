@@ -450,7 +450,7 @@ fastify.put('/answers/:id', { onRequest: [fastify.authenticate] }, (req, res) =>
     const updates = req.body;
     knex('answers')
     .where({id: answerId})
-    .update(updates, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at'])
+    .update(updates, ['id', 'uuid', 'body', 'created_at', 'updated_at'])
     .then(() => {
         return res.status(200).send();
     })
