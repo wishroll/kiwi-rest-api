@@ -67,7 +67,7 @@ fastify.post('/login/verify', (req, res) => {
         return res.status(400).send();
     } else {
         twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-            if (error != null) {
+            if (!error) {
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else {
                 const cacheKey = `login-verified-phone-number-${phoneNumber}`;
@@ -193,7 +193,7 @@ fastify.post('/signup/verify', (req, res) => {
 
     if ((phoneNumber !== null && phoneNumber !== undefined) && token !== undefined) {
         twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-            if (error !== null) {
+            if (!error) {
                 //handle error
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else if (verificationChecks !== null) {
