@@ -259,7 +259,6 @@ fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
         .join("prompts", 'answers.prompt_id', '=', 'prompts.id')
         .join("users", 'answers.user_id', '=', 'users.id')
         .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
-        .distinctOn('answers.id')
         .where("answers.user_id", "!=", currentUserId)
         .orderByRaw("random()")
         .limit(limit)
