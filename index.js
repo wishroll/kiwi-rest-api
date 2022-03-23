@@ -67,10 +67,10 @@ fastify.post('/login/verify', (req, res) => {
         return res.status(400).send();
     } else {
         twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-            if (!error) {
+            if (error) {
                 return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
             } else {
-                const cacheKey = `login-verified-phone-number-${phoneNumber}`;
+                const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber);
                 try {
                     redisClient.client.set(cacheKey, token);
                 } catch (error) {
