@@ -445,8 +445,18 @@ fastify.post('/prompts/:prompt_id/answers', { onRequest: [fastify.authenticate] 
  * Updates the answer for a specified prompt
  * 
  */
-fastify.put('/prompts/:prompt_id/answers/:id', (req, res) => {
-
+fastify.put('answers/:id', { onRequest: [fastify.authenticate] }, (req, res) => {
+    const answerId = req.params["id"];
+    const updates = req.body;
+    knex('answers')
+    .where({id: answerId})
+    .update(updates, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at'])
+    .then(() => {
+        return res.status(200).send();
+    })
+    .catch((error) => {
+        return res.status(500).send({ success: false, message: "An error occured" });
+    })
 });
 
 /**
