@@ -445,7 +445,7 @@ fastify.post('/prompts/:prompt_id/answers', { onRequest: [fastify.authenticate] 
  * Updates the answer for a specified prompt
  * 
  */
-fastify.put('answers/:id', { onRequest: [fastify.authenticate] }, (req, res) => {
+fastify.put('/answers/:id', { onRequest: [fastify.authenticate] }, (req, res) => {
     const answerId = req.params["id"];
     const updates = req.body;
     knex('answers')
