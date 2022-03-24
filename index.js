@@ -1,6 +1,7 @@
 const { port, environment, masterKey } = require('./config');
 const fastify = require('fastify')({
-    logger: true
+    logger: true,
+    maxParamLength: 1000
 })
 fastify.register(require('fastify-jwt'), {
     secret: masterKey
@@ -13,6 +14,24 @@ fastify.decorate("authenticate", async (req, res) => {
         res.send(err);
     }
 });
+const crypto = require('crypto');
+const multer = require('fastify-multer');
+const multerS3 = require('multer-s3');
+const S3 = require('aws-sdk/clients/s3');
+const s3 =  new S3({region: process.env.AWS_S3_REGION, credentials: {accessKeyId: process.env.AWS_S3_ACCESS_KEY_ID, secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY}});
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_S3_BUCKET_NAME,
+        cacheControl: 'max-age=31536000',
+        contentDisposition: 'attachment',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
+        key: (req, file, cb) => {
+            cb(null, Date.now().toString() + file.originalname);
+        }
+    })
+});
+fastify.register(multer.contentParser);
 
 const PORT = port || 3000;
 const knexConfig = require('./knexfile');
@@ -356,17 +375,30 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
         });
 });
 
+const createSignedId = (key) => {
+    const SEPERATOR = "--";
+    const digest = 'sha256';
+    const hexDigest = crypto.createHash('sha256', masterKey).update(key).digest('hex');
+    const base64Digest = crypto.createHash('sha256', masterKey).update(key).digest('base64Url');
+    return `${base64Digest}${SEPERATOR}${hexDigest}`
+};
 
-fastify.put('/users', { onRequest: [fastify.authenticate] }, (req, res) => {
+fastify.put('/users', { onRequest: [fastify.authenticate], preHandler: upload.single('avatar')}, (req, res) => {
     console.log(req.body);
     const userId = req.user.id;
     const updateParams = req.body;
+    if(req.file) {
+        const key = req.file.key;
+        const hostName = req.hostname;
+        const signedId = createSignedId(key);
+        const avatarUrl = `${req.protocol}://${hostName}/media/redirect/${signedId}/${key}`;
+        updateParams.avatar_url  = avatarUrl;
+    }
     knex('users')
         .select('id')
         .where({ id: userId })
-        .update(updateParams, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at'])
+        .update(updateParams, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at', 'avatar_url'])
         .then((user) => {
-            console.log(user);
             return res.status(200).send(user);
         })
         .catch((err) => {
@@ -377,9 +409,9 @@ fastify.put('/users', { onRequest: [fastify.authenticate] }, (req, res) => {
 
 fastify.post('/prompts', { onRequest: [fastify.authenticate] }, (req, res) => {
     const title = req.body['title'];
-    const subtitle = req.body['subtitle']
+    const subtitle = req.body['subtitle'];
     knex('prompts')
-        .insert({ title: title }, ['id', 'uuid', 'created_at', 'updated_at'])
+        .insert({ title: title, subtitle: subtitle }, ['id', 'uuid', 'created_at', 'updated_at'])
         .then((rows) => {
             if (rows.length > 0) {
                 res.status(201).send(rows);
@@ -394,10 +426,8 @@ fastify.post('/prompts', { onRequest: [fastify.authenticate] }, (req, res) => {
 
 fastify.get('/prompts', async (req, res) => {
     try {
-        const prompts = await knex('prompts')
-            .select()
+        const prompts = await knex('prompts').select();
         if (prompts.length > 0) {
-            console.log(prompts);
             return res.status(200).send(prompts);
         } else {
             return res.status(404).send(prompts);
@@ -626,6 +656,21 @@ fastify.delete('/chat_rooms/:chat_room_id/messages/:id', (req, res) => {
 fastify.delete('/chat_rooms/:id', (req, res) => {
 
 });
+
+fastify.get('/media/redirect/:signed_id/:filename', async (req, res) => {
+    const signedId = req.params.signed_id;
+    const fileName = req.params.filename;
+    const signedUrl = generateSignedUrl(fileName);
+    return res.redirect(signedUrl);
+});
+
+const generateSignedUrl = (key) => {
+    return s3.getSignedUrl('getObject', {
+        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Key: key,
+        Expires: 3000, // Signed url expires in five minutes
+        });
+};
 
 
 
