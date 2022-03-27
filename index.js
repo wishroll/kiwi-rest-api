@@ -85,19 +85,19 @@ fastify.post('/login/verify', (req, res) => {
     if (!phoneNumber || !token) {
         return res.status(400).send();
     } else {
-        twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-            if (error) {
-                return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
-            } else {
+        // twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
+        //     if (error) {
+        //         return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
+        //     } else {
                 const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber);
                 try {
                     redisClient.client.set(cacheKey, token);
                 } catch (error) {
                     
                 }
-                return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
-            }
-        })
+                return res.status(200).send({ success: true, message: `Verification Token verified` });
+            // }
+        // })
     }
 
 });
