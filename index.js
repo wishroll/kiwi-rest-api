@@ -211,11 +211,11 @@ fastify.post('/signup/verify', (req, res) => {
     }
 
     if ((phoneNumber !== null && phoneNumber !== undefined) && token !== undefined) {
-        twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-            if (!error) {
-                //handle error
-                return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
-            } else if (verificationChecks !== null) {
+        // twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
+        //     if (!error) {
+        //         //handle error
+        //         return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
+        //     } else if (verificationChecks !== null) {
                 const cacheKey = signupVerifiedCacheKey(phoneNumber);
                 try {
                     redisClient.client.set(cacheKey, token);
@@ -223,8 +223,8 @@ fastify.post('/signup/verify', (req, res) => {
                     
                 }
                 return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
-            }
-        });
+        //     }
+        // });
     } else {
         return res.status(400).send();
     }
@@ -384,7 +384,6 @@ const createSignedId = (key) => {
 };
 
 fastify.put('/users', { onRequest: [fastify.authenticate], preHandler: upload.single('avatar')}, (req, res) => {
-    console.log(req.body);
     const userId = req.user.id;
     const updateParams = req.body;
     if(req.file) {
