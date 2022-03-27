@@ -222,7 +222,7 @@ fastify.post('/signup/verify', (req, res) => {
                 } catch (error) {
                     
                 }
-                return res.status(200).send({ success: true, message: `Verification Token verified: ${verificationChecks.status}` });
+                return res.status(200).send({ success: true, message: `Verification Token verified` });
         //     }
         // });
     } else {
