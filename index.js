@@ -271,7 +271,7 @@ fastify.post('/signup', (req, res) => {
 
 // const feedResponse = {200: {type: 'object', properties: {responses: {type: 'array', items: {type: 'object', properties: {id: {type: 'number'}, uuid: {type: 'string'}, created_at: {type: 'date'}, updated_at: {type: 'date'}, body: {type: 'string'}, prompt: {id: {type: 'number'}, uuid: {type: 'string'}, body: {type: 'string'}, created_at: {type: 'date'}}, user: {id: {type: 'number'}, uuid: {type: 'string'}, display_name: {type: 'string'
 fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
-    const limit = req.query["limit"];
+    const limit = 20;
     const offset = req.query["offset"];
     const currentUserId = req.user.id;
     knex("answers")
@@ -279,7 +279,8 @@ fastify.get('/', { onRequest: [fastify.authenticate] }, (req, res) => {
         .join("users", 'answers.user_id', '=', 'users.id')
         .select(['answers.id as answer_id', 'answers.uuid as answer_uuid', 'answers.created_at as answer_created_at', 'answers.updated_at as answer_updated_at', 'answers.body as answer_body', 'prompts.id as prompt_id', 'prompts.uuid as prompt_uuid', 'prompts.title as prompt_title', 'prompts.created_at as prompt_created_at', 'prompts.updated_at as prompt_updated_at', 'users.id as user_id', 'users.uuid as user_uuid', 'users.display_name as user_display_name', 'users.avatar_url as user_avatar_url'])
         .where("answers.user_id", "!=", currentUserId)
-        .orderByRaw("answers.created_at desc")
+        .where("answers.body", "!=", "NULL")
+        .orderBy("random()")
         .limit(limit)
         .offset(offset)
         .then((rows) => {
