@@ -1,0 +1,46 @@
+
+module.exports = async (fastify, options) => {
+    // fastify.register(require('fastify-jwt'), {
+    //     secret: process.env.MASTER_KEY
+    //   })
+    //   fastify.decorate('authenticate', async (req, res) => {
+    //     try {
+    //       await req.jwtVerify()
+    //     } catch (err) {
+    //       res.send(err)
+    //     }
+    //   })
+    // fastify.decorate('redisClient', require('../../../services/db/redis/redis_client').client)
+    // fastify.decorate('knex', require('../../../services/db/postgres/knex_fastify_plugin'))
+    // fastify.register(require('./users/users_controller'))
+    // fastify.register(require('./registration/signup_controller'))
+    // fastify.register(require('./sessions/sessions_controller'))
+}
+
+/**
+ * 
+ *  Routes for version one of the WishRoll API
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
