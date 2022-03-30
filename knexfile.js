@@ -17,7 +17,7 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './db/migrations',
+      directory: './db/migrations'
     },
     seeds: { directory: './seeds' },
     debug: true,
@@ -28,7 +28,7 @@ module.exports = {
     client: 'postgresql',
     connection: {
       database: 'my_db',
-      user:     'username',
+      user: 'username',
       password: 'password'
     },
     pool: {
@@ -36,7 +36,7 @@ module.exports = {
       max: 10
     },
     migrations: {
-      directory: './migrations',
+      directory: './migrations'
     }
   },
 
@@ -51,10 +51,10 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './db/migrations',
+      directory: './db/migrations'
     },
     seeds: { directory: './db/seeds' },
     useNullAsDefault: true
   }
 
-};
+}
