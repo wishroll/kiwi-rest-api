@@ -12,6 +12,7 @@ module.exports = async (fastify, options) => {
       })
     fastify.decorate('redisClient', require('../../../services/db/redis/redis_client').client)
     fastify.decorate('knex', require('../../../services/db/postgres/knex_fastify_plugin'))
+    fastify.decorate('twilioClient', require('../../../services/api/twilio/twilio_client'))
     fastify.register(require('./users/users_controller'))
     fastify.register(require('./registration/signup_controller'))
     fastify.register(require('./sessions/sessions_controller'))
