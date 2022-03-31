@@ -19,7 +19,7 @@ const routes = async (fastify, options) => {
     })
 
 
-    fastify.get('spotify/authorize/callback', (req, res) => {
+    fastify.get('spotify/authorize/callback', async (req, res) => {
         const authCode = req.query.code || null
         const requestState = req.query.state || null
 
