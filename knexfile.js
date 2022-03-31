@@ -17,9 +17,9 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './db/migrations'
+      directory: './services/db/postgres/migrations'
     },
-    seeds: { directory: './seeds' },
+    seeds: { directory: './services/db/postgres/seeds' },
     debug: true,
     useNullAsDefault: true
   },
@@ -51,9 +51,9 @@ module.exports = {
       max: process.env.MAX_CONNECTIONS || 100
     },
     migrations: {
-      directory: './db/migrations'
+      directory: './services/db/postgres/migrations'
     },
-    seeds: { directory: './db/seeds' },
+    seeds: { directory: './services/db/postgres/seeds' },
     useNullAsDefault: true
   }
 
