@@ -1,6 +1,6 @@
 const routes = async (fastify, options) => {
     const crypto = require('crypto')
-    const fetch = require("node-fetch");
+    import fetch from 'node-fetch'
     const spotifyAuthUri = process.env.SPOTIFY_AUTH_URI
     const state = crypto.randomBytes(16).toString('hex')
 
