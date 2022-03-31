@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 const fastify = require('fastify')({
   logger: true,
   maxParamLength: 1000
