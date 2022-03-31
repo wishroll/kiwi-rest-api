@@ -3,7 +3,7 @@ const routes = async (fastify, options) => {
     const spotifyAuthUri = process.env.SPOTIFY_AUTH_URI
     const state = crypto.randomBytes(16).toString('hex')
 
-    fastify.post('spotify/authorize', (req, res) => {
+    fastify.post('/spotify/authorize', (req, res) => {
 
         const scope = process.env.SPOTIFY_SCOPE
         const queryParams = {
@@ -19,7 +19,7 @@ const routes = async (fastify, options) => {
     })
 
 
-    fastify.get('spotify/authorize/callback', async (req, res) => {
+    fastify.get('/spotify/authorize/callback', async (req, res) => {
         const authCode = req.query.code || null
         const requestState = req.query.state || null
 
