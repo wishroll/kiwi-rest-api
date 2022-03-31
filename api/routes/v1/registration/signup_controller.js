@@ -13,10 +13,10 @@ const routes = async (fastify, options) => {
 
     if (!phoneNumber) {
       return res.status(400).send()
-     }
+    }
 
     const cacheKey = `phone-number-is-available-${phoneNumber}`
-    
+
     try {
       const isAvailable = await fastify.redisClient.get(cacheKey)
       console.log(isAvailable)
@@ -31,24 +31,23 @@ const routes = async (fastify, options) => {
         }
       } else {
         // If there is no value for the key, fetch db instead
-          const user = await fastify.knex('users')
-            .select('phone_number')
-            .where({ phone_number: phoneNumber })
-            .first()
-          if (user) {
-            console.log('The user exists so the account cant be created')
-            fastify.redisClient.set(cacheKey, false)
-            res.status(409).send()
-          } else {
-            console.log('The user does not exist so the account can be created')
-            fastify.redisClient.set(cacheKey, true)
-            res.status(200).send()
-          }
+        const user = await fastify.knex('users')
+          .select('phone_number')
+          .where({ phone_number: phoneNumber })
+          .first()
+        if (user) {
+          console.log('The user exists so the account cant be created')
+          fastify.redisClient.set(cacheKey, false)
+          res.status(409).send()
+        } else {
+          console.log('The user does not exist so the account can be created')
+          fastify.redisClient.set(cacheKey, true)
+          res.status(200).send()
+        }
       }
     } catch (error) {
       res.status(500).send({ message: `An error occured: ${error.message}` })
     }
-
   })
 
   fastify.post('/signup/send-token', async (req, res) => {
@@ -64,9 +63,8 @@ const routes = async (fastify, options) => {
       const verification = await fastify.twilioClient.sendToken(phoneNumber)
       res.status(201).send({ success: true, message: `Verification token created and sent: ${verification.status}` })
     } catch (error) {
-      res.status(500).send({message: error})
+      res.status(500).send({ message: error })
     }
-
   })
 
   fastify.post('/signup/verify', async (req, res) => {
@@ -97,15 +95,13 @@ const routes = async (fastify, options) => {
     } catch (error) {
       res.status(500).send({ message: error })
     }
-
-
   })
 
   fastify.post('/signup', async (req, res) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
-   
+
     if (!phoneNumber) {
       return res.status(400).send()
     }
@@ -132,9 +128,7 @@ const routes = async (fastify, options) => {
     } catch (error) {
       res.status(500).send({ message: error })
     }
-
   })
-
 }
 
 module.exports = routes

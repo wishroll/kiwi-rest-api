@@ -8,7 +8,7 @@ exports.sendToken = (phoneNumber) => {
     client.verify
       .services(serviceId)
       .verifications
-      .create({ to: phoneNumber, channel: 'sms'})
+      .create({ to: phoneNumber, channel: 'sms' })
       .then((verification) => {
         resolve(verification)
       })
@@ -21,13 +21,13 @@ exports.sendToken = (phoneNumber) => {
 exports.verify = (phoneNumber, token) => {
   return new Promise((resolve, reject) => {
     client.verify.services(serviceId)
-    .verificationChecks
-    .create({ to: phoneNumber, code: token })
-    .then((verificationCheck) => {
-      resolve(verificationCheck)
-    })
-    .catch((error) => {
-      reject(error)
-    })
+      .verificationChecks
+      .create({ to: phoneNumber, code: token })
+      .then((verificationCheck) => {
+        resolve(verificationCheck)
+      })
+      .catch((error) => {
+        reject(error)
+      })
   })
 }

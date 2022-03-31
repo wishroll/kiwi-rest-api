@@ -18,7 +18,6 @@ const routes = async (fastify, options) => {
     } catch (error) {
       res.status(500).send()
     }
-
   })
 
   fastify.post('/login/send-token', async (req, res) => {
@@ -32,11 +31,10 @@ const routes = async (fastify, options) => {
 
     try {
       const verification = await fastify.twilioClient.sendToken(phoneNumber)
-      res.status(201).send({ message: `Verification token created and sent: ${verification.status}`})
+      res.status(201).send({ message: `Verification token created and sent: ${verification.status}` })
     } catch (error) {
-        res.status(error.status).send({ message: `An error occured: ${error.message}` })
+      res.status(error.status).send({ message: `An error occured: ${error.message}` })
     }
-
   })
 
   fastify.post('/login/verify', async (req, res) => {
@@ -44,7 +42,7 @@ const routes = async (fastify, options) => {
     const token = req.body.token
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
-    
+
     if (phoneNumber === '+16462471839' && token === '000000') {
       const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber)
       try {
@@ -69,7 +67,6 @@ const routes = async (fastify, options) => {
       console.log(error)
       res.status(500).send()
     }
-
   })
 
   fastify.post('/login', async (req, res) => {
@@ -95,7 +92,6 @@ const routes = async (fastify, options) => {
     } catch (error) {
       res.status(500).send()
     }
-
   })
 
   fastify.post('/logout', { onRequest: [fastify.authenticate] }, (req, res) => {

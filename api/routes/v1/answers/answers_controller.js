@@ -1,8 +1,8 @@
 const routes = async (fastify, options) => {
-    /**
+  /**
  * Returns a users answers to various prompts
  */
-fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (req, res) => {
+  fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (req, res) => {
     const limit = req.query.limit
     const offset = req.query.offset
     fastify.knex('answers')
@@ -29,7 +29,7 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
         return res.status(500).send({ success: false, message: `An error occured: ${err.message}` })
       })
   })
-  
+
   const createSignedId = (key) => {
     const SEPERATOR = '--'
     const digest = 'sha256'
@@ -37,11 +37,7 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
     const base64Digest = crypto.createHash('sha256', masterKey).update(key).digest('base64Url')
     return `${base64Digest}${SEPERATOR}${hexDigest}`
   }
-  
-  
-  
-  
-  
+
   /**
    * Updates the answer for a specified prompt
    *
@@ -59,7 +55,7 @@ fastify.get('/users/:user_id/answers', { onRequest: [fastify.authenticate] }, (r
         return res.status(500).send({ success: false, message: 'An error occured' })
       })
   })
-  
+
   /**
    * Returns a specific answer to a specific prompt
    */
