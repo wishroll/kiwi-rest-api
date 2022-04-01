@@ -6,31 +6,35 @@ const routes = async (fastify, options) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (!phoneNumber) {
-      res.status(400).send()
+      return res.status(400).send()
     }
+
     try {
       const rows = await fastify.knex('users').select('phone_number').where({ phone_number: phoneNumber })
-      rows ? res.status(200).send() : res.status(404).send()
+      console.log(`This is the rows ${rows}`)
+      rows && rows.length > 0 ? res.status(200).send() : res.status(404).send()
     } catch (error) {
       res.status(500).send()
     }
   })
 
-  fastify.post('/login/send-token', (req, res) => {
+  fastify.post('/login/send-token', async (req, res) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (!phoneNumber) {
-      res.status(400).send()
+      return res.status(400).send()
     }
-    fastify.twilioClient.sendToken(phoneNumber, (verification, error) => {
-      if (error) {
-        res.status(error.status).send({ message: `An error occured: ${error.message}` })
-      } else if (verification) {
-        res.status(201).send({ message: `Verification token created and sent: ${verification.status}` })
-      }
-    })
+
+    try {
+      const verification = await fastify.twilioClient.sendToken(phoneNumber)
+      res.status(201).send({ message: `Verification token created and sent: ${verification.status}` })
+    } catch (error) {
+      res.status(error.status).send({ message: `An error occured: ${error.message}` })
+    }
   })
 
   fastify.post('/login/verify', async (req, res) => {
@@ -38,33 +42,30 @@ const routes = async (fastify, options) => {
     const token = req.body.token
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (phoneNumber === '+16462471839' && token === '000000') {
       const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber)
       try {
         await fastify.redisClient.set(cacheKey, token)
+        return res.status(200).send({ success: true })
       } catch (error) {
         console.log(`Redis Error: ${error}`)
-        res.status(500).send()
+        return res.status(500).send()
       }
-      res.status(200).send({ success: true })
     }
+
     if (!phoneNumber || !token) {
-      res.status(400).send()
-    } else {
-      // twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-      //     if (error) {
-      //         return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
-      //     } else {
+      return res.status(400).send()
+    }
+
+    try {
+      await fastify.twilioClient.verify(phoneNumber, token)
       const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber)
-      try {
-        await fastify.redisClient.set(cacheKey, token)
-      } catch (error) {
-        console.log(`Redis Error: ${error}`)
-        res.status(500).send()
-      }
+      await fastify.redisClient.set(cacheKey, token)
       res.status(200).send({ success: true, message: 'Verification Token verified' })
-      // }
-      // })
+    } catch (error) {
+      console.log(error)
+      res.status(500).send()
     }
   })
 
@@ -72,22 +73,23 @@ const routes = async (fastify, options) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (!phoneNumber) {
-      res.status(400).send()
+      return res.status(400).send()
     }
     const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber)
+
     try {
       const verified = await fastify.redisClient.get(cacheKey)
       if (verified) {
         const user = await fastify.knex('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first()
         const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' })
-        fastify.redisClient.del(cacheKey).then((_) => { console.log(`Finished deleting: ${cacheKey} from the cache`) })
+        await fastify.redisClient.del(cacheKey)
         res.status(200).send({ access_token: token })
       } else {
         res.status(401).send({ message: 'Unable to verify' })
       }
     } catch (error) {
-      console.log(`Redis Error: ${error}`)
       res.status(500).send()
     }
   })

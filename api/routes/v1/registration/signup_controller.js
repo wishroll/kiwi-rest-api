@@ -1,20 +1,22 @@
 const { phone } = require('phone')
 const routes = async (fastify, options) => {
-  fastify.decorate('twilioClient', require('../../../../services/api/twilio/twilio_client'))
-
   const signupVerifiedCacheKey = (phoneNumber) => { return `signup-verified-phone-number ${phoneNumber}` }
 
   /**
+ *
  *
  */
   fastify.post('/signup/validate', async (req, res) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (!phoneNumber) {
-      res.status(400).send()
+      return res.status(400).send()
     }
+
     const cacheKey = `phone-number-is-available-${phoneNumber}`
+
     try {
       const isAvailable = await fastify.redisClient.get(cacheKey)
       console.log(isAvailable)
@@ -29,45 +31,40 @@ const routes = async (fastify, options) => {
         }
       } else {
         // If there is no value for the key, fetch db instead
-        try {
-          const user = await fastify.knex('users')
-            .select('phone_number')
-            .where({ phone_number: phoneNumber })
-            .first()
-          if (user) {
-            console.log('The user exists so the account cant be created')
-            fastify.redisClient.set(cacheKey, false)
-            res.status(409).send()
-          } else {
-            console.log('The user does not exist so the account can be created')
-            fastify.redisClient.set(cacheKey, true)
-            res.status(200).send()
-          }
-        } catch (error) {
-          res.status(500).send({ message: `An error occured: ${error.message}` })
+        const user = await fastify.knex('users')
+          .select('phone_number')
+          .where({ phone_number: phoneNumber })
+          .first()
+        if (user) {
+          console.log('The user exists so the account cant be created')
+          fastify.redisClient.set(cacheKey, false)
+          res.status(409).send()
+        } else {
+          console.log('The user does not exist so the account can be created')
+          fastify.redisClient.set(cacheKey, true)
+          res.status(200).send()
         }
       }
     } catch (error) {
-      console.log(`Redis error: ${error}`)
       res.status(500).send({ message: `An error occured: ${error.message}` })
     }
   })
 
-  fastify.post('/signup/send-token', (req, res) => {
+  fastify.post('/signup/send-token', async (req, res) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (!phoneNumber) {
-      res.status(400).send()
+      return res.status(400).send()
     }
-    fastify.twilioClient.sendToken(phoneNumber, (verification, error) => {
-      if (error !== null) {
-      // handle error
-        res.status(error.status).send({ success: false, message: `An error occured: ${error.message}` })
-      } else if (verification !== null) {
-        res.status(201).send({ success: true, message: `Verification token created and sent: ${verification.status}` })
-      }
-    })
+
+    try {
+      const verification = await fastify.twilioClient.sendToken(phoneNumber)
+      res.status(201).send({ success: true, message: `Verification token created and sent: ${verification.status}` })
+    } catch (error) {
+      res.status(500).send({ message: error })
+    }
   })
 
   fastify.post('/signup/verify', async (req, res) => {
@@ -80,29 +77,23 @@ const routes = async (fastify, options) => {
       const cacheKey = signupVerifiedCacheKey(phoneNumber)
       try {
         await fastify.redisClient.set(cacheKey, token)
+        return res.status(200).send({ success: true })
       } catch (error) {
         res.status(500).send({ message: error })
       }
-      return res.status(200).send({ success: true })
     }
 
-    if ((phoneNumber !== null && phoneNumber !== undefined) && token !== undefined) {
-    // twilioClient.verify(phoneNumber, token, (verificationChecks, error) => {
-    //     if (!error) {
-    //         //handle error
-    //         return res.status(error["status"]).send({ success: false, message: `An error occured: ${error.message}` });
-    //     } else if (verificationChecks !== null) {
+    if (!phoneNumber || !token) {
+      return res.status(400).send()
+    }
+
+    try {
+      const verificationChecks = await fastify.twilioClient.verify(phoneNumber, token)
       const cacheKey = signupVerifiedCacheKey(phoneNumber)
-      try {
-        await fastify.redisClient.set(cacheKey, token)
-      } catch (error) {
-        res.status(500).send({ message: error })
-      }
+      await fastify.redisClient.set(cacheKey, token)
       res.status(200).send({ message: 'Verification Token verified' })
-    //     }
-    // });
-    } else {
-      res.status(400).send()
+    } catch (error) {
+      res.status(500).send({ message: error })
     }
   })
 
@@ -110,39 +101,28 @@ const routes = async (fastify, options) => {
     let phoneNumber = req.body.phone_number
     const countryCode = req.body.country_code
     phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+
     if (!phoneNumber) {
-      res.status(400).send()
+      return res.status(400).send()
     }
+
     try {
       const cacheKey = signupVerifiedCacheKey(phoneNumber)
       const result = await fastify.redisClient.get(cacheKey)
-      if (result !== null) {
-        if (result === true) {
-          try {
-            const results = await fastify.knex('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name'])
-            if (results.length > 0) {
-              const user = results[0]
-              const id = parseInt(user.id)
-              const uuid = user.uuid
-              const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' })
-              try {
-                await fastify.redisClient.del(cacheKey)
-              } catch (error) {
-                res.status(500).send({ message: error })
-              }
-              res.status(201).send({ access_token: token })
-            } else {
-              // User record wasn't created in db
-              res.status(500).send({ message: 'An error occured: Couldn\'t create new user' })
-            }
-          } catch (error) {
-            res.status(500).send({ message: error })
-          }
+      if (result) {
+        const results = await fastify.knex('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name'])
+        if (results.length > 0) {
+          const user = results[0]
+          const id = parseInt(user.id)
+          const uuid = user.uuid
+          const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' })
+          await fastify.redisClient.del(cacheKey)
+          res.status(201).send({ access_token: token })
         } else {
-          return res.status(401).send({ message: 'Token wasn\'t verified' })
+          // User record wasn't created in db
+          res.status(500).send({ message: 'An error occured: Couldn\'t create new user' })
         }
       } else {
-        // Verification doesn't exist in redis
         return res.status(401).send({ message: 'Token wasn\'t verified' })
       }
     } catch (error) {
