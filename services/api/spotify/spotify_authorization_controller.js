@@ -64,8 +64,32 @@ const routes = async (fastify, options) => {
     }
   })
 
-  fastify.get('/spotify/authorize/refresh_token', (req, res) => {
-
+  fastify.get('/spotify/authorize/refresh_token', async (req, res) => {
+    try {
+        const authOptions = new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: fastify.redisClient.get('SPOTIFY_REFRESH_TOKEN')
+        })
+        const url = "https://accounts.spotify.com/api/token"
+        const authorization = `Basic ${Buffer.from(process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET).toString('base64')}`
+        const response = await fetch(url, {
+            method: 'Post',
+            headers: {
+                'Authorization': authorization,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: authOptions
+        })
+        const data = await response.json()
+        const accessToken = data.access_token
+        const expiresIn = data.expires_in
+        const scope = data.scope
+        const tokenType = data.token_type
+        fastify.redisClient.set('SPOTIFY_ACCESS_TOKEN', accessToken)
+        console.log(`This is the refreshed accessToken: ${accessToken}`)
+    } catch (error) {
+        res.status(500).send(error)
+    }
   })
 }
 
