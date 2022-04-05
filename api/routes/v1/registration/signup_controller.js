@@ -15,21 +15,7 @@ const routes = async (fastify, options) => {
       return res.status(400).send()
     }
 
-    const cacheKey = `phone-number-is-available-${phoneNumber}`
-
     try {
-      const isAvailable = await fastify.redisClient.get(cacheKey)
-      console.log(isAvailable)
-      // Check that isAvailable isn't null
-      if (isAvailable !== null) {
-        if (isAvailable === true) {
-          console.log('User phone number is available to create an account')
-          res.status(200).send()
-        } else {
-          console.log('User phone number is not available to create an account')
-          res.status(409).send()
-        }
-      } else {
         // If there is no value for the key, fetch db instead
         const user = await fastify.knex('users')
           .select('phone_number')
@@ -37,14 +23,11 @@ const routes = async (fastify, options) => {
           .first()
         if (user) {
           console.log('The user exists so the account cant be created')
-          fastify.redisClient.set(cacheKey, false)
           res.status(409).send()
         } else {
           console.log('The user does not exist so the account can be created')
-          fastify.redisClient.set(cacheKey, true)
           res.status(200).send()
         }
-      }
     } catch (error) {
       res.status(500).send({ message: `An error occured: ${error.message}` })
     }
