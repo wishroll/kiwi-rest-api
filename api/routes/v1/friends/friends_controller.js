@@ -55,22 +55,22 @@ const routes = async (fastify, options) => {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
             const request = await fastify.knex('friend_requests').where({requested_phone_number: currentUserPhoneNumber})
             if(request) {
-                const requestingUser = await fastify.knex('users').where({phone_number: request.requesting_phone_number}).first()
+                const requestingUser = await fastify.knex('users').where({phone_number: request.requester_phone_number}).first()
                 if (requestingUser) {
                     const friendship = await fastify.knex('friends').insert({friend_id: currentUserId, user_id: requestingUser.id})
                     if(friendship) {
-                        
+                        res.status(201).send()
                     } else {
-
+                        res.status(500).send()
                     }
                 } else {
-
+                    res.status(500).send()
                 }
             } else {
                 res.status(404).send()
             }
         } catch (error) {
-            
+            res.status(500).send(error)
         }
     })
 }
