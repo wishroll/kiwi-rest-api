@@ -53,7 +53,7 @@ const routes = async (fastify, options) => {
         const currentUserId = req.user.id
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
-            const request = await fastify.knex('friend_requests').where({requested_phone_number: currentUserPhoneNumber})
+            const request = await fastify.knex('friend_requests').where({requested_phone_number: currentUserPhoneNumber['phone_number']})
             if(request) {
                 const requestingUser = await fastify.knex('users').where({phone_number: request.requester_phone_number}).first()
                 if (requestingUser) {
