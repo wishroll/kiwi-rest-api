@@ -5,7 +5,7 @@ const routes = async (fastify, options) => {
         const currentUserId = req.user.id
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
-            const requests = await fastify.knex('friend_requests').select('requester_phone_number').where({requested_phone_number: currentUserPhoneNumber})
+            const requests = await fastify.knex('friend_requests').select('requester_phone_number').where({requested_phone_number: currentUserPhoneNumber['phone_number']})
             if(requests.length > 0) {
                 res.send(requests)
             } else {
@@ -22,7 +22,7 @@ const routes = async (fastify, options) => {
         const currentUserId = req.user.id
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
-            const requestedPhoneNumbers = await fastify.knex('friend_requests').select('requested_phone_number').where({requester_phone_number: currentUserPhoneNumber})
+            const requestedPhoneNumbers = await fastify.knex('friend_requests').select('requested_phone_number').where({requester_phone_number: currentUserPhoneNumber['phone_number']})
             if(requestedPhoneNumbers.length > 0) {
                 res.send(requestedPhoneNumbers)
             } else {
@@ -38,7 +38,7 @@ const routes = async (fastify, options) => {
         const requestedPhoneNumber = req.body.requested_phone_number
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
-            const request = await fastify.knex('friend_requests').insert({requested_phone_number: requestedPhoneNumber, requester_phone_number: currentUserPhoneNumber})
+            const request = await fastify.knex('friend_requests').insert({requested_phone_number: requestedPhoneNumber, requester_phone_number: currentUserPhoneNumber['phone_number']})
             if(request) {
                 res.status(201).send(request)
             } else {
