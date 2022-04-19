@@ -1,3 +1,4 @@
+const { phone } = require('phone')
 const routes = async (fastify, options) => {
     fastify.get('/friends/requests', { onRequest: [fastify.authenticate]}, async (req, res) => {
         const limit = req.query.limit
@@ -51,24 +52,24 @@ const routes = async (fastify, options) => {
 
     fastify.post('/friends/accept-request', {onRequest: [fastify.authenticate]}, async (req, res) => {
         const currentUserId = req.user.id
-        const requesting_phone_number = req.body.requesting_phone_number
+        const requesting_phone_number = phone(req.body.requesting_phone_number).phoneNumber
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
             const request = await fastify.knex('friend_requests').where({requested_phone_number: currentUserPhoneNumber['phone_number'], requester_phone_number: requesting_phone_number})
-            if(request) {
+            if(request.length > 0) {
                 const requestingUser = await fastify.knex('users').where({phone_number: requesting_phone_number}).first()
                 if (requestingUser) {
                     const friendship = await fastify.knex('friends').insert({friend_id: currentUserId, user_id: requestingUser.id})
                     if(friendship) {
                         res.status(201).send()
                     } else {
-                        res.status(500).send()
+                        res.status(500).send({message: 'Unable to create new friendship'})
                     }
                 } else {
-                    res.status(500).send()
+                    res.status(500).send({message: 'Cannot find requesting user'})
                 }
             } else {
-                res.status(404).send()
+                res.status(404).send({message: 'There are no friend requests sent'})
             }
         } catch (error) {
             res.status(500).send(error)
