@@ -2,27 +2,38 @@ const routes = async (fastify, options) => {
   const crypto = require('crypto')
   const fetch = require('node-fetch')
   const spotifyAuthUri = process.env.SPOTIFY_AUTH_URI
-  const state = crypto.randomBytes(16).toString('hex')
-
-  fastify.post('/spotify/authorize', (req, res) => {
+  
+  fastify.post('/spotify/authorize',(req, res) => {
+    const state = crypto.randomBytes(16).toString('hex')
     const scope = process.env.SPOTIFY_SCOPE
     const queryParams = {
       response_type: 'code',
       redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
       state: state,
       scope: scope,
-      client_id: process.env.SPOTIFY_CLIENT_ID
+      client_id: process.env.SPOTIFY_CLIENT_ID,
+      show_dialog: true
     }
-
     res.redirect(spotifyAuthUri + new URLSearchParams(queryParams))
   })
 
+/**
+ * Spotify redirects to the callback endpoint with a code and state query params. The code param can be used to exchange for an access and refresh token.
+ */
   fastify.get('/spotify/authorize/callback', async (req, res) => {
-    const authCode = req.query.code || null
-    const requestState = req.query.state || null
+    const state = req.query.state || null
 
-    if (state != requestState) {
+    if( state === null) {
       return res.status(401).send()
+    } else {
+      return res.status(200).send()
+    }
+  })
+  
+  fastify.get('/spotify/authorize/tokens', {onRequest: [fastify.authenticate]}, async (req, res) => {
+    const code = req.query.code || null
+    if(code === null) {
+      return res.status(400).send({error: true, message: 'Missing code'})
     }
 
     const url = process.env.SPOTIFY_API_TOKEN_URI
@@ -31,11 +42,11 @@ const routes = async (fastify, options) => {
     const grantType = 'authorization_code'
 
     const authOptions = new URLSearchParams({
-      code: authCode,
+      code: code,
       redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
       grant_type: grantType
     })
-
+    
     try {
       const response = await fetch(url, {
         method: 'Post',
@@ -45,32 +56,33 @@ const routes = async (fastify, options) => {
         },
         body: authOptions
       })
+
       if (!response.ok) {
         return res.status(response.status).send(response.statusText)
       }
+      
       const data = await response.json()
       const accessToken = data.access_token
       const tokenType = data.token_type
       const scope = data.scope
       const expiresIn = data.expires_in
       const refreshToken = data.refresh_token
-
-      await fastify.redisClient.set('SPOTIFY_REFRESH_TOKEN', refreshToken)
-      await fastify.redisClient.set('SPOTIFY_ACCESS_TOKEN', accessToken)
-      console.log(`This is the spotify access token: ${accessToken}.\n\nThis is the spotify refresh token: ${refreshToken}`)
-      res.status(200).send({ message: 'Success!' })
+      res.status(200).send({accessToken: accessToken, refreshToken: refreshToken, expires_in: expiresIn })
     } catch (error) {
       res.status(500).send(error)
     }
+    
+    
   })
 
-  fastify.get('/spotify/authorize/refresh_token', async (req, res) => {
+  fastify.post('/spotify/authorize/refresh', async (req, res) => {
+    const refreshToken = req.body.refresh_token
     try {
         const authOptions = new URLSearchParams({
             grant_type: 'refresh_token',
-            refresh_token: fastify.redisClient.get('SPOTIFY_REFRESH_TOKEN')
+            refresh_token: refreshToken
         })
-        const url = "https://accounts.spotify.com/api/token"
+        const url = process.env.SPOTIFY_API_TOKEN_URI
         const authorization = `Basic ${Buffer.from(process.env.SPOTIFY_CLIENT_ID + ':' + process.env.SPOTIFY_CLIENT_SECRET).toString('base64')}`
         const response = await fetch(url, {
             method: 'Post',
@@ -85,8 +97,7 @@ const routes = async (fastify, options) => {
         const expiresIn = data.expires_in
         const scope = data.scope
         const tokenType = data.token_type
-        fastify.redisClient.set('SPOTIFY_ACCESS_TOKEN', accessToken)
-        console.log(`This is the refreshed accessToken: ${accessToken}`)
+        res.status(201).send({access_token: accessToken, expires_in: expiresIn})
     } catch (error) {
         res.status(500).send(error)
     }

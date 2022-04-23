@@ -71,10 +71,14 @@ const routes = async (fastify, options) => {
     }
 
     try {
-      const verificationChecks = await fastify.twilioClient.verify(phoneNumber, token)
-      const cacheKey = signupVerifiedCacheKey(phoneNumber)
-      await fastify.redisClient.set(cacheKey, token)
-      res.status(200).send({ message: 'Verification Token verified' })
+      const verificationCheck = await fastify.twilioClient.verify(phoneNumber, token)
+      if(verificationCheck.status === 'approved') {
+        const cacheKey = signupVerifiedCacheKey(phoneNumber)
+        await fastify.redisClient.set(cacheKey, token)
+        res.status(200).send({ message: 'Verification Token verified' })
+      } else {
+        res.status(431).send({error: true, message: verificationCheck.status})
+      }
     } catch (error) {
       res.status(500).send({ message: error })
     }
