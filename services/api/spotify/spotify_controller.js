@@ -28,6 +28,33 @@ const routes = async (fastify, options) => {
             res.status(500).send({error: true, message: error})
         }
     })
+
+    fastify.post('/spotify/friends/tracks', {onRequest: [fastify.authenticate]}, async (req, res) => {
+        const currentUserId = req.user.id
+        const tracks = req.body.tracks
+        if(!tracks) {
+            return res.status(400).send({error: true, message: 'Missing tracks'})
+        }
+
+        try {
+            const createdFriends = await fastify.knex('friends').select('friends.friend_id').where({user_id: currentUserId})
+            const acceptedFriends = await fastify.knex('friends').select('friends.user_id').where({friend_id: currentUserId})
+            const friends = createdFriends.concat(acceptedFriends)
+            if(friends.length > 0) {
+                const users = await fastify.knex('users').select().whereIn('id', friends)
+                if(users.length > 0) {
+                    const spotifyTracks = await fastify.knex('spotify_tracks').insert(tracks)
+                    res.status(201).send()
+                } else {
+                    res.status(404).send({error: true, message: 'No users found'})
+                }
+            } else {
+                res.status(404).send({error: true, message: 'No friends'})
+            }
+        } catch (error) {
+            
+        }
+    })
 }
 
 module.exports = routes
