@@ -29,6 +29,23 @@ const routes = async (fastify, options) => {
         }
     })
 
+    fastify.get('/spotify/tracks/recieved', {onRequest: [fastify.authenticate]}, async (req, res) => {
+        const currentUserId = req.user.id
+        const offset = req.query.offset
+        const limit = req.query.limit
+        try {
+            console.log('')
+            const tracks = fastify.knex('spotify_tracks').join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id').where('sent_spotify_tracks.recipient_id', '=', currentUserId).offset(offset).limit(limit)
+            if(tracks.length > 0) {
+                req.status(200).send(tracks)
+            } else {
+                req.status(404).send()
+            }
+        } catch (error) {
+            res.status(500).send({error: true, message: error})
+        }
+    })
+
     fastify.post('/spotify/friends/tracks', {onRequest: [fastify.authenticate]}, async (req, res) => {
         const currentUserId = req.user.id
         const tracks = req.body.tracks
@@ -37,14 +54,48 @@ const routes = async (fastify, options) => {
         }
 
         try {
-            const createdFriends = await fastify.knex('friends').select('friends.friend_id').where({user_id: currentUserId})
-            const acceptedFriends = await fastify.knex('friends').select('friends.user_id').where({friend_id: currentUserId})
+            const createdFriendsRows = await fastify.knex('friends').select('friends.friend_id').where({user_id: currentUserId})
+            const createdFriends = createdFriendsRows.map((row) => row["friend_id"])
+            const acceptedFriendsRows = await fastify.knex('friends').select('friends.user_id').where({friend_id: currentUserId})
+            const acceptedFriends = acceptedFriendsRows.map((row) => row["user_id"])
             const friends = createdFriends.concat(acceptedFriends)
             if(friends.length > 0) {
-                const users = await fastify.knex('users').select().whereIn('id', friends)
+                const users = await fastify.knex('users').select('id').whereIn('id', friends)
                 if(users.length > 0) {
-                    const spotifyTracks = await fastify.knex('spotify_tracks').insert(tracks)
-                    res.status(201).send()
+                    const records = await Promise.all(
+                        tracks.map(async (track) => {
+                            const existingTrack = await fastify.knex('spotify_tracks').select('id').where({id: track.id}).first()
+                            if(existingTrack){
+                                const records = await Promise.all(
+                                    users.map(async (user_id) => {
+                                        const record = await fastify.knex('sent_spotify_tracks').insert({sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: existingTrack.id})
+                                        return record
+                                    })
+                                )
+                                return records
+                            } else {
+                                const createdRecords = await fastify.knex('spotify_tracks').insert(track, ['id'])
+                                if(createdRecords && createdRecords.length > 0) {
+                                    console.log(createdRecords)
+                                    const track = createdRecords[0]
+                                    const records = await Promise.all(
+                                        users.map(async (user_id) => {
+                                            const record = await fastify.knex('sent_spotify_tracks').insert({sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: track['id']})
+                                            return record
+                                        })
+                                    )
+                                    return records
+                                } else {
+                                    res.status(500).send({error: true, message: "Track couldn't be created"})
+                                }
+                            }
+                        })
+                    )
+                    if(records.length > 0) {
+                        res.status(201).send()
+                    } else {
+                        res.status(500).send({error: true, message: "Error creating records"})
+                    }
                 } else {
                     res.status(404).send({error: true, message: 'No users found'})
                 }
@@ -52,7 +103,7 @@ const routes = async (fastify, options) => {
                 res.status(404).send({error: true, message: 'No friends'})
             }
         } catch (error) {
-            
+            res.status(500).send({error: true, message: error})
         }
     })
 }
