@@ -34,7 +34,7 @@ const routes = async (fastify, options) => {
         const offset = req.query.offset
         const limit = req.query.limit
         try {
-            const tracks = await fastify.knex('spotify_tracks').join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id').join('users', 'sent_spotify_tracks.recipient_id', '=', 'users.id').where('sent_spotify_tracks.recipient_id', '=', currentUserId).offset(offset).limit(limit)
+            const tracks = await fastify.knex('spotify_tracks').join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id').join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id').where('sent_spotify_tracks.recipient_id', '=', currentUserId).offset(offset).limit(limit)
             if(tracks.length > 0) {
                 res.status(200).send(tracks)
             } else {

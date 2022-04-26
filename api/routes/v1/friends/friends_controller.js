@@ -75,6 +75,26 @@ const routes = async (fastify, options) => {
             res.status(500).send(error)
         }
     })
+
+    fastify.get('/friends', {onRequest: [fastify.authenticate]}, async (req, res) => {
+        const currentUserId = req.user.id
+        try {
+            const createdFriendsRows = await fastify.knex('friends').select('friends.friend_id').where({user_id: currentUserId})
+            const createdFriends = createdFriendsRows.map((row) => row["friend_id"])
+            const acceptedFriendsRows = await fastify.knex('friends').select('friends.user_id').where({friend_id: currentUserId})
+            const acceptedFriends = acceptedFriendsRows.map((row) => row["user_id"])
+            const friends = createdFriends.concat(acceptedFriends)
+            const users = await fastify.knex('users').select().whereIn('id', friends)
+            if(users.length > 0) {
+                console.log(users)
+                res.status(200).send(users)
+            } else {
+                res.status(404).send()
+            }
+        } catch (error) {
+            res.status(500).send(error)
+        }
+    })
 }
 module.exports = routes
 
