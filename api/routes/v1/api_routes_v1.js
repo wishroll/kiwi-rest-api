@@ -21,6 +21,9 @@ module.exports = async (fastify, options) => {
   fastify.register(require('./media/media_controller'))
   fastify.register(require('./questions/questions_controller'))
   fastify.register(require('../../../services/api/spotify/spotify_authorization_controller'))
+  fastify.register(require('../../../services/api/spotify/spotify_controller'))
+  fastify.register(require('./general/application_controller'))
+  fastify.register(require('./friends/friends_controller'))
 }
 
 /**
