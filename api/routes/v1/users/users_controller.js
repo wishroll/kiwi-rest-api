@@ -84,7 +84,12 @@ const routes = async (fastify, options) => {
         const key = req.file.key
         const hostName = req.hostname
         const signedId = createSignedId(key)
-        const avatarUrl = `${req.protocol}://${hostName}/media/redirect/${signedId}/${key}`
+        let protocol = req.protocol
+        if(!protocol.includes('s')) {
+          // If the protocol isn't https, then append an 's' to the string
+          protocol = protocol.concat('s')
+        }
+        const avatarUrl = `${protocol}://${hostName}/media/redirect/${signedId}/${key}`
         updateParams.avatar_url = avatarUrl
       }
       fastify.knex('users')

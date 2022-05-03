@@ -9,6 +9,7 @@ const routes = async (fastify, options) => {
       s3: s3,
       bucket: process.env.AWS_S3_BUCKET_NAME,
       cacheControl: 'max-age=31536000',
+      contentDisposition: 'attachment',
       contentType: multerS3.AUTO_CONTENT_TYPE,
       key: (req, file, cb) => {
         cb(null, Date.now().toString() + file.originalname)
