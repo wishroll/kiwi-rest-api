@@ -1,5 +1,5 @@
-const { phone } = require('phone')
 const routes = async (fastify, options) => {
+    const { phone } = require('phone')
     fastify.get('/friends/requests', { onRequest: [fastify.authenticate]}, async (req, res) => {
         const limit = req.query.limit
         const offset = req.query.offset
@@ -37,9 +37,10 @@ const routes = async (fastify, options) => {
     fastify.post('/friends/request', {onRequest: [fastify.authenticate]}, async (req, res) => {
         const currentUserId = req.user.id
         const requestedPhoneNumber = req.body.requested_phone_number
+        const validated_phone_number = phone(requestedPhoneNumber).phoneNumber
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
-            const request = await fastify.knex('friend_requests').insert({requested_phone_number: requestedPhoneNumber, requester_phone_number: currentUserPhoneNumber['phone_number']})
+            const request = await fastify.knex('friend_requests').insert({requested_phone_number: validated_phone_number, requester_phone_number: currentUserPhoneNumber['phone_number']})
             if(request) {
                 res.status(201).send(request)
             } else {
@@ -55,12 +56,13 @@ const routes = async (fastify, options) => {
         const requesting_phone_number = phone(req.body.requesting_phone_number).phoneNumber
         try {
             const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({id: currentUserId}).first();
-            const request = await fastify.knex('friend_requests').where({requested_phone_number: currentUserPhoneNumber['phone_number'], requester_phone_number: requesting_phone_number})
-            if(request.length > 0) {
+            const friend_request = await fastify.knex('friend_requests').where({requested_phone_number: currentUserPhoneNumber['phone_number'], requester_phone_number: requesting_phone_number}).first()
+            if(friend_request) {
                 const requestingUser = await fastify.knex('users').where({phone_number: requesting_phone_number}).first()
                 if (requestingUser) {
                     const friendship = await fastify.knex('friends').insert({friend_id: currentUserId, user_id: requestingUser.id})
                     if(friendship) {
+                        await fastify.knex('friend_requests').where({id: friend_request.id}).del()
                         res.status(201).send()
                     } else {
                         res.status(500).send({message: 'Unable to create new friendship'})
