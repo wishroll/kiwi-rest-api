@@ -3,9 +3,9 @@ const routes = async (fastify, options) => {
   const loginVerifiedPhoneNumberCacheKey = (phoneNumber) => { return `login-verified-phone-number-${phoneNumber}` }
 
   fastify.post('/login/validate', async (req, res) => {
-    let phoneNumber = req.body.phone_number
-    const countryCode = req.body.country_code
-    phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+    const phoneNumber = req.body.phone_number
+    // const countryCode = req.body.country_code
+    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
 
     if (!phoneNumber) {
       return res.status(400).send()
@@ -21,9 +21,9 @@ const routes = async (fastify, options) => {
   })
 
   fastify.post('/login/send-token', async (req, res) => {
-    let phoneNumber = req.body.phone_number
-    const countryCode = req.body.country_code
-    phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+    const phoneNumber = req.body.phone_number
+    // const countryCode = req.body.country_code
+    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
 
     if (!phoneNumber) {
       return res.status(400).send()
@@ -38,10 +38,10 @@ const routes = async (fastify, options) => {
   })
 
   fastify.post('/login/verify', async (req, res) => {
-    let phoneNumber = req.body.phone_number
+    const phoneNumber = req.body.phone_number
     const token = req.body.token
-    const countryCode = req.body.country_code
-    phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+    // const countryCode = req.body.country_code
+    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
 
     if (phoneNumber === '+16462471839' && token === '000000') {
       const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber)
@@ -70,9 +70,9 @@ const routes = async (fastify, options) => {
   })
 
   fastify.post('/login', async (req, res) => {
-    let phoneNumber = req.body.phone_number
-    const countryCode = req.body.country_code
-    phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+    const phoneNumber = req.body.phone_number
+    // const countryCode = req.body.country_code
+    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
 
     if (!phoneNumber) {
       return res.status(400).send()
