@@ -6,8 +6,8 @@ exports.up = function(knex) {
     return knex.schema.alterTable('friend_requests', (table) => {
         table.setNullable('requester_phone_number')
         table.setNullable('requested_phone_number')
-        table.bigInteger('requester_user_id').notNullable()
-        table.bigInteger('requested_user_id').notNullable()
+        table.bigInteger('requester_user_id')
+        table.bigInteger('requested_user_id')
         table.foreign('requester_user_id').references('users.id')
         table.foreign('requested_user_id').references('users.id')
         table.unique(['requester_user_id', 'requested_user_id'], {
