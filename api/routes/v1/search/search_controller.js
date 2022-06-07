@@ -4,6 +4,9 @@ const routes = async (fastify, options) => {
         const query = req.query.query
         const limit = req.query.limit
         const offset = req.query.offset
+        if(!query || query.length < 1) {
+            return res.status(400).send({message: 'Missing query'})
+        }
         try {
             const users = await fastify.knex('users').whereILike('username', `%${query}%`).limit(limit).offset(offset)
             if(users.length > 0) {
