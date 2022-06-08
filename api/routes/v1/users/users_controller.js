@@ -61,7 +61,7 @@ const routes = async (fastify, options) => {
   const response = { 200: { type: 'object', properties: { id: { type: 'number' }, uuid: { type: 'string' }, display_name: { type: 'string' }, username: {type: 'string'}, created_at: { type: 'string' }, updated_at: { type: 'string' }, avatar_url: { type: 'string' } } } }
   fastify.get('/users/:id', { onRequest: [fastify.authenticate], schema: { response: response } }, (req, res) => {
     fastify.knex('users')
-      .select('id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url')
+      .select('id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username')
       .where({ id: req.params.id })
       .first()
       .then((user) => {
@@ -86,7 +86,6 @@ const routes = async (fastify, options) => {
       .join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id')
       .join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id')
       .where('sent_spotify_tracks.sender_id', '=', userId)
-      .distinct('spotify_tracks.id')
       .orderBy('spotify_tracks.id', 'desc')
       .limit(limit)
       .offset(offset)
