@@ -138,6 +138,39 @@ const routes = async (fastify, options) => {
         }
     })
 
+    fastify.get('/v2/users/:id/friends/status', { onRequest: [fastify.authenticate] }, async (req, res) => {
+        const currentUserId = req.user.id
+        const userId = req.params.id
+        let friendshipStatus = null
+        if(currentUserId === userId) {
+            return res.status(400).send({error: 'Same User'})
+        }
+        try {
+            const user = await fastify.knex('users').select('id').where({id: userId}).first()
+            if(!user) {
+                return res.status(404).send({error: 'User not found'})
+            }
+            const friendship = await fastify.knex('friends').where({user_id: currentUserId, friend_id: userId}).orWhere({user_id: userId, friend_id: currentUserId}).first()
+            if(friendship) {
+                friendshipStatus = 'friends'
+            } else {
+                const sentFriendRequest = await fastify.knex('friend_requests').where({requester_user_id: currentUserId, requested_user_id: userId}).first()
+                if(sentFriendRequest) {
+                    friendshipStatus = 'pending_sent'
+                } else {
+                    const receivedFriendRequest = await fastify.knex('friend_requests').where({requester_user_id: userId, requested_user_id: currentUserId}).first()
+                    if(receivedFriendRequest) {
+                        friendshipStatus = 'pending_received'
+                    } else {
+                        friendshipStatus = 'none'
+                    }
+                }
+            }
+            res.status(200).send({friendship_status: friendshipStatus})
+        } catch (error) {
+            res.status(500).send(error)
+        }
+    })
 
 
 }
