@@ -108,7 +108,7 @@ const routes = async (fastify, options) => {
         try {
             const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
             if (request) {
-                res.status(201).send(request)
+                res.status(201).send()
             } else {
                 res.status(500).send({ error: "Unable to create request" })
             }
@@ -167,6 +167,26 @@ const routes = async (fastify, options) => {
                 }
             }
             res.status(200).send({friendship_status: friendshipStatus})
+        } catch (error) {
+            res.status(500).send(error)
+        }
+    })
+
+    fastify.delete('/v2/friends', {onRequest: [fastify.authenticate]}, async (req, res) => {
+        const currentUserId = req.user.id
+        const userId = req.body.user_id
+        try {
+            const friendship = await fastify.knex('friends').where({user_id: currentUserId, friend_id: userId}).orWhere({user_id: userId, friend_id: currentUserId}).first()
+            if(friendship) {
+                const successfullyDeleted = await fastify.knex('friends').where({id: friendship.id}).del()
+                if(successfullyDeleted) {
+                    res.status(200).send()
+                } else {
+                    res.status(500).send({error: 'Failed to delete friendship'})
+                }
+            } else {
+                res.status(404).send({error: 'Not found'})
+            }
         } catch (error) {
             res.status(500).send(error)
         }
