@@ -86,6 +86,7 @@ const routes = async (fastify, options) => {
       .join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id')
       .join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id')
       .where('sent_spotify_tracks.sender_id', '=', userId)
+      .distinct('spotify_tracks.id')
       .orderBy('sent_spotify_tracks.created_at', 'desc')
       .limit(limit)
       .offset(offset)
