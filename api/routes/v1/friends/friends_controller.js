@@ -80,13 +80,15 @@ const routes = async (fastify, options) => {
 
     fastify.get('/friends', { onRequest: [fastify.authenticate] }, async (req, res) => {
         const currentUserId = req.user.id
+        const limit = req.query.limit
+        const offset = req.query.offset
         try {
             const createdFriendsRows = await fastify.knex('friends').select('friends.friend_id').where({ user_id: currentUserId })
             const createdFriends = createdFriendsRows.map((row) => row["friend_id"])
             const acceptedFriendsRows = await fastify.knex('friends').select('friends.user_id').where({ friend_id: currentUserId })
             const acceptedFriends = acceptedFriendsRows.map((row) => row["user_id"])
             const friends = createdFriends.concat(acceptedFriends)
-            const users = await fastify.knex('users').select().whereIn('id', friends)
+            const users = await fastify.knex('users').select().whereIn('id', friends).limit(limit).offset(offset)
             if (users.length > 0) {
                 console.log(users)
                 res.status(200).send(users)
