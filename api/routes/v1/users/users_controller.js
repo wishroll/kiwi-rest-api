@@ -58,10 +58,10 @@ const routes = async (fastify, options) => {
   /**
        * Returns a specific user
        */
-  const response = { 200: { type: 'object', properties: { id: { type: 'number' }, uuid: { type: 'string' }, display_name: { type: 'string' }, created_at: { type: 'string' }, updated_at: { type: 'string' }, avatar_url: { type: 'string' } } } }
+  const response = { 200: { type: 'object', properties: { id: { type: 'number' }, uuid: { type: 'string' }, display_name: { type: 'string' }, username: {type: 'string'}, created_at: { type: 'string' }, updated_at: { type: 'string' }, avatar_url: { type: 'string' } } } }
   fastify.get('/users/:id', { onRequest: [fastify.authenticate], schema: { response: response } }, (req, res) => {
     fastify.knex('users')
-      .select('id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url')
+      .select('id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username')
       .where({ id: req.params.id })
       .first()
       .then((user) => {
@@ -75,6 +75,29 @@ const routes = async (fastify, options) => {
         console.error(err)
         return res.status(500).send({ success: false, message: `An error occured: ${err.message}` })
       })
+  })
+
+  fastify.get('/users/:id/tracks/sent', {onRequest: [fastify.authenticate]}, async (req, res) => {
+    const limit = req.query.limit
+    const offset = req.query.offset
+    const userId = req.params.id
+    try {
+      const tracks = await fastify.knex('spotify_tracks')
+      .join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id')
+      .join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id')
+      .where('sent_spotify_tracks.sender_id', '=', userId)
+      .distinct('spotify_tracks.id')
+      .orderBy('spotify_tracks.id', 'desc')
+      .limit(limit)
+      .offset(offset)
+      if(tracks.length > 0) {
+        res.status(200).send(tracks)
+      } else {
+        res.status(404).send()
+      }
+    } catch (error) {
+      res.status(500).send({error: error})
+    }
   })
 
     fastify.put('/users', { onRequest: [fastify.authenticate], preHandler: upload.single('avatar') }, (req, res) => {
@@ -95,7 +118,7 @@ const routes = async (fastify, options) => {
       fastify.knex('users')
         .select('id')
         .where({ id: userId })
-        .update(updateParams, ['id', 'uuid', 'display_name', 'phone_number', 'created_at', 'updated_at', 'avatar_url'])
+        .update(updateParams, ['id', 'uuid', 'display_name', 'username', 'phone_number', 'created_at', 'updated_at', 'avatar_url'])
         .then((rows) => {
           return res.status(200).send(rows)
         })
