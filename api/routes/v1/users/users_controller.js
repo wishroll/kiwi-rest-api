@@ -83,8 +83,9 @@ const routes = async (fastify, options) => {
     const userId = req.params.id
     try {
       const tracks = await fastify.knex('spotify_tracks')
+      .select(['spotify_tracks.id as id', 'spotify_tracks.name as name', 'spotify_tracks.created_at as created_at', 'spotify_tracks.updated_at as updated_at', 'spotify_tracks.uri as uri', 'spotify_tracks.track_number as track_number', 'spotify_tracks.track as track', 'spotify_tracks.type as type', 'spotify_tracks.preview_url as preview_url', 'spotify_tracks.popularity as popularity', 'spotify_tracks.is_local as is_local', 'spotify_tracks.href as href', 'spotify_tracks.explicit as explicit', 'spotify_tracks.episode as episode', 'spotify_tracks.duration_ms as duration_ms', 'spotify_tracks.disc_number as disc_number', 'spotify_tracks.available_markets as available_markets', 'spotify_tracks.album as album', 'spotify_tracks.artists as artists', 'spotify_tracks.external_ids as external_ids', 'spotify_tracks.external_urls as external_urls'])
       .join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id')
-      .join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id')
+      // .join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id')
       .where('sent_spotify_tracks.sender_id', '=', userId)
       .distinct('spotify_tracks.id')
       .orderBy('spotify_tracks.id', 'desc')
