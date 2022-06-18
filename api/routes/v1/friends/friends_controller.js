@@ -247,6 +247,28 @@ const routes = async (fastify, options) => {
         }
     })
 
+    fastify.post('/v2/friends/contacts', {onRequest: [fastify.authenticate]}, async (req, res) => {
+        const limit = req.query.limit
+        const offset = req.query.offset
+        const currentUserId = req.user.id
+        const contacts = req.body.contacts
+        console.log('Theses are the contacts from the query string', contacts)
+        if(!contacts || contacts.length < 0) {
+            return res.status(400).send({message: 'No contacts'})
+        }
+        try {
+            const users = await fastify.knex('users').whereIn('phone_number', contacts).offset(offset).limit(limit)
+            if(users.length > 0) {
+                res.status(200).send(users)
+
+            } else {  
+                res.status(404).send({message: 'Not Found'})
+            }
+        } catch (error) {
+            res.status(500).send(error) 
+        }
+    })
+
 
 }
 module.exports = routes
