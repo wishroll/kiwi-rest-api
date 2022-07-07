@@ -1,4 +1,5 @@
 const routes = async (fastify, options) => {
+    const sendNotificationOnReceivedFriendRequest =  require('../../../../services/notifications/notifications')
     const { phone } = require('phone')
     fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
         const limit = req.query.limit
@@ -110,6 +111,7 @@ const routes = async (fastify, options) => {
         try {
             const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
             if (request) {
+                sendNotificationOnReceivedFriendRequest(requestedUserId)
                 res.status(201).send()
             } else {
                 res.status(500).send({ error: "Unable to create request" })
