@@ -112,6 +112,8 @@ const routes = async (fastify, options) => {
             const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
             if (request) {
                 sendNotificationOnReceivedFriendRequest(requestedUserId)
+                .then((response) => {})
+                .catch((err) => console.log(err))
                 res.status(201).send()
             } else {
                 res.status(500).send({ error: "Unable to create request" })
