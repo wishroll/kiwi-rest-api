@@ -1,5 +1,5 @@
 const routes = async (fastify, options) => {
-    const sendNotificationOnReceivedFriendRequest =  require('../../../../services/notifications/notifications')
+    const {sendPushNotificationOnReceivedFriendRequest} =  require('../../../../services/notifications/notifications')
     const { phone } = require('phone')
     fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
         const limit = req.query.limit
@@ -109,9 +109,17 @@ const routes = async (fastify, options) => {
         const currentUserId = req.user.id
         const requestedUserId = req.body.requested_user_id
         try {
-            const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
-            if (request) {
-                sendNotificationOnReceivedFriendRequest(requestedUserId)
+            const existingFriendRequest = await fastify.knex('friend_requests').where({requested_user_id: currentUserId, requester_user_id: requestedUserId}).orWhere({requested_user_id: requestedUserId, requester_user_id: currentUserId})          
+            if(existingFriendRequest.length > 0){
+                return res.status(400).send({error: true, message: 'Friend request already exists!'})
+            }
+            const friendRequest = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
+            if (friendRequest) {
+                sendPushNotificationOnReceivedFriendRequest(requestedUserId)
+                .then()
+                .catch((error) => {
+                    console.log(`An error occured when sending push notification ${error}`)
+                })
                 res.status(201).send()
             } else {
                 res.status(500).send({ error: "Unable to create request" })
