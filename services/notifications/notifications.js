@@ -60,30 +60,21 @@ function generateNotificationData() {
     return data
 }
 
-
-
-const  sendNotificationOnReceivedFriendRequest = (recipientUserId) => {
+const sendPushNotification = (userIds, notificationData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const user = await knex('users').where({id: recipientUserId}).first()
-            if(!user) {
-                reject('User not found')
-            }
-            const device = await knex('devices').join('users', 'devices.user_id', '=', 'users.id').where('users.id', '=', recipientUserId).first()
-            if(!device) {
+            let deviceTokens = await Promise.all(userIds.map(async id => {
+                const device = await knex('devices').join('users', 'devices.user_id', '=', 'users.id').where('users.id', '=', id).first()
+                if(device) {
+                    return device.token
+                }
+            }))
+            deviceTokens = deviceTokens.filter(i => i)// Remove null values from deviceTokens
+            if(deviceTokens.length < 1 ) { // Check that device tokens isn't empty
                 reject('No device found!')
+                return
             }
-            const notificationData = generateNotificationData()
-            notificationData.title = `${user.display_name || user.username} wants to be friends!`
-            notificationData.topic = 'org.reactjs.native.example.mutualsapp'
-            notificationData.body = 'Check out their profile!'
-            notificationData.sound = "activity_notification_sound.caf"
-            notificationData.mutableContent = 1
-            notificationData.custom = {
-                user: user,
-                type: 'ReceivedFriendRequest'
-            }
-            const result = await push.send([device.token], notificationData)
+            const result = await push.send([deviceTokens], notificationData)
             console.log(result[0].message[0].errorMsg, notificationData.title, notificationData.body)
             resolve(result)
         } catch (error) {
@@ -92,4 +83,27 @@ const  sendNotificationOnReceivedFriendRequest = (recipientUserId) => {
         }
     })
 }
-module.exports = sendNotificationOnReceivedFriendRequest
+
+const  sendPushNotificationOnReceivedFriendRequest = async (recipientUserId) => {
+    try {
+        const user = await knex('users').where({id: recipientUserId}).first()
+        const notificationData = generateNotificationData()
+        notificationData.title = `${user.display_name || user.username} wants to be friends!`
+        notificationData.topic = 'org.reactjs.native.example.mutualsapp'
+        notificationData.body = 'Check out their profile!'
+        notificationData.sound = "activity_notification_sound.caf"
+        notificationData.mutableContent = 1
+        notificationData.custom = {
+            user: user,
+            type: 'ReceivedFriendRequest'
+        }
+        return sendPushNotification([recipientUserId], notificationData)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const sendPushNotificationOnAcceptedFriendRequest = (requesterUserId) => {
+    
+}
+module.exports = {sendPushNotificationOnReceivedFriendRequest, }
