@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = function(knex) {
+exports.up = function (knex) {
   return knex.schema.createTable('sent_spotify_tracks', (table) => {
     knex.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto')
     table.bigIncrements('id').unique({ indexName: 'index_id_sent_spotify_tracks', deferrable: 'immediate' })
@@ -14,17 +14,17 @@ exports.up = function(knex) {
     table.foreign('recipient_id').references('users.id')
     table.foreign('spotify_track_id').references('spotify_tracks.id')
     table.timestamps(true, true)
-//     table.unique(['sender_id', 'spotify_track_id', 'recipient_id'], {
-//         indexName: 'index_sender_id_spotify_track_id_recipient_id',
-//         deferrable: 'immediate'
-//       })
+    //     table.unique(['sender_id', 'spotify_track_id', 'recipient_id'], {
+    //         indexName: 'index_sender_id_spotify_track_id_recipient_id',
+    //         deferrable: 'immediate'
+    //       })
   })
-};
+}
 
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTable('sent_spotify_tracks')
-};
+}

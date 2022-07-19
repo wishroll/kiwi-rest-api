@@ -119,11 +119,11 @@ const routes = async (fastify, options) => {
     } else {
       const chat_rooms = await fastify.knex('chat_rooms').insert({}, ['id'])
       const chat_room_id = parseInt(chat_rooms[0].id)
-      const chat_room_user_ones = await fastify.knex('chat_room_users').insert({ chat_room_id: chat_room_id, user_id: messagedUserId }, ['id'])
+      const chat_room_user_ones = await fastify.knex('chat_room_users').insert({ chat_room_id, user_id: messagedUserId }, ['id'])
       const messaged_chat_room_user_id = parseInt(chat_room_user_ones[0].id)
-      const chat_room_user_twos = await fastify.knex('chat_room_users').insert({ chat_room_id: chat_room_id, user_id: currentUserId }, ['id'])
+      const chat_room_user_twos = await fastify.knex('chat_room_users').insert({ chat_room_id, user_id: currentUserId }, ['id'])
       const messaging_chat_room_user_id = parseInt(chat_room_user_twos[0].id)
-      const message = await fastify.knex('messages').insert({ answer_id: answerId, body: requestMessage, chat_room_id: chat_room_id, chat_room_user_id: messaging_chat_room_user_id, kind: 'text' }, ['id', 'uuid', 'created_at', 'updated_at', 'body'])
+      const message = await fastify.knex('messages').insert({ answer_id: answerId, body: requestMessage, chat_room_id, chat_room_user_id: messaging_chat_room_user_id, kind: 'text' }, ['id', 'uuid', 'created_at', 'updated_at', 'body'])
       return res.status(200).send(message)
     }
   })
