@@ -5,7 +5,7 @@ const routes = async (fastify, options) => {
   })
 
   fastify.post('/notifications/daily-blast', (req, res) => {
-    sendDailyNotificationBlast()
+    sendDailyNotificationBlast().catch((err) => console.log(err))
     return res.send()
   })
 }
