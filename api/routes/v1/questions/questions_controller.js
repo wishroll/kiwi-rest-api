@@ -10,7 +10,7 @@ const routes = async (fastify, options) => {
       res.status(400).send()
     }
     try {
-      const question = await fastify.knex('questions').insert({ body: body, user_id: userId }, ['id', 'uuid', 'body', 'created_at', 'updated_at'])
+      const question = await fastify.knex('questions').insert({ body, user_id: userId }, ['id', 'uuid', 'body', 'created_at', 'updated_at'])
       res.status(201).send(question)
     } catch (error) {
       console.log(error)

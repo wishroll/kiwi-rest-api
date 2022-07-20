@@ -15,18 +15,18 @@ const routes = async (fastify, options) => {
     }
 
     try {
-        // If there is no value for the key, fetch db instead
-        const user = await fastify.knex('users')
-          .select('phone_number')
-          .where({ phone_number: phoneNumber })
-          .first()
-        if (user) {
-          console.log('The user exists so the account cant be created')
-          res.status(409).send()
-        } else {
-          console.log('The user does not exist so the account can be created')
-          res.status(200).send()
-        }
+      // If there is no value for the key, fetch db instead
+      const user = await fastify.knex('users')
+        .select('phone_number')
+        .where({ phone_number: phoneNumber })
+        .first()
+      if (user) {
+        console.log('The user exists so the account cant be created')
+        res.status(409).send()
+      } else {
+        console.log('The user does not exist so the account can be created')
+        res.status(200).send()
+      }
     } catch (error) {
       res.status(500).send({ message: `An error occured: ${error.message}` })
     }
@@ -71,12 +71,12 @@ const routes = async (fastify, options) => {
 
     try {
       const verificationCheck = await fastify.twilioClient.verify(phoneNumber, token)
-      if(verificationCheck.status === 'approved') {
+      if (verificationCheck.status === 'approved') {
         const cacheKey = signupVerifiedCacheKey(phoneNumber)
         await fastify.redisClient.set(cacheKey, token)
         res.status(200).send({ message: 'Verification Token verified' })
       } else {
-        res.status(431).send({error: true, message: verificationCheck.status})
+        res.status(431).send({ error: true, message: verificationCheck.status })
       }
     } catch (error) {
       res.status(500).send({ message: error })
@@ -101,7 +101,7 @@ const routes = async (fastify, options) => {
           const user = results[0]
           const id = parseInt(user.id)
           const uuid = user.uuid
-          const token = fastify.jwt.sign({ id: id, uuid: uuid }, { expiresIn: '365 days' })
+          const token = fastify.jwt.sign({ id, uuid }, { expiresIn: '365 days' })
           await fastify.redisClient.del(cacheKey)
           res.status(201).send({ access_token: token })
         } else {

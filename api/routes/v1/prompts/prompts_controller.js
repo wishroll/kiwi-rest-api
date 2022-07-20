@@ -3,7 +3,7 @@ const routes = async (fastify, options) => {
     const title = req.body.title
     const subtitle = req.body.subtitle
     fastify.knex('prompts')
-      .insert({ title: title, subtitle: subtitle }, ['id', 'uuid', 'created_at', 'updated_at'])
+      .insert({ title, subtitle }, ['id', 'uuid', 'created_at', 'updated_at'])
       .then((rows) => {
         if (rows.length > 0) {
           res.status(201).send(rows)
