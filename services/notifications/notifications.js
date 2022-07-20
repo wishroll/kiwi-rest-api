@@ -62,17 +62,12 @@ function generateNotificationData () {
 
 const sendPushNotification = async (userIds, notificationData) => {
   try {
-    let deviceTokens = await Promise.all(userIds.map(async id => {
-      const device = await knex('devices').join('users', 'devices.user_id', '=', 'users.id').where('users.id', '=', id).first()
-      if (device) {
-        return device.token
-      }
-    }))
-    deviceTokens = deviceTokens.filter(i => i)// Remove null values from deviceTokens
-    if (deviceTokens.length < 1) { // Check that device tokens isn't empty
-      return new Error('No devices present')
+    const devices = await knex('devices').select('token').joins('users', 'devices.user_id', '=', 'users.id').whereIn('users.id', userIds)
+    if (devices.length < 1) { // Check that device tokens isn't empty
+      return new Error('No devices')
     }
-    const result = await push.send([deviceTokens], notificationData)
+    const tokens = devices.map(t => t.token) 
+    const result = await push.send(tokens, notificationData)
     console.log(result[0].message[0].errorMsg, notificationData.title, notificationData.body)
     return result
   } catch (error) {
@@ -101,21 +96,20 @@ const sendPushNotificationOnReceivedFriendRequest = async (recipientUserId) => {
 }
 
 async function sendDailyNotificationBlast() {
-  try {
-    const userIds = await knex('users').select('id')
-    console.log('These are the user ids', userIds)
-    if (userIds.length < 1) {
-      return
+    const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
+    if(devices.length < 1) {
+      return new Error('No devices')
     }
+    const tokens = devices.map(t => t.token)
+    console.log(tokens)
     const notificationData = generateNotificationData()
     notificationData.title = 'It’s kiwi time 🥝'
     notificationData.body = 'Send your most recently played song to your friends - you have 2 minutes!'
     notificationData.topic = 'org.reactjs.native.example.mutualsapp'
     notificationData.sound = 'activity_notification_sound.caf'
-    return sendPushNotification(userIds, notificationData)
-  } catch (error) {
-    return error
-  }
+    notificationData.pushType = 'alert'
+    const result = await push.send(tokens, notificationData)
+    return result
 }
 
 const sendPushNotificationOnAcceptedFriendRequest = (requesterUserId) => {
