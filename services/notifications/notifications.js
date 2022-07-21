@@ -95,7 +95,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     return sendPushNotification([requestedUserId], notificationData)
 }
 
-async function sendDailyNotificationBlast(body) {
+async function sendDailyNotificationBlast(title, body) {
     const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
     if(devices.length < 1) {
       return new Error('No devices')
@@ -103,7 +103,7 @@ async function sendDailyNotificationBlast(body) {
     const tokens = devices.map(t => t.token)
     console.log(tokens)
     const notificationData = generateNotificationData()
-    notificationData.title = '🥝 IT’S KIWI TIME 🥝'
+    notificationData.title = title
     notificationData.body = body
     notificationData.topic = 'org.reactjs.native.example.mutualsapp'
     notificationData.sound = 'activity_notification_sound.caf'
