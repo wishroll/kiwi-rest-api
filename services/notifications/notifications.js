@@ -112,7 +112,23 @@ async function sendDailyNotificationBlast() {
     return result
 }
 
+async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
+  const senderUser = await knex('users').where({ id: senderUserId }).first()
+  const recipientUser = await knex('users').where({ id: recipientUserId }).first()
+  if (!senderUser || !recipientUser) {
+    return new Error('User not found')
+  }
+  const notification = generateNotificationData()
+  notification.title = 'Kiwi'
+  notification.body = `${senderUser.display_name || senderUser.username} sent you a kiwi`
+  notification.sound = 'activity_notification_sound.caf'
+  notification.pushType = 'alert'
+  notification.mutableContent = 1
+  notification.topic = 'org.reactjs.native.example.mutualsapp'
+  return sendPushNotification([recipientUserId], notification)
+}
+
 const sendPushNotificationOnAcceptedFriendRequest = (requesterUserId) => {
 
 }
-module.exports = { sendPushNotificationOnReceivedFriendRequest, sendDailyNotificationBlast }
+module.exports = { sendPushNotificationOnReceivedFriendRequest, sendDailyNotificationBlast, sendNotificationOnReceivedSong }
