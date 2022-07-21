@@ -105,96 +105,90 @@ const routes = async (fastify, options) => {
      * V2
      */
 
-    fastify.post('/v2/friends/request', { onRequest: [fastify.authenticate] }, async (req, res) => {
-        const currentUserId = req.user.id
-        const requestedUserId = req.body.requested_user_id
-        try {
-            const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
-            if (request) {
-                sendNotificationOnReceivedFriendRequest(requestedUserId)
-                .then((response) => {})
-                .catch((err) => console.log(err))
-                res.status(201).send()
-            } else {
-                res.status(500).send({ error: "Unable to create request" })
-            }
-        } catch (error) {
-            res.status(500).send(error)
-        }
-    })
+  fastify.post('/v2/friends/request', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const currentUserId = req.user.id
+    const requestedUserId = req.body.requested_user_id
+    try {
+      const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
+      if (request) {
+        sendNotificationOnReceivedFriendRequest(requestedUserId)
+          .then((response) => { })
+          .catch((err) => console.log(err))
+        res.status(201).send()
+      } else {
+        res.status(500).send({ error: "Unable to create request" })
+      }
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  })
 
-    fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate] }, async (req, res) => {
-        const currentUserId = req.user.id
-        const requestingUserId = req.body.requesting_user_id
-        try {
-            const friend_request = await fastify.knex('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).first()
-            if (friend_request) {
-                const friendship = await fastify.knex('friends').insert({ friend_id: currentUserId, user_id: requestingUserId })
-                if (friendship) {
-                    await fastify.knex('friend_requests').where({ id: friend_request.id }).del()
-                    res.status(201).send()
-                } else {
-                    res.status(500).send({ message: 'Unable to create new friendship' })
-                }
-            } else {
-                res.status(404).send({ message: 'There are no friend requests sent' })
-            }
-        } catch (error) {
-            res.status(500).send(error)
+  fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const currentUserId = req.user.id
+    const requestingUserId = req.body.requesting_user_id
+    try {
+      const friend_request = await fastify.knex('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).first()
+      if (friend_request) {
+        const friendship = await fastify.knex('friends').insert({ friend_id: currentUserId, user_id: requestingUserId })
+        if (friendship) {
+          await fastify.knex('friend_requests').where({ id: friend_request.id }).del()
+          res.status(201).send()
+        } else {
+          res.status(500).send({ message: 'Unable to create new friendship' })
         }
-    })
+      } else {
+        res.status(404).send({ message: 'There are no friend requests sent' })
+      }
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  })
 
-    fastify.get('/v2/users/:id/friends/status', { onRequest: [fastify.authenticate] }, async (req, res) => {
-        const currentUserId = req.user.id
-        const userId = req.params.id
-        let friendshipStatus = null
-        if (currentUserId === userId) {
-            return res.status(400).send({ error: 'Same User' })
+  fastify.get('/v2/users/:id/friends/status', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const currentUserId = req.user.id
+    const userId = req.params.id
+    let friendshipStatus = null
+    if (currentUserId === userId) {
+      return res.status(400).send({ error: 'Same User' })
+    }
+    try {
+      const user = await fastify.knex('users').select('id').where({ id: userId }).first()
+      if (!user) {
+        return res.status(404).send({ error: 'User not found' })
+      }
+      const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
+      if (friendship) {
+        friendshipStatus = 'friends'
+      } else {
+        const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
+        if (sentFriendRequest) {
+          friendshipStatus = 'pending_sent'
+        } else {
+          const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
+          if (receivedFriendRequest) {
+            friendshipStatus = 'pending_received'
+          } else {
+            friendshipStatus = 'none'
+          }
         }
-        try {
-            const user = await fastify.knex('users').select('id').where({ id: userId }).first()
-            if (!user) {
-                return res.status(404).send({ error: 'User not found' })
-            }
-            const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
-            if (friendship) {
-                friendshipStatus = 'friends'
-            } else {
-                const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
-                if (sentFriendRequest) {
-                    friendshipStatus = 'pending_sent'
-                } else {
-                    const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
-                    if (receivedFriendRequest) {
-                        friendshipStatus = 'pending_received'
-                    } else {
-                        friendshipStatus = 'none'
-                    }
-                }
-            }
-            res.status(200).send({ friendship_status: friendshipStatus })
-        } catch (error) {
-            res.status(500).send(error)
-        }
-    })
+      }
+      res.status(200).send({ friendship_status: friendshipStatus })
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  })
 
-    fastify.delete('/v2/friends', { onRequest: [fastify.authenticate] }, async (req, res) => {
-        const currentUserId = req.user.id
-        const userId = req.body.user_id
-        try {
-            const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
-            if (friendship) {
-                const successfullyDeleted = await fastify.knex('friends').where({ id: friendship.id }).del()
-                if (successfullyDeleted) {
-                    res.status(200).send()
-                } else {
-                    res.status(500).send({ error: 'Failed to delete friendship' })
-                }
-            } else {
-                res.status(404).send({ error: 'Not found' })
-            }
-        } catch (error) {
-            res.status(500).send(error)
+  fastify.delete('/v2/friends', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const currentUserId = req.user.id
+    const userId = req.body.user_id
+    try {
+      const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
+      if (friendship) {
+        const successfullyDeleted = await fastify.knex('friends').where({ id: friendship.id }).del()
+        if (successfullyDeleted) {
+          res.status(200).send()
+        } else {
+          res.status(500).send({ error: 'Failed to delete friendship' })
         }
       } else {
         res.status(404).send({ message: 'There are no friend requests sent' })
@@ -278,48 +272,48 @@ const routes = async (fastify, options) => {
     }
   })
 
-    fastify.post('/v2/friends/contacts', { onRequest: [fastify.authenticate] }, async (req, res) => {
-        const limit = req.query.limit
-        const offset = req.query.offset
-        const currentUserId = req.user.id
-        const contacts = req.body.contacts
-        console.log('Theses are the contacts from the query string', contacts)
-        if (!contacts || contacts.length < 0) {
-            return res.status(400).send({ message: 'No contacts' })
-        }
-        try {
-            const users = await fastify.knex('users').whereIn('phone_number', contacts).offset(offset).limit(limit)
-            if (users.length > 0) {
-                await Promise.all(users.map(async user => {
-                    const userId = user.id
-                    let friendshipStatus = null
-                    const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
-                    if (friendship) {
-                        friendshipStatus = 'friends'
-                    } else {
-                        const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
-                        if (sentFriendRequest) {
-                            friendshipStatus = 'pending_sent'
-                        } else {
-                            const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
-                            if (receivedFriendRequest) {
-                                friendshipStatus = 'pending_received'
-                            } else {
-                                friendshipStatus = 'none'
-                            }
-                        }
-                    }
-                    user['friendship_status'] = friendshipStatus
-                }))
-                res.status(200).send(users)
-
+  fastify.post('/v2/friends/contacts', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const limit = req.query.limit
+    const offset = req.query.offset
+    const currentUserId = req.user.id
+    const contacts = req.body.contacts
+    console.log('Theses are the contacts from the query string', contacts)
+    if (!contacts || contacts.length < 0) {
+      return res.status(400).send({ message: 'No contacts' })
+    }
+    try {
+      const users = await fastify.knex('users').whereIn('phone_number', contacts).offset(offset).limit(limit)
+      if (users.length > 0) {
+        await Promise.all(users.map(async user => {
+          const userId = user.id
+          let friendshipStatus = null
+          const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
+          if (friendship) {
+            friendshipStatus = 'friends'
+          } else {
+            const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
+            if (sentFriendRequest) {
+              friendshipStatus = 'pending_sent'
             } else {
-                res.status(404).send({ message: 'Not Found' })
+              const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
+              if (receivedFriendRequest) {
+                friendshipStatus = 'pending_received'
+              } else {
+                friendshipStatus = 'none'
+              }
             }
-        } catch (error) {
-            res.status(500).send(error)
-        }
-    })
+          }
+          user['friendship_status'] = friendshipStatus
+        }))
+        res.status(200).send(users)
+
+      } else {
+        res.status(404).send({ message: 'Not Found' })
+      }
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  })
 
   fastify.get('/v2/friends/requested', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
