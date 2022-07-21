@@ -4,8 +4,9 @@ const routes = async (fastify, options) => {
     return res.redirect('https://apps.apple.com/us/app/kiwi-live-music-recs-widget/id1614352817')
   })
 
-  fastify.post('/notifications/daily-blast', (req, res) => {
-    sendDailyNotificationBlast().catch((err) => console.log(err))
+  fastify.post('/notifications/daily-blast', { onRequest: [fastify.authenticate] }, (req, res) => {
+    const notificationBody = req.body.body
+    sendDailyNotificationBlast(notificationBody).catch((err) => console.log(err))
     return res.send()
   })
 }
