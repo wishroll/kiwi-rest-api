@@ -28,7 +28,6 @@ const routes = async (fastify, options) => {
     }
   })
 
-    const fetch = require('node-fetch')
     fastify.get('/spotify/me/playlists', { onRequest: [fastify.authenticate] }, async (req, res) => {
         const currentUserId = req.user.id
         const accessCode = req.headers['spotify-authorization']
