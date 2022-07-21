@@ -10,6 +10,7 @@ module.exports = async (fastify, options) => {
       res.send(err)
     }
   })
+  fastify.register(require('fastify-formbody'))
   fastify.decorate('redisClient', require('../../../services/db/redis/redis_client').client)
   fastify.decorate('knex', require('../../../services/db/postgres/knex_fastify_plugin'))
   fastify.decorate('twilioClient', require('../../../services/api/twilio/twilio_client'))
@@ -21,6 +22,11 @@ module.exports = async (fastify, options) => {
   fastify.register(require('./media/media_controller'))
   fastify.register(require('./questions/questions_controller'))
   fastify.register(require('../../../services/api/spotify/spotify_authorization_controller'))
+  fastify.register(require('../../../services/api/spotify/spotify_controller'))
+  fastify.register(require('./general/application_controller'))
+  fastify.register(require('./friends/friends_controller'))
+  fastify.register(require('./search/search_controller'))
+  fastify.register(require('./devices/devices_controller'))
 }
 
 /**
