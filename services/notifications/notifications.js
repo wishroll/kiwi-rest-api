@@ -77,7 +77,6 @@ const sendPushNotification = async (userIds, notificationData) => {
 }
 
 const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {
-  try {
     const requestedUser = await knex('users').where({id: requestedUserId}).first()
     const requesterUser = await knex('users').where({ id: requesterUserId }).first()
     if (!requestedUser || !requesterUser) {
@@ -94,9 +93,6 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
       type: 'ReceivedFriendRequest'
     }
     return sendPushNotification([requestedUserId], notificationData)
-  } catch (error) {
-    console.log(error)
-  }
 }
 
 async function sendDailyNotificationBlast() {
@@ -133,7 +129,6 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
 }
 
 const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requestedUserId) => {
-  try {
     const requestedUser = await knex('users').where({id: requestedUserId}).first()
     const requesterUser = await knex('users').where({ id: requesterUserId }).first()
     if (!requestedUser || !requesterUser) {
@@ -150,8 +145,5 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
       type: 'AcceptedFriendRequest'
     }
     return sendPushNotification([requesterUserId], notificationData)
-  } catch (error) {
-    console.log(error)
-  }
 }
 module.exports = { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest, sendDailyNotificationBlast, sendNotificationOnReceivedSong }
