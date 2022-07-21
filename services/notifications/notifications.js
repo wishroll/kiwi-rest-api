@@ -120,7 +120,7 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
   }
   const notification = generateNotificationData()
   notification.title = 'Kiwi'
-  notification.body = `${senderUser.display_name || senderUser.username} sent you a kiwi`
+  notification.body = `${senderUser.display_name || senderUser.username} sent you a song.\nYou have two minutes to view the message before it expires!`
   notification.sound = 'activity_notification_sound.caf'
   notification.pushType = 'alert'
   notification.mutableContent = 1
