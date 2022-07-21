@@ -62,7 +62,7 @@ function generateNotificationData () {
 
 const sendPushNotification = async (userIds, notificationData) => {
   try {
-    const devices = await knex('devices').select('token').joins('users', 'devices.user_id', '=', 'users.id').whereIn('users.id', userIds)
+    const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id').whereIn('users.id', userIds)
     if (devices.length < 1) { // Check that device tokens isn't empty
       return new Error('No devices')
     }
