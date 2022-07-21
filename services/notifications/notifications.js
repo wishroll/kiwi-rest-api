@@ -95,7 +95,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     return sendPushNotification([requestedUserId], notificationData)
 }
 
-async function sendDailyNotificationBlast() {
+async function sendDailyNotificationBlast(title, body) {
     const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
     if(devices.length < 1) {
       return new Error('No devices')
@@ -103,8 +103,8 @@ async function sendDailyNotificationBlast() {
     const tokens = devices.map(t => t.token)
     console.log(tokens)
     const notificationData = generateNotificationData()
-    notificationData.title = 'It’s kiwi time 🥝'
-    notificationData.body = 'Send your most recently played song to your friends - you have 2 minutes!'
+    notificationData.title = title
+    notificationData.body = body
     notificationData.topic = 'org.reactjs.native.example.mutualsapp'
     notificationData.sound = 'activity_notification_sound.caf'
     notificationData.pushType = 'alert'
@@ -119,8 +119,8 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
     return new Error('User not found')
   }
   const notification = generateNotificationData()
-  notification.title = `${senderUser.display_name || senderUser.username} sent you a song.` 
-  notification.body = `You have two minutes to view the message before it expires!`
+  notification.body = `${senderUser.display_name || senderUser.username} sent you a song!` 
+  notification.title = `🥝  New Kiwi 🥝`
   notification.sound = 'activity_notification_sound.caf'
   notification.pushType = 'alert'
   notification.mutableContent = 1
