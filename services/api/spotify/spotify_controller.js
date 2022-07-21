@@ -105,7 +105,7 @@ const routes = async (fastify, options) => {
         const records = await Promise.all(
           users.map(async (user_id) => {
             const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: existingTrack.id })
-            sendNotificationOnReceivedSong(currentUserId, user_id).catch()
+            sendNotificationOnReceivedSong(currentUserId, user_id['id']).catch()
             return record
           })
         )
@@ -122,7 +122,7 @@ const routes = async (fastify, options) => {
           const records = await Promise.all(
             users.map(async (user_id) => {
               const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: track['id'] })
-              sendNotificationOnReceivedSong(currentUserId, user_id).catch()
+              sendNotificationOnReceivedSong(currentUserId, user_id['id']).catch()
               return record
             })
           )
