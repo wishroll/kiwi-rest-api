@@ -266,10 +266,25 @@ const routes = async (fastify, options) => {
     const offset = req.query.offset
     const currentUserId = req.user.id
     try {
-      const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({ id: currentUserId }).first()
       const requestedUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requested_user_id', '=', 'users.id').select().where({ requester_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
       if (requestedUsers.length > 0) {
         res.send(requestedUsers)
+      } else {
+        res.status(404).send()
+      }
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  })
+
+  fastify.get('/v2/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const limit = req.query.limit
+    const offset = req.query.offset
+    const currentUserId = req.user.id
+    try {
+      const requestingUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requester_user_id', '=', 'users.id').select().where({ requested_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
+      if (requestingUsers.length > 0) {
+        res.send(requestingUsers)
       } else {
         res.status(404).send()
       }
