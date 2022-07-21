@@ -6,7 +6,7 @@ const settings = {
       keyId: process.env.APN_KEY_ID,
       teamId: process.env.APN_TEAM_ID
     },
-    production: process.env.NODE_ENV === 'production'
+    production: process.env.NODE_ENV == 'production'
   }
 }
 
