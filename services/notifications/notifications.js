@@ -132,7 +132,7 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
   return sendPushNotification([recipientUserId], notification)
 }
 
-const sendPushNotificationOnAcceptedFriendRequest = (requesterUserId, requestedUserId) => {
+const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requestedUserId) => {
   try {
     const requestedUser = await knex('users').where({id: requestedUserId}).first()
     const requesterUser = await knex('users').where({ id: requesterUserId }).first()
