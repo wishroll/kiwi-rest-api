@@ -3,6 +3,7 @@ const fastify = require('fastify')({
   maxParamLength: 1000
 })
 fastify.register(require('./api/routes/v1/api_routes_v1'))
+fastify.register(require('./services/plugins/swagger/index'))
 fastify.listen(process.env.PORT, '0.0.0.0', (err, add) => {
   if (err) {
     fastify.log.error(err)
