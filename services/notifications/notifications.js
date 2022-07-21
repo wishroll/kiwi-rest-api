@@ -76,20 +76,24 @@ const sendPushNotification = async (userIds, notificationData) => {
   }
 }
 
-const sendPushNotificationOnReceivedFriendRequest = async (recipientUserId) => {
+const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {
   try {
-    const user = await knex('users').where({ id: recipientUserId }).first()
+    const requestedUser = await knex('users').where({id: requestedUserId}).first()
+    const requesterUser = await knex('users').where({ id: requesterUserId }).first()
+    if (!requestedUser || !requesterUser) {
+      return new Error('No users found')
+    }
     const notificationData = generateNotificationData()
-    notificationData.title = `${user.display_name || user.username} wants to be friends!`
+    notificationData.body = `${requesterUser.display_name || requesterUser.username} added you!\nAdd them back to start sending songs.`
     notificationData.topic = 'org.reactjs.native.example.mutualsapp'
-    notificationData.body = 'Check out their profile!'
+    notificationData.title = 'More songs coming your way!'
     notificationData.sound = 'activity_notification_sound.caf'
     notificationData.mutableContent = 1
     notificationData.custom = {
-      user,
+      requester_user: requesterUser,
       type: 'ReceivedFriendRequest'
     }
-    return sendPushNotification([recipientUserId], notificationData)
+    return sendPushNotification([requestedUserId], notificationData)
   } catch (error) {
     console.log(error)
   }
@@ -128,7 +132,26 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
   return sendPushNotification([recipientUserId], notification)
 }
 
-const sendPushNotificationOnAcceptedFriendRequest = (requesterUserId) => {
-
+const sendPushNotificationOnAcceptedFriendRequest = (requesterUserId, requestedUserId) => {
+  try {
+    const requestedUser = await knex('users').where({id: requestedUserId}).first()
+    const requesterUser = await knex('users').where({ id: requesterUserId }).first()
+    if (!requestedUser || !requesterUser) {
+      return new Error('No users found')
+    }
+    const notificationData = generateNotificationData()
+    notificationData.body = `${requestedUser.display_name || requestedUser.username} added you back!\nYou can now send songs to them.`
+    notificationData.topic = 'org.reactjs.native.example.mutualsapp'
+    notificationData.title = 'More songs coming your way!'
+    notificationData.sound = 'activity_notification_sound.caf'
+    notificationData.mutableContent = 1
+    notificationData.custom = {
+      requested_user: requestedUser,
+      type: 'AcceptedFriendRequest'
+    }
+    return sendPushNotification([requesterUserId], notificationData)
+  } catch (error) {
+    console.log(error)
+  }
 }
-module.exports = { sendPushNotificationOnReceivedFriendRequest, sendDailyNotificationBlast, sendNotificationOnReceivedSong }
+module.exports = { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest, sendDailyNotificationBlast, sendNotificationOnReceivedSong }

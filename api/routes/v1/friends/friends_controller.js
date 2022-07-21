@@ -1,5 +1,5 @@
 const routes = async (fastify, options) => {
-  const { sendPushNotificationOnReceivedFriendRequest } = require('../../../../services/notifications/notifications')
+  const { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest } = require('../../../../services/notifications/notifications')
   const { phone } = require('phone')
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
@@ -111,8 +111,7 @@ const routes = async (fastify, options) => {
     try {
       const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
       if (request) {
-        sendNotificationOnReceivedFriendRequest(requestedUserId)
-          .then((response) => { })
+        sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch() //Send out notification
           .catch((err) => console.log(err))
         res.status(201).send()
       } else {
@@ -131,6 +130,7 @@ const routes = async (fastify, options) => {
       if (friend_request) {
         const friendship = await fastify.knex('friends').insert({ friend_id: currentUserId, user_id: requestingUserId })
         if (friendship) {
+          sendPushNotificationOnAcceptedFriendRequest(requestingUserId, currentUserId).catch()
           await fastify.knex('friend_requests').where({ id: friend_request.id }).del()
           res.status(201).send()
         } else {
