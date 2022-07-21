@@ -119,8 +119,8 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
     return new Error('User not found')
   }
   const notification = generateNotificationData()
-  notification.title = 'Kiwi'
-  notification.body = `${senderUser.display_name || senderUser.username} sent you a song.\nYou have two minutes to view the message before it expires!`
+  notification.title = `${senderUser.display_name || senderUser.username} sent you a song.` 
+  notification.body = `You have two minutes to view the message before it expires!`
   notification.sound = 'activity_notification_sound.caf'
   notification.pushType = 'alert'
   notification.mutableContent = 1
@@ -135,7 +135,7 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
       return new Error('No users found')
     }
     const notificationData = generateNotificationData()
-    notificationData.body = `${requestedUser.display_name || requestedUser.username} added you back!\nYou can now send songs to them.`
+    notificationData.body = `${requestedUser.display_name || requestedUser.username} added you back! You can now send songs to each other.`
     notificationData.topic = 'org.reactjs.native.example.mutualsapp'
     notificationData.title = 'More songs coming your way!'
     notificationData.sound = 'activity_notification_sound.caf'
