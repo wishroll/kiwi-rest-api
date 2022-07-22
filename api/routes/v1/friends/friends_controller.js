@@ -91,7 +91,7 @@ const routes = async (fastify, options) => {
       const friends = createdFriends.concat(acceptedFriends)
       const users = await fastify.knex('users').select().whereIn('id', friends).limit(limit).offset(offset)
       if (users.length > 0) {
-        await Promise.all(requestingUsers.map(async user => {
+        await Promise.all(users.map(async user => {
           const userId = user.id
           let friendshipStatus = null
           const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
