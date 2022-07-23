@@ -286,7 +286,7 @@ const routes = async (fastify, options) => {
     const offset = req.query.offset
     const currentUserId = req.user.id
     try {
-      const requestedUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requested_user_id', '=', 'users.id').select(['users.id as id', 'users.username as username', 'users.avatar_url as avatar_url', 'users.display_name as display_name']).where({ requester_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
+      const requestedUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requested_user_id', '=', 'users.id').select(['users.id as id', 'users.username as username', 'users.avatar_url as avatar_url', 'users.display_name as display_name', 'friend_requests.requested_user_id as requested_user_id']).where({ requester_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
       if (requestedUsers.length > 0) {
         await Promise.all(requestedUsers.map(async user => {
           const userId = user.id
@@ -323,7 +323,7 @@ const routes = async (fastify, options) => {
     const offset = req.query.offset
     const currentUserId = req.user.id
     try {
-      const requestingUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requester_user_id', '=', 'users.id').select(['users.id as id', 'users.username as username', 'users.avatar_url as avatar_url', 'users.display_name as display_name']).where({ requested_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
+      const requestingUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requester_user_id', '=', 'users.id').select(['users.id as id', 'users.username as username', 'users.avatar_url as avatar_url', 'users.display_name as display_name', 'friend_requests.requester_user_id as requester_user_id']).where({ requested_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
       if (requestingUsers.length > 0) {
         await Promise.all(requestingUsers.map(async user => {
           const userId = user.id
