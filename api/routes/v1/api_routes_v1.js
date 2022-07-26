@@ -18,7 +18,7 @@ module.exports = async (fastify, options) => {
   fastify.register(require('./registration/signup_controller'))
   fastify.register(require('./sessions/sessions_controller'))
   fastify.register(require('./answers/answers_controller'))
-  fastify.register(require('./chats/chats_controller'))
+  fastify.register(require('./conversations/index'))
   fastify.register(require('./media/media_controller'))
   fastify.register(require('./questions/questions_controller'))
   fastify.register(require('../../../services/api/spotify/spotify_authorization_controller'))
