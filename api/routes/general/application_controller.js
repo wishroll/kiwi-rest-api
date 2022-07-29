@@ -4,8 +4,16 @@ const routes = async (fastify, options) => {
     return res.redirect('https://apps.apple.com/us/app/kiwi-live-music-recs-widget/id1614352817')
   })
 
-  fastify.post('/notifications/daily-blast', (req, res) => {
-    sendDailyNotificationBlast().catch((err) => console.log(err))
+  fastify.post('/notifications/daily-blast', { onRequest: [fastify.authenticate] }, (req, res) => {
+    const notificationBody = req.body.body
+    const notificationTitle = req.body.title
+    if (!notificationBody || notificationBody.length < 1) {
+      return res.status(400).send({ error: true, message: 'Missing notification body' })
+    }
+    if (!notificationTitle || notificationTitle.length < 1) {
+      return res.status(400).send({ error: true, message: 'Missing notification title' })
+    }
+    sendDailyNotificationBlast(notificationTitle, notificationBody).catch((err) => console.log(err))
     return res.send()
   })
 }
