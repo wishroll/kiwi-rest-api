@@ -47,8 +47,8 @@ module.exports = {
       ssl: { rejectUnauthorized: false }
     },
     pool: {
-      min: process.env.MIN_CONNECTIONS || 10,
-      max: process.env.MAX_CONNECTIONS || 100
+      min: process.env.MIN_CONNECTIONS || 100,
+      max: process.env.MAX_CONNECTIONS || 500
     },
     migrations: {
       directory: './services/db/postgres/migrations'
