@@ -8,7 +8,8 @@
     "migrate": "knex migrate:latest --knexfile knexfile.js",
     "seed": "knex seed:run --knexfile knexfile.js",
     "test": "tap && standard --fix",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint --fix": "eslint --fix"
   },
   "author": "Great Okonkwo",
   "license": "ISC",
