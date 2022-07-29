@@ -1,7 +1,7 @@
-const create = {
-    description: 'Create a new conversation',
+const show = {
+    description: 'Return the properties of a conversation',
     tags: ["Conversations"],
-    summary: "Create a new conversation",
+    summary: "Returns the properties of a conversation",
     headers: {
         type: 'object',
         properties: {
@@ -9,27 +9,27 @@ const create = {
         },
         required: ['Authorization']
     },
-    body: {
+    params: {
         type: 'object',
-        required: [],
         properties: {
             id: { type: 'integer', description: 'The id of the conversation' },
         },
         required: ['id']
     },
     response: {
-        201: {
+        200: {
             description: 'The request was successful.',
             type: 'object',
             properties: {
-                id: { type: 'integer' },
+                id: { type: 'integer', minimum: 1 },
                 uuid: { type: 'string' },
                 created_at: { type: 'string' },
                 updated_at: { type: 'string' },
-            }
+            },
+            required: ['id', 'uuid', 'created_at', 'updated_at']
         },
-        400: {
-            description: 'Client error',
+        404: {
+            description: 'Not Found',
             type: 'object',
             properties: {
                 error: { type: 'boolean' },
@@ -47,4 +47,4 @@ const create = {
         }
     }
 }
-module.exports = {create}
+module.exports = {show}

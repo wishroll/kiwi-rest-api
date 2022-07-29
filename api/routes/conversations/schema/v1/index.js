@@ -24,12 +24,13 @@ const index = {
             items: {
                 type: 'object',
                 properties: {
-                    id: { type: 'integer' },
+                    id: { type: 'integer', minimum: 1 },
                     uuid: { type: 'string' },
                     created_at: { type: 'string' },
                     updated_at: { type: 'string' },
 
-                }
+                },
+                required: ['id', 'uuid', 'created_at', 'updated_at']
             }
         },
         404: {

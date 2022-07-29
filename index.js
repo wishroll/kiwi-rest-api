@@ -44,7 +44,7 @@ fastify.ready(err => {
   if (err) throw err
   fastify.swagger()
 })
-fastify.register(require('./api/routes/v1/api_routes_v1'))
+fastify.register(require('./api/routes/index'))
 fastify.listen(process.env.PORT, '0.0.0.0', (err, add) => {
   if (err) {
     fastify.log.error(err)
