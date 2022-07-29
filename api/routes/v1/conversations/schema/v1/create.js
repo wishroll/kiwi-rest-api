@@ -2,6 +2,13 @@ const create = {
     description: 'Create a new conversation',
     tags: ["Conversations"],
     summary: "Create a new conversation",
+    headers: {
+        type: 'object',
+        properties: {
+            'Authorization': { type: 'string', description: 'The token used for authentication' }
+        },
+        required: ['Authorization']
+    },
     body: {
         type: 'object',
         required: [],

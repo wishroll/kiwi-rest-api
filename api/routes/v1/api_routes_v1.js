@@ -27,6 +27,7 @@ module.exports = async (fastify, options) => {
   fastify.register(require('./friends/friends_controller'))
   fastify.register(require('./search/search_controller'))
   fastify.register(require('./devices/devices_controller'))
+  fastify.register(require('./../v1/messages/index'))
 }
 
 /**

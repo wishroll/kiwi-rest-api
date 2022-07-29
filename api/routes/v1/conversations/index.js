@@ -1,7 +1,7 @@
 const routes = async (fastify, options) => {
-  const { index } = require('./schema')
-  const {show} = require('./schema/show')
-  fastify.get('/conversations', {onRequest: [fastify.authenticate], schema: index },  async (req, res) => {
+  const { index } = require('./schema/v1')
+  const {show} = require('./schema/v1/show')
+  fastify.get('/v1/conversations', {onRequest: [fastify.authenticate], schema: index },  async (req, res) => {
     const limit = req.query.limit || 10
     const offset = req.query.offset
     const userId = req.user.id
@@ -16,7 +16,7 @@ const routes = async (fastify, options) => {
     }
   })
 
-  fastify.get('/conversations/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
+  fastify.get('/v1/conversations/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
     const id = req.params.id
     const userId = req.user.id
     

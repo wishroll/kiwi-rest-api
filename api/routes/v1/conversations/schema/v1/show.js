@@ -5,11 +5,9 @@ const show = {
     headers: {
         type: 'object',
         properties: {
-            'Authorization: Bearer': {
-                type: 'string'
-            }
+            'Authorization': { type: 'string', description: 'The token used for authentication' }
         },
-        required: ['Authorization: Bearer']
+        required: ['Authorization']
     },
     params: {
         type: 'object',
