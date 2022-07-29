@@ -91,7 +91,27 @@ const routes = async (fastify, options) => {
       const friends = createdFriends.concat(acceptedFriends)
       const users = await fastify.knex('users').select().whereIn('id', friends).limit(limit).offset(offset)
       if (users.length > 0) {
-        console.log(users)
+        await Promise.all(users.map(async user => {
+          const userId = user.id
+          let friendshipStatus = null
+          const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
+          if (friendship) {
+            friendshipStatus = 'friends'
+          } else {
+            const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
+            if (sentFriendRequest) {
+              friendshipStatus = 'pending_sent'
+            } else {
+              const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
+              if (receivedFriendRequest) {
+                friendshipStatus = 'pending_received'
+              } else {
+                friendshipStatus = 'none'
+              }
+            }
+          }
+          user['friendship_status'] = friendshipStatus
+        }))
         res.status(200).send(users)
       } else {
         res.status(404).send()
@@ -266,10 +286,67 @@ const routes = async (fastify, options) => {
     const offset = req.query.offset
     const currentUserId = req.user.id
     try {
-      const currentUserPhoneNumber = await fastify.knex('users').select('phone_number').where({ id: currentUserId }).first()
-      const requestedUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requested_user_id', '=', 'users.id').select().where({ requester_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
+      const requestedUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requested_user_id', '=', 'users.id').select(['users.id as id', 'users.username as username', 'users.avatar_url as avatar_url', 'users.display_name as display_name', 'friend_requests.requested_user_id as requested_user_id']).where({ requester_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
       if (requestedUsers.length > 0) {
+        await Promise.all(requestedUsers.map(async user => {
+          const userId = user.id
+          let friendshipStatus = null
+          const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
+          if (friendship) {
+            friendshipStatus = 'friends'
+          } else {
+            const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
+            if (sentFriendRequest) {
+              friendshipStatus = 'pending_sent'
+            } else {
+              const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
+              if (receivedFriendRequest) {
+                friendshipStatus = 'pending_received'
+              } else {
+                friendshipStatus = 'none'
+              }
+            }
+          }
+          user['friendship_status'] = friendshipStatus
+        }))
         res.send(requestedUsers)
+      } else {
+        res.status(404).send()
+      }
+    } catch (error) {
+      res.status(500).send(error)
+    }
+  })
+
+  fastify.get('/v2/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const limit = req.query.limit
+    const offset = req.query.offset
+    const currentUserId = req.user.id
+    try {
+      const requestingUsers = await fastify.knex('users').join('friend_requests', 'friend_requests.requester_user_id', '=', 'users.id').select(['users.id as id', 'users.username as username', 'users.avatar_url as avatar_url', 'users.display_name as display_name', 'friend_requests.requester_user_id as requester_user_id']).where({ requested_user_id: currentUserId }).limit(limit).offset(offset).orderBy('friend_requests.created_at', 'desc')
+      if (requestingUsers.length > 0) {
+        await Promise.all(requestingUsers.map(async user => {
+          const userId = user.id
+          let friendshipStatus = null
+          const friendship = await fastify.knex('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).first()
+          if (friendship) {
+            friendshipStatus = 'friends'
+          } else {
+            const sentFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).first()
+            if (sentFriendRequest) {
+              friendshipStatus = 'pending_sent'
+            } else {
+              const receivedFriendRequest = await fastify.knex('friend_requests').where({ requester_user_id: userId, requested_user_id: currentUserId }).first()
+              if (receivedFriendRequest) {
+                friendshipStatus = 'pending_received'
+              } else {
+                friendshipStatus = 'none'
+              }
+            }
+          }
+          user['friendship_status'] = friendshipStatus
+        }))
+        res.send(requestingUsers)
       } else {
         res.status(404).send()
       }
