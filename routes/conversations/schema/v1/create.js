@@ -1,4 +1,4 @@
-const create = {
+module.exports = {
     description: 'Create a new conversation',
     tags: ["Conversations"],
     summary: "Create a new conversation",
@@ -48,4 +48,3 @@ const create = {
         }
     }
 }
-module.exports = {create}

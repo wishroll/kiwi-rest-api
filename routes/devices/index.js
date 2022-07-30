@@ -1,4 +1,4 @@
-const routes = async (fastify, options) => {
+module.exports = async (fastify, options) => {
   fastify.post('/v1/devices', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const userId = req.user.id
     const token = req.body.token
@@ -31,4 +31,4 @@ const routes = async (fastify, options) => {
     }
   })
 }
-module.exports = routes
+

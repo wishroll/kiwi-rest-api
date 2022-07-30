@@ -1,5 +1,5 @@
 const { phone } = require('phone')
-const routes = async (fastify, options) => {
+module.exports = async (fastify, options) => {
   const loginVerifiedPhoneNumberCacheKey = (phoneNumber) => { return `login-verified-phone-number-${phoneNumber}` }
 
   fastify.post('/login/validate', async (req, res) => {
@@ -97,5 +97,3 @@ const routes = async (fastify, options) => {
   fastify.post('/logout', { onRequest: [fastify.authenticate] }, (req, res) => {
   })
 }
-
-module.exports = routes

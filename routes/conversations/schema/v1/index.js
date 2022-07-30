@@ -1,4 +1,4 @@
-const index = {
+module.exports = {
     description: 'Return an array of conversations',
     tags: ['Conversations'],
     summary: "Returns a list of all a user's conversations",
@@ -52,6 +52,3 @@ const index = {
         }
     }
 }
-
-
-module.exports = { index }

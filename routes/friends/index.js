@@ -1,5 +1,5 @@
-const routes = async (fastify, options) => {
-  const { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest } = require('../../../services/notifications/notifications')
+module.exports = async (fastify, options) => {
+  const { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest } = require('../../services/notifications/notifications')
   const { phone } = require('phone')
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
@@ -355,4 +355,3 @@ const routes = async (fastify, options) => {
     }
   })
 }
-module.exports = routes

@@ -1,4 +1,4 @@
-const routes = async (fastify, options) => {
+module.exports  = async (fastify, options) => {
     fastify.get('/search/users', { onRequest: [fastify.authenticate] }, async (req, res) => {
         const currentUserId = req.user.id
         const query = req.query.query
@@ -41,4 +41,3 @@ const routes = async (fastify, options) => {
         }
     })
 }
-module.exports = routes

@@ -1,4 +1,4 @@
-const routes = async (fastify, options) => {
+module.exports = async (fastify, options) => {
   const crypto = require('crypto')
   const multer = require('fastify-multer')
   const multerS3 = require('multer-s3')
@@ -129,5 +129,3 @@ const routes = async (fastify, options) => {
       })
   })
 }
-
-module.exports = routes

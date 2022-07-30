@@ -1,5 +1,5 @@
 const { phone } = require('phone')
-const routes = async (fastify, options) => {
+module.exports = async (fastify, options) => {
   const signupVerifiedCacheKey = (phoneNumber) => { return `signup-verified-phone-number ${phoneNumber}` }
 
   /**
@@ -116,5 +116,3 @@ const routes = async (fastify, options) => {
     }
   })
 }
-
-module.exports = routes

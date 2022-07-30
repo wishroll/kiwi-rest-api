@@ -7,7 +7,7 @@ fastify.ready(err => {
   if (err) throw err
   fastify.swagger()
 })
-fastify.register(require('./api/routes/index'))
+fastify.register(require('./routes/index'))
 fastify.listen(process.env.PORT, '0.0.0.0', (err, add) => {
   if (err) {
     fastify.log.error(err)

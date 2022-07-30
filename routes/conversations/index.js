@@ -1,6 +1,6 @@
-const routes = async (fastify, options) => {
-  const { index } = require('./schema/v1')
-  const { show } = require('./schema/v1/show')
+module.exports = async (fastify, options) => {
+  const index = require('./schema/v1/index')
+  const show = require('./schema/v1/show')
   const jsf = require('json-schema-faker')
 
   fastify.get('/v1/conversations', { onRequest: [fastify.authenticate], schema: index }, async (req, res) => {
@@ -23,4 +23,3 @@ const routes = async (fastify, options) => {
 
 }
 
-module.exports = routes

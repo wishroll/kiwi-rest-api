@@ -1,4 +1,4 @@
-const show = {
+module.exports = {
     description: 'Return the properties of a conversation',
     tags: ["Conversations"],
     summary: "Returns the properties of a conversation",
@@ -47,4 +47,3 @@ const show = {
         }
     }
 }
-module.exports = {show}
