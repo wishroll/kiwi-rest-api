@@ -1,3 +1,4 @@
+require('newrelic');
 const fastify = require('fastify')({
   logger: true,
   maxParamLength: 1000
