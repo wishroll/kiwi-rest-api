@@ -1,4 +1,4 @@
-const routes = async (fastify, options) => {
+module.exports = async (fastify, options) => {
   const fetch = require('node-fetch')
   const { sendNotificationOnReceivedSong } = require('../../notifications/notifications')
 
@@ -144,4 +144,4 @@ const routes = async (fastify, options) => {
 
 }
 
-module.exports = routes
+
