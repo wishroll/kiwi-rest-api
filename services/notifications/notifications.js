@@ -109,7 +109,7 @@ async function sendDailyNotificationBlast (title, body) {
   const tokens = devices.map(t => t.token)
   const batchSize = 100
   const task = (token) => {
-    push.send([token], notificationData)
+    push.send(token, notificationData)
   }
   return promiseAllInBatches(task, tokens, batchSize)
 }
