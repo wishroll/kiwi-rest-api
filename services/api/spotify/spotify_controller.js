@@ -28,9 +28,9 @@ module.exports = async (fastify, options) => {
 
     try {
       const createdFriendsRows = await fastify.knex('friends').select('friends.friend_id').where({ user_id: currentUserId })
-      const createdFriends = createdFriendsRows.map((row) => row["friend_id"])
+      const createdFriends = createdFriendsRows.map((row) => row.friend_id)
       const acceptedFriendsRows = await fastify.knex('friends').select('friends.user_id').where({ friend_id: currentUserId })
-      const acceptedFriends = acceptedFriendsRows.map((row) => row["user_id"])
+      const acceptedFriends = acceptedFriendsRows.map((row) => row.user_id)
       const friends = createdFriends.concat(acceptedFriends)
       if (friends.length > 0) {
         const users = await fastify.knex('users').select('id').whereIn('id', friends)
@@ -41,7 +41,7 @@ module.exports = async (fastify, options) => {
               if (existingTrack) {
                 const records = await Promise.all(
                   users.map(async (user_id) => {
-                    const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: existingTrack.id })
+                    const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: existingTrack.id })
                     return record
                   })
                 )
@@ -53,7 +53,7 @@ module.exports = async (fastify, options) => {
                   const track = createdRecords[0]
                   const records = await Promise.all(
                     users.map(async (user_id) => {
-                      const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: track['id'] })
+                      const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: track.id })
                       return record
                     })
                   )
@@ -67,7 +67,7 @@ module.exports = async (fastify, options) => {
           if (records.length > 0) {
             res.status(201).send()
           } else {
-            res.status(500).send({ error: true, message: "Error creating records" })
+            res.status(500).send({ error: true, message: 'Error creating records' })
           }
         } else {
           res.status(404).send({ error: true, message: 'No users found' })
@@ -104,15 +104,15 @@ module.exports = async (fastify, options) => {
       if (existingTrack) {
         const records = await Promise.all(
           users.map(async (user_id) => {
-            const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: existingTrack.id })
-            sendNotificationOnReceivedSong(currentUserId, user_id['id']).catch()
+            const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: existingTrack.id })
+            sendNotificationOnReceivedSong(currentUserId, user_id.id).catch()
             return record
           })
         )
         if (records.length > 0) {
           res.status(201).send()
         } else {
-          res.status(500).send({ error: true, message: "Error creating records" })
+          res.status(500).send({ error: true, message: 'Error creating records' })
         }
       } else {
         const createdRecords = await fastify.knex('spotify_tracks').insert(track, ['id'])
@@ -121,15 +121,15 @@ module.exports = async (fastify, options) => {
           const track = createdRecords[0]
           const records = await Promise.all(
             users.map(async (user_id) => {
-              const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id['id'], spotify_track_id: track['id'] })
-              sendNotificationOnReceivedSong(currentUserId, user_id['id']).catch()
+              const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: track.id })
+              sendNotificationOnReceivedSong(currentUserId, user_id.id).catch()
               return record
             })
           )
           if (records.length > 0) {
             res.status(201).send()
           } else {
-            res.status(500).send({ error: true, message: "Error creating records" })
+            res.status(500).send({ error: true, message: 'Error creating records' })
           }
         } else {
           res.status(500).send({ error: true, message: "Track couldn't be created" })
@@ -139,9 +139,4 @@ module.exports = async (fastify, options) => {
       res.status(500).send({ error: true, message: error })
     }
   })
-
-
-
 }
-
-

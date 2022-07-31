@@ -10,7 +10,6 @@ module.exports = async (fastify, options) => {
     const conversations = jsf.generate(index.response[200])
     console.log(index.response[200])
     res.status(200).send(conversations)
-
   })
 
   fastify.get('/v1/conversations/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
@@ -20,6 +19,4 @@ module.exports = async (fastify, options) => {
     const conversation = jsf.generate(show.response[200])
     res.status(200).send(conversation)
   })
-
 }
-

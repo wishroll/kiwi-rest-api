@@ -110,7 +110,7 @@ module.exports = async (fastify, options) => {
               }
             }
           }
-          user['friendship_status'] = friendshipStatus
+          user.friendship_status = friendshipStatus
         }))
         res.status(200).send(users)
       } else {
@@ -131,11 +131,11 @@ module.exports = async (fastify, options) => {
     try {
       const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
       if (request) {
-        sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch() //Send out notification
+        sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch() // Send out notification
           .catch((err) => console.log(err))
         res.status(201).send()
       } else {
-        res.status(500).send({ error: "Unable to create request" })
+        res.status(500).send({ error: 'Unable to create request' })
       }
     } catch (error) {
       res.status(500).send(error)
@@ -269,10 +269,9 @@ module.exports = async (fastify, options) => {
               }
             }
           }
-          user['friendship_status'] = friendshipStatus
+          user.friendship_status = friendshipStatus
         }))
         res.status(200).send(users)
-
       } else {
         res.status(404).send({ message: 'Not Found' })
       }
@@ -307,7 +306,7 @@ module.exports = async (fastify, options) => {
               }
             }
           }
-          user['friendship_status'] = friendshipStatus
+          user.friendship_status = friendshipStatus
         }))
         res.send(requestedUsers)
       } else {
@@ -344,7 +343,7 @@ module.exports = async (fastify, options) => {
               }
             }
           }
-          user['friendship_status'] = friendshipStatus
+          user.friendship_status = friendshipStatus
         }))
         res.send(requestingUsers)
       } else {
