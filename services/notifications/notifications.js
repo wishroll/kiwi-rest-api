@@ -106,14 +106,34 @@ async function sendDailyNotificationBlast (title, body) {
   notificationData.topic = 'org.reactjs.native.example.mutualsapp'
   notificationData.sound = 'activity_notification_sound.caf'
   notificationData.pushType = 'alert'
-  const results = Promise.allSettled(
-    devices.map(async t => {
-      const token = t.token
-      const result = await push.send([token], notificationData)
-      return result
-    })
-  )
-  return results
+  const tokens = devices.map(t => t.token)
+  const batchSize = 100
+  const task = (token) => {
+    push.send([token], notificationData)
+  }
+  return promiseAllInBatches(task, tokens, batchSize)
+}
+
+/**
+ * Same as Promise.all(items.map(item => task(item))), but it waits for
+ * the first {batchSize} promises to finish before starting the next batch.
+ *
+ * @template A
+ * @template B
+ * @param {function(A): B} task The task to run for each item.
+ * @param {A[]} items Arguments to pass to the task for each call.
+ * @param {int} batchSize
+ * @returns {Promise<B[]>}
+ */
+async function promiseAllInBatches(task, items, batchSize) {
+  let position = 0;
+  let results = [];
+  while (position < items.length) {
+      const itemsForBatch = items.slice(position, position + batchSize);
+      results = [...results, ...await Promise.allSettled(itemsForBatch.map(item => task(item)))];
+      position += batchSize;
+  }
+  return results;
 }
 
 async function sendNotificationOnReceivedSong (senderUserId, recipientUserId) {
