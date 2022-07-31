@@ -27,7 +27,7 @@ function generateNotificationData () {
     titleLocKey: '', // gcm, apn
     locArgs: undefined, // gcm, apn. Expected format: Stringified Array
     titleLocArgs: undefined, // gcm, apn. Expected format: Stringified Array
-    retries: 1, // gcm, apn
+    retries: 5, // gcm, apn
     encoding: '', // apn
     badge: 0, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
@@ -95,21 +95,25 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
   return sendPushNotification([requestedUserId], notificationData)
 }
 
-async function sendDailyNotificationBlast(title, body) {
-    const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
-    if(devices.length < 1) {
-      return new Error('No devices')
-    }
-    const tokens = devices.map(t => t.token)
-    console.log(tokens)
-    const notificationData = generateNotificationData()
-    notificationData.title = title
-    notificationData.body = body
-    notificationData.topic = 'org.reactjs.native.example.mutualsapp'
-    notificationData.sound = 'activity_notification_sound.caf'
-    notificationData.pushType = 'alert'
-    const result = await push.send(tokens, notificationData)
-    return result
+async function sendDailyNotificationBlast (title, body) {
+  const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
+  if (devices.length < 1) {
+    return new Error('No devices')
+  }
+  const notificationData = generateNotificationData()
+  notificationData.title = title
+  notificationData.body = body
+  notificationData.topic = 'org.reactjs.native.example.mutualsapp'
+  notificationData.sound = 'activity_notification_sound.caf'
+  notificationData.pushType = 'alert'
+  const results = Promise.allSettled(
+    devices.map(async t => {
+      const token = t.token
+      const result = await push.send([token], notificationData)
+      return result
+    })
+  )
+  return results
 }
 
 async function sendNotificationOnReceivedSong (senderUserId, recipientUserId) {
@@ -119,8 +123,8 @@ async function sendNotificationOnReceivedSong (senderUserId, recipientUserId) {
     return new Error('User not found')
   }
   const notification = generateNotificationData()
-  notification.body = `${senderUser.display_name || senderUser.username} sent you a song!` 
-  notification.title = `🥝  New Kiwi 🥝`
+  notification.body = `${senderUser.display_name || senderUser.username} sent you a song!`
+  notification.title = '🥝  New Kiwi 🥝'
   notification.sound = 'activity_notification_sound.caf'
   notification.pushType = 'alert'
   notification.mutableContent = 1
