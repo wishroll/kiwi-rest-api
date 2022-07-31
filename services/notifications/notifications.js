@@ -27,7 +27,7 @@ function generateNotificationData () {
     titleLocKey: '', // gcm, apn
     locArgs: undefined, // gcm, apn. Expected format: Stringified Array
     titleLocArgs: undefined, // gcm, apn. Expected format: Stringified Array
-    retries: 1, // gcm, apn
+    retries: 5, // gcm, apn
     encoding: '', // apn
     badge: 0, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
