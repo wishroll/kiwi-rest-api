@@ -1,4 +1,4 @@
-require('newrelic');
+require('newrelic')
 const fastify = require('fastify')({
   logger: true,
   maxParamLength: 1000
@@ -11,7 +11,7 @@ fastify.ready(err => {
 fastify.register(require('./routes/index'))
 fastify.listen({
   port: process.env.PORT,
-  host: '::', 
+  host: '::'
   // exclusive: false,
   // readableAll: false,
   // writableAll: false,

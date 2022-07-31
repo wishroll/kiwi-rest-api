@@ -1,5 +1,5 @@
 module.exports = async (fastify, options) => {
-  const {sendDailyNotificationBlast} = require('../../services/notifications/notifications')
+  const { sendDailyNotificationBlast } = require('../../services/notifications/notifications')
   fastify.get('/:platform/appstore', (req, res) => {
     return res.redirect('https://apps.apple.com/us/app/kiwi-live-music-recs-widget/id1614352817')
   })
@@ -17,4 +17,3 @@ module.exports = async (fastify, options) => {
     return res.send()
   })
 }
-
