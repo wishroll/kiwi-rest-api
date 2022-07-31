@@ -1,6 +1,10 @@
 module.exports = async (fastify, options) => {
   const { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest } = require('../../services/notifications/notifications')
   const { phone } = require('phone')
+  const {contacts, friends, requested, requests} = require('./schema/v1/index')
+  const {friendship, friendshipRequest} = require('./schema/v1/create')
+  const {deleteFriendship, deleteFriendshipRequest} = require('./schema/v1/delete')
+
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
     const offset = req.query.offset
@@ -79,7 +83,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.get('/friends', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.get('/friends', { onRequest: [fastify.authenticate], schema: friends }, async (req, res) => {
     const currentUserId = req.user.id
     const limit = req.query.limit
     const offset = req.query.offset
@@ -125,7 +129,7 @@ module.exports = async (fastify, options) => {
      * V2
      */
 
-  fastify.post('/v2/friends/request', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.post('/v2/friends/request', { onRequest: [fastify.authenticate], schema: friendshipRequest }, async (req, res) => {
     const currentUserId = req.user.id
     const requestedUserId = req.body.requested_user_id
     try {
@@ -142,7 +146,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate], schema: friendship }, async (req, res) => {
     const currentUserId = req.user.id
     const requestingUserId = req.body.requesting_user_id
     try {
@@ -198,7 +202,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.delete('/v2/friends', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.delete('/v2/friends', { onRequest: [fastify.authenticate], schema: deleteFriendship }, async (req, res) => {
     const currentUserId = req.user.id
     const userId = req.body.user_id
     try {
@@ -218,7 +222,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.delete('/v2/friends/request', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.delete('/v2/friends/request', { onRequest: [fastify.authenticate], schema: deleteFriendshipRequest }, async (req, res) => {
     const currentUserId = req.user.id
     const userId = req.body.user_id
     try {
@@ -238,7 +242,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.post('/v2/friends/contacts', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.post('/v2/friends/contacts', { onRequest: [fastify.authenticate], schema: contacts }, async (req, res) => {
     const limit = req.query.limit
     const offset = req.query.offset
     const currentUserId = req.user.id
@@ -280,7 +284,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.get('/v2/friends/requested', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.get('/v2/friends/requested', { onRequest: [fastify.authenticate], schema: requested }, async (req, res) => {
     const limit = req.query.limit
     const offset = req.query.offset
     const currentUserId = req.user.id
@@ -317,7 +321,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.get('/v2/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  fastify.get('/v2/friends/requests', { onRequest: [fastify.authenticate], schema: requests }, async (req, res) => {
     const limit = req.query.limit
     const offset = req.query.offset
     const currentUserId = req.user.id
