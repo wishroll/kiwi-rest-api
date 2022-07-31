@@ -176,11 +176,11 @@ const contacts = {
     headers: {
         type: 'object',
         properties: {
-            'Authorization: Bearer': {
+            'Authorization': {
                 type: 'string'
             }
         },
-        required: ['Authorization: Bearer']
+        required: ['Authorization']
     },
     querystring: {
         type: 'object',
@@ -201,6 +201,7 @@ const contacts = {
                     uuid: { type: 'string' },
                     display_name: { type: 'string' },
                     username: { type: 'string' },
+                    avatar_url: { type: 'string' },
                     friendship_status: { type: 'string', enum: ['none', 'friends', 'pending_sent', 'pending_received'] }
                 }
             }
