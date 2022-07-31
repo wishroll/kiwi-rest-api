@@ -31,6 +31,7 @@ module.exports = {
                     username: { type: 'string' },
                     created_at: { type: 'string' },
                     updated_at: { type: 'string' },
+                    avatar_url: { type: 'string' },
                     friendship_status: { type: 'string', enum: ['none', 'friends', 'pending_sent', 'pending_received'] }
 
                 },
