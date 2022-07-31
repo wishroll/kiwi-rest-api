@@ -3261,3 +3261,47 @@
 {"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":896,"time":"2022-07-31T01:03:30.057Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
 {"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":896,"time":"2022-07-31T01:03:30.059Z","msg":"Agent state changed from connected to started."}
 {"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":896,"time":"2022-07-31T01:03:31.063Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:46.909Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:47.060Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:47.122Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:47.130Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:47.130Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:46.908Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:47.060Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:47.122Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:47.130Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:47.130Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:46.909Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:47.060Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:47.122Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:47.130Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:47.130Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:46.908Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:47.060Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:47.122Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:47.130Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:47.130Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:50.779Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:50.780Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BfSGB7a_e9aIADVXXz3AAJ9i5dk4AAgBAAAnIQEAAAZ9AgQ6MojMAwAGOC4xNy4wAAtHcmVhdHMtaU1hYwATa2l3aS1mYXN0aWZ5LXNlcnZlcg.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:50.780Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:50.781Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:50.783Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:50.817Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:50.817Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BWZDPyeNg2mCADVXXz3AAJ9i5dk4AAgBAAAnIQEAAAZ8AgQ6MojMAwAGOC4xNy4wAAtHcmVhdHMtaU1hYwATa2l3aS1mYXN0aWZ5LXNlcnZlcg.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:50.817Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:50.818Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:50.821Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:50.848Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:50.849Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BX8mClTkSzY1ADVXXz3AAJ9i5dk4AAgBAAAnIQEAAAZ6AgQ6MojMAwAGOC4xNy4wAAtHcmVhdHMtaU1hYwATa2l3aS1mYXN0aWZ5LXNlcnZlcg.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:50.849Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:50.850Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:50.852Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:50.971Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:50.971Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BSsmROjYTW16ADVXXz3AAJ9i5dk4AAgBAAAnIQEAAAZ7AgQ6MojMAwAGOC4xNy4wAAtHcmVhdHMtaU1hYwATa2l3aS1mYXN0aWZ5LXNlcnZlcg.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:50.971Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:50.972Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:50.975Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1661,"time":"2022-07-31T01:20:51.783Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1660,"time":"2022-07-31T01:20:51.826Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1658,"time":"2022-07-31T01:20:51.853Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-iMac","pid":1659,"time":"2022-07-31T01:20:51.979Z","msg":"Starting initial 1000ms harvest."}

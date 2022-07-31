@@ -10,7 +10,7 @@ fastify.ready(err => {
 })
 fastify.register(require('./routes/index'))
 fastify.listen({
-  port: 0,
+  port: process.env.PORT,
   host: '::', 
   // exclusive: false,
   // readableAll: false,
