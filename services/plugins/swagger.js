@@ -21,7 +21,7 @@ module.exports = {
       { name: 'Relationships', description: "Create a friend request, return all of a user's friends, create friendships between users" },
       { name: 'Registration', description: 'Sign up' },
       { name: 'Sessions', description: 'User Sessions' },
-      { name: 'Device', description: 'Manage User devices, create devices, etc' },
+      { name: 'Devices', description: 'Manage User devices, create devices, etc' },
       { name: 'Search', description: 'Search Users' },
       { name: 'Messages', description: 'Get a specific message, Get a list of messages, create a new message, destroy a message' }
     ]

@@ -1,5 +1,6 @@
 module.exports = async (fastify, options) => {
-  fastify.get('/search/users', { onRequest: [fastify.authenticate] }, async (req, res) => {
+  const index = require('./schema/v1/users/index')
+  fastify.get('/search/users', { onRequest: [fastify.authenticate], schema: index }, async (req, res) => {
     const currentUserId = req.user.id
     const query = req.query.query
     const limit = req.query.limit
