@@ -9,7 +9,14 @@ fastify.ready(err => {
   fastify.swagger()
 })
 fastify.register(require('./routes/index'))
-fastify.listen(process.env.PORT, '0.0.0.0', (err, add) => {
+fastify.listen({
+  port: 0,
+  host: '::', 
+  // exclusive: false,
+  // readableAll: false,
+  // writableAll: false,
+  // ipv6Only: false
+}, (err, add) => {
   if (err) {
     fastify.log.error(err)
     process.exit(1)
