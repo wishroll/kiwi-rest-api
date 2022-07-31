@@ -30,6 +30,7 @@ const friends = {
                     uuid: { type: 'string' },
                     display_name: { type: 'string' },
                     username: { type: 'string' },
+                    avatar_url: { type: 'string' },
                     friendship_status: { type: 'string', enum: ['none', 'friends', 'pending_sent', 'pending_received'] }
                 }
             }
@@ -86,6 +87,7 @@ const requests = {
                     uuid: { type: 'string' },
                     display_name: { type: 'string' },
                     username: { type: 'string' },
+                    avatar_url: { type: 'string' },
                     friendship_status: { type: 'string', enum: ['none', 'friends', 'pending_sent', 'pending_received'] }
                 }
             }
@@ -141,6 +143,7 @@ const requested = {
                     id: { type: 'integer' },
                     uuid: { type: 'string' },
                     display_name: { type: 'string' },
+                    avatar_url: { type: 'string' },
                     username: { type: 'string' },
                     friendship_status: { type: 'string', enum: ['none', 'friends', 'pending_sent', 'pending_received'] }
                 }
@@ -221,4 +224,4 @@ const contacts = {
     }
 }
 
-module.exports = {friends, requests, requested, contacts}
+module.exports = { friends, requests, requested, contacts }
