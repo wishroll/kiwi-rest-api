@@ -11,7 +11,6 @@ module.exports = {
     },
     body: {
         type: 'object',
-        required: [],
         properties: {
             os: { type: 'string', description: 'The os of the device' },
             token: { type: 'string', description: 'The registration token of the device' }
