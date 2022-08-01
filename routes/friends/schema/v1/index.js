@@ -182,13 +182,19 @@ const contacts = {
         },
         required: ['Authorization']
     },
+    body: {
+        type: 'object',
+        properties: {
+            contacts: { type: 'array', items: { type: 'string' } }
+        },
+        required: ['contacts']
+    },
     querystring: {
         type: 'object',
         properties: {
             limit: { type: 'integer' },
             offset: { type: 'integer' }
         },
-        required: ['limit', 'offset']
     },
     response: {
         200: {
