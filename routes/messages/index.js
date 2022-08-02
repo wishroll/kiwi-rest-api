@@ -19,6 +19,7 @@ module.exports = async (fastify, options) => {
   fastify.post('/v1/messages', { onRequest: [fastify.authenticate], schema: create }, async (req, res) => {
     const currentUserId = req.user.id
     const recipientIds = req.body.recipient_ids
+    
     res.status(200).send()
   })
 }

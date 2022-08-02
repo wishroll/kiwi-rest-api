@@ -16,8 +16,9 @@ module.exports = {
                 type: 'object',
                 properties: {
                     id: { type: 'string' },
+                    platform: { type: 'string', enum: ['spotify', 'apple_music'] },
                     uri: { type: 'string' },
-                    url: { type: 'string' },
+                    external_url: { type: 'string' },
                     href: { type: 'string' },
                     name: { type: 'string' },
                     duration: { type: 'integer' },
@@ -34,7 +35,8 @@ module.exports = {
                                 uri: { type: 'string' },
                                 href: { type: 'string' }
                             }
-                        }
+                        },
+                        required: ['id', 'name', 'href']
                     },
                     explicit: { type: ['boolean'] },
                     artwork: {
@@ -43,12 +45,15 @@ module.exports = {
                             width: { type: 'integer' },
                             height: { type: 'integer' },
                             url: { type: 'string' }
-                        }
+                        },
+                        required: ['url']
                     }
-                }
+                },
+                required: ['id', 'name', 'artists', 'artwork', 'href', 'external_url', 'duration', 'track_number', 'isrc', 'platform']
             },
             recipient_ids: {
                 type: 'array',
+                minItems: 1,
                 items: {
                     type: 'integer'
                 }
