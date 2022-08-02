@@ -7,7 +7,7 @@ module.exports = async (fastify, options) => {
     const offset = req.query.offset
     const limit = req.query.limit
     try {
-      const tracks = await fastify.knex('spotify_tracks').join('sent_spotify_tracks', 'spotify_tracks.id', '=', 'sent_spotify_tracks.spotify_track_id').join('users', 'sent_spotify_tracks.sender_id', '=', 'users.id').where('sent_spotify_tracks.recipient_id', '=', currentUserId).orderBy('sent_spotify_tracks.created_at', 'desc').offset(offset).limit(limit)
+      const tracks = await fastify.knex('spotify_tracks').join('messages', 'spotify_tracks.id', '=', 'messages.spotify_track_id').join('users', 'messages.sender_id', '=', 'users.id').where('messages.recipient_id', '=', currentUserId).orderBy('messages.created_at', 'desc').offset(offset).limit(limit)
       if (tracks.length > 0) {
         res.status(200).send(tracks)
       } else {
@@ -41,7 +41,7 @@ module.exports = async (fastify, options) => {
               if (existingTrack) {
                 const records = await Promise.all(
                   users.map(async (user_id) => {
-                    const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: existingTrack.id })
+                    const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: existingTrack.id })
                     return record
                   })
                 )
@@ -53,7 +53,7 @@ module.exports = async (fastify, options) => {
                   const track = createdRecords[0]
                   const records = await Promise.all(
                     users.map(async (user_id) => {
-                      const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: track.id })
+                      const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: track.id })
                       return record
                     })
                   )
@@ -104,7 +104,7 @@ module.exports = async (fastify, options) => {
       if (existingTrack) {
         const records = await Promise.all(
           users.map(async (user_id) => {
-            const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: existingTrack.id })
+            const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: existingTrack.id })
             sendNotificationOnReceivedSong(currentUserId, user_id.id).catch()
             return record
           })
@@ -121,7 +121,7 @@ module.exports = async (fastify, options) => {
           const track = createdRecords[0]
           const records = await Promise.all(
             users.map(async (user_id) => {
-              const record = await fastify.knex('sent_spotify_tracks').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: track.id })
+              const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, spotify_track_id: track.id })
               sendNotificationOnReceivedSong(currentUserId, user_id.id).catch()
               return record
             })
