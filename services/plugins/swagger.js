@@ -23,7 +23,8 @@ module.exports = {
       { name: 'Sessions', description: 'User Sessions' },
       { name: 'Devices', description: 'Manage User devices, create devices, etc' },
       { name: 'Search', description: 'Search Users' },
-      { name: 'Messages', description: 'Get a specific message, Get a list of messages, create a new message, destroy a message' }
+      { name: 'Messages', description: 'Get a specific message, Get a list of messages, create a new message, destroy a message' },
+      {name: 'Ratings', description: 'Get Ratings for a specific song, create a new rating'}
     ]
   },
   uiConfig: {
