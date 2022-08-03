@@ -116,7 +116,7 @@ module.exports = async (fastify, options) => {
           res.status(500).send({ error: true, message: 'Error creating records' })
         }
       } else {
-        const createdRecords = await fastify.knex('spotify_tracks').insert(track, ['id'])
+        const createdRecords = await fastify.knex('spotify_tracks').insert(track, ['*'])
         if (createdRecords && createdRecords.length > 0) {
           console.log(createdRecords)
           const track = createdRecords[0]
