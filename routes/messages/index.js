@@ -112,10 +112,13 @@ module.exports = async (fastify, options) => {
   })
 
   fastify.post('/v1/update/tracks', async (req, res) => {
-    const spotify_tracks = await fastify.knex('spotify_tracks');
-    Promise.all(spotify_tracks.map((track) => {
-      insertIntoTracksTable(track)
-    }))
+    fastify.knex('spotify_tracks').then((spotify_tracks) => {
+      Promise.all(spotify_tracks.map((track) => {
+        insertIntoTracksTable(track)
+      }))
+    }).catch((err) => {
+      console.log(err)
+    });
     res.send()
   })
 
