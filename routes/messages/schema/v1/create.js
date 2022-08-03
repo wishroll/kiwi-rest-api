@@ -15,7 +15,7 @@ module.exports = {
             track: {
                 type: 'object',
                 properties: {
-                    id: { type: 'string' },
+                    track_id: { type: 'string' },
                     platform: { type: 'string', enum: ['spotify', 'apple_music'] },
                     uri: { type: 'string' },
                     external_url: { type: 'string' },
@@ -49,7 +49,7 @@ module.exports = {
                         required: ['url']
                     }
                 },
-                required: ['id', 'name', 'artists', 'artwork', 'href', 'external_url', 'duration', 'track_number', 'isrc', 'platform']
+                required: ['track_id', 'name', 'artists', 'artwork', 'href', 'external_url', 'duration', 'track_number', 'isrc', 'platform']
             },
             recipient_ids: {
                 type: 'array',

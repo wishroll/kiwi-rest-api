@@ -35,46 +35,27 @@ module.exports = async (fastify, options) => {
 
   fastify.register(multer.contentParser)
 
-  fastify.get('/users', (req, res) => {
-    const limit = req.query.limit
-    const offset = req.query.offset
-    fastify.knex('users')
-      .select('*')
-      .limit(limit)
-      .offset(offset)
-      .orderBy('id', 'asc')
-      .then((isAvailable) => {
-        if (isAvailable.length > 0) {
-          return res.status(200).send(isAvailable)
-        } else {
-          return res.status(404).send()
-        }
-      })
-      .catch((err) => {
-        return res.status(500).send({ success: false, message: `An error occured: ${err.message}` })
-      })
-  })
-
   /**
        * Returns a specific user
        */
-  const response = { 200: { type: 'object', properties: { id: { type: 'number' }, uuid: { type: 'string' }, display_name: { type: 'string' }, username: { type: 'string' }, created_at: { type: 'string' }, updated_at: { type: 'string' }, avatar_url: { type: 'string' } } } }
-  fastify.get('/users/:id', { onRequest: [fastify.authenticate], schema: { response } }, (req, res) => {
-    fastify.knex('users')
-      .select('id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username')
-      .where({ id: req.params.id })
-      .first()
-      .then((user) => {
-        if (user) {
-          return res.status(200).send(user)
-        } else {
-          return res.status(404).send()
-        }
-      })
-      .catch((err) => {
-        console.error(err)
-        return res.status(500).send({ success: false, message: `An error occured: ${err.message}` })
-      })
+  const show = require('./schema/v1/show')
+  fastify.get('/users/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
+    const userId = req.params.id;
+    try {
+      const user = await fastify.knex('users')
+        .select(['id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username'])
+        .where({ id: userId })
+        .first()
+      if (user) {
+        res.status(200).send(user)
+      } else {
+        res.status(404).send({ error: true, message: "Not found" })
+      }
+    } catch (error) {
+      res.status(500).send({ error: true, message: error })
+
+    }
+
   })
 
   fastify.get('/users/:id/tracks/sent', { onRequest: [fastify.authenticate] }, async (req, res) => {
@@ -85,7 +66,7 @@ module.exports = async (fastify, options) => {
       const tracks = await fastify.knex('spotify_tracks')
 
         .select(['spotify_tracks.id as id', 'spotify_tracks.name as name', 'spotify_tracks.created_at as created_at', 'spotify_tracks.updated_at as updated_at', 'spotify_tracks.uri as uri', 'spotify_tracks.track_number as track_number', 'spotify_tracks.track as track', 'spotify_tracks.type as type', 'spotify_tracks.preview_url as preview_url', 'spotify_tracks.popularity as popularity', 'spotify_tracks.is_local as is_local', 'spotify_tracks.href as href', 'spotify_tracks.explicit as explicit', 'spotify_tracks.episode as episode', 'spotify_tracks.duration_ms as duration_ms', 'spotify_tracks.disc_number as disc_number', 'spotify_tracks.available_markets as available_markets', 'spotify_tracks.album as album', 'spotify_tracks.artists as artists', 'spotify_tracks.external_ids as external_ids', 'spotify_tracks.external_urls as external_urls'])
-        .join('messages', 'spotify_tracks.id', '=', 'messages.spotify_track_id')
+        .join('messages', 'spotify_tracks.id', '=', 'messages.track_id')
         .where('messages.sender_id', '=', userId)
         .distinct('spotify_tracks.id')
         .orderBy('spotify_tracks.created_at', 'desc')
