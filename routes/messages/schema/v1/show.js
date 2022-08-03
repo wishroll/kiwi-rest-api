@@ -24,7 +24,60 @@ const show = {
         id: { type: 'integer', minimum: 1 },
         uuid: { type: 'string' },
         created_at: { type: 'string' },
-        updated_at: { type: 'string' }
+        updated_at: { type: 'string' },
+        sender: {
+          type: 'object', properties: {
+            id: { type: 'integer', minimum: 1 },
+            uuid: { type: 'string' },
+            display_name: { type: 'string' },
+            username: { type: 'string' },
+            avatar_url: { type: 'string' }
+          }
+        },
+        text: { type: 'string' },
+        track: {
+          type: 'object', properties: {
+            track_id: { type: 'string' },
+            platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+            uri: { type: 'string' },
+            external_url: { type: 'string' },
+            href: { type: 'string' },
+            name: { type: 'string' },
+            duration: { type: 'integer' },
+            track_number: { type: 'integer' },
+            release_date: { type: 'string' },
+            isrc: { type: 'string' },
+            artists: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                  uri: { type: 'string' },
+                  href: { type: 'string' }
+                }
+              },
+              required: ['id', 'name', 'href']
+            },
+            explicit: { type: ['boolean'] },
+            artwork: {
+              type: 'object',
+              properties: {
+                width: { type: 'integer' },
+                height: { type: 'integer' },
+                url: { type: 'string' }
+              },
+              required: ['url']
+            }
+          }
+        },
+        rating: {
+          type: 'object',
+          properties: {
+            score: { type: 'number', minimum: 0.0 },
+          }
+        }
       },
       required: ['id', 'uuid', 'created_at', 'updated_at']
     },
