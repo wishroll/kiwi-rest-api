@@ -114,10 +114,11 @@ module.exports = async (fastify, options) => {
   fastify.post('/v1/update/tracks', async (req, res) => {
     const limit = req.query.limit;
     const offset = req.query.offset;
+    const batchSize = req.query.batch_size || 1;
     fastify.knex('spotify_tracks').select().limit(limit).offset(offset).then((spotify_tracks) => {
       promiseAllInBatches((spotify_track) => {
         insertIntoTracksTable(spotify_track)
-      }, spotify_tracks, limit)
+      }, spotify_tracks, batchSize)
     }).catch((err) => {
       console.log(err)
     });
