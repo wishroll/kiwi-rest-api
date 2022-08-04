@@ -115,37 +115,50 @@ module.exports = async (fastify, options) => {
     const limit = req.query.limit;
     const offset = req.query.offset;
     const batchSize = req.query.batch_size || 1;
-    fastify.knex('spotify_tracks').select().limit(limit).offset(offset).then((spotify_tracks) => {
-      promiseAllInBatches((spotify_track) => {
-        insertIntoTracksTable(spotify_track)
-      }, spotify_tracks, batchSize)
-    }).catch((err) => {
-      console.log(err)
-    });
-    res.send()
+    fastify.knex('spotify_tracks').limit(limit).offset(offset)
+      .then((spotify_tracks) => {
+        const tracks = spotify_tracks.map((spotify_track) => {
+          console.log("In here!")
+          const newTrack = {};
+          newTrack.platform = 'spotify';
+          newTrack.track_id = spotify_track.id;
+          newTrack.name = spotify_track.name;
+          newTrack.href = spotify_track.href;
+          newTrack.external_url = spotify_track.external_urls['spotify'];
+          newTrack.track_number = spotify_track.track_number;
+          newTrack.preview_url = spotify_track.preview_url;
+          newTrack.uri = spotify_track.uri;
+          newTrack.explicit = spotify_track.explicit;
+          newTrack.duration = spotify_track.duration_ms;
+          newTrack.isrc = spotify_track.external_ids.isrc;
+          newTrack.release_date = spotify_track.album.release_date;
+          newTrack.artists = spotify_track.artists.map((artist) => {
+            const a = {};
+            a.name = artist.name;
+            a.uri = artist.uri;
+            a.id = artist.id;
+            return a;
+          });
+          const images = spotify_track.album.images;
+          newTrack.artwork = images.length > 0 ? images[0] : null;
+          return newTrack
+        })
+        console.log(tracks)
+        fastify.knex('tracks').insert(tracks, ['*']).onConflict('track_id').merge()
+          .then((insertedRows) => {
+            console.log('These are the inserted rows', insertedRows.map(r => r.id))
+            res.send()
+          })
+          .catch((err) => {
+            console.log('An error occured when inserting rows', err)
+            res.status(500).send(err)
+          })
+      })
+      .catch((err) => {
+        console.log(err)
+        res.status(500).send(err)
+      })
   })
-
-  /**
- * Same as Promise.all(items.map(item => task(item))), but it waits for
- * the first {batchSize} promises to finish before starting the next batch.
- *
- * @template A
- * @template B
- * @param {function(A): B} task The task to run for each item.
- * @param {A[]} items Arguments to pass to the task for each call.
- * @param {int} batchSize
- * @returns {Promise<B[]>}
- */
-  async function promiseAllInBatches(task, items, batchSize) {
-    let position = 0;
-    let results = [];
-    while (position < items.length) {
-      const itemsForBatch = items.slice(position, position + batchSize);
-      results = [...results, ...await Promise.allSettled(itemsForBatch.map(item => task(item)))];
-      position += batchSize;
-    }
-    return results;
-  }
 
   function insertIntoSpotifyTracks(existingTrack) {
     fastify.knex('spotify_tracks').select('id').where({ id: existingTrack.track_id }).first().then((alreadyTrack) => {
@@ -165,41 +178,6 @@ module.exports = async (fastify, options) => {
         newTrack.album = { artists: existingTrack.artists, images: [existingTrack.artwork] }
         newTrack.artists = existingTrack.artists;
         fastify.knex('spotify_tracks').insert(newTrack, ['id']).then((insertResults) => {
-          if (insertResults) {
-            console.log("UPdated tracks table with value", insertResults)
-          }
-        })
-      }
-    })
-  }
-
-  function insertIntoTracksTable(existingTrack) {
-    fastify.knex('tracks').select(['track_id', 'platform', 'id']).where({ track_id: existingTrack.id, platform: 'spotify' }).first().then((alreadyTrack) => {
-      if (!alreadyTrack) {
-        console.log("In here!")
-        const newTrack = {};
-        newTrack.platform = 'spotify';
-        newTrack.track_id = existingTrack.id;
-        newTrack.name = existingTrack.name;
-        newTrack.href = existingTrack.href;
-        newTrack.external_url = existingTrack.external_urls['spotify'];
-        newTrack.track_number = existingTrack.track_number;
-        newTrack.preview_url = existingTrack.preview_url;
-        newTrack.uri = existingTrack.uri;
-        newTrack.explicit = existingTrack.explicit;
-        newTrack.duration = existingTrack.duration_ms;
-        newTrack.isrc = existingTrack.external_ids.isrc;
-        newTrack.release_date = existingTrack.album.release_date;
-        newTrack.artists = existingTrack.artists.map((artist) => {
-          const a = {};
-          a.name = artist.name;
-          a.uri = artist.uri;
-          a.id = artist.id;
-          return a;
-        });
-        const images = existingTrack.album.images;
-        newTrack.artwork = images.length > 0 ? images[0] : null;
-        fastify.knex('tracks').insert(newTrack, ['id']).then((insertResults) => {
           if (insertResults) {
             console.log("UPdated tracks table with value", insertResults)
           }
