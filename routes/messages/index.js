@@ -111,55 +111,6 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.post('/v1/update/tracks', async (req, res) => {
-    const limit = req.query.limit;
-    const offset = req.query.offset;
-    const batchSize = req.query.batch_size || 1;
-    fastify.knex('spotify_tracks').limit(limit).offset(offset)
-      .then((spotify_tracks) => {
-        const tracks = spotify_tracks.map((spotify_track) => {
-          console.log("In here!")
-          const newTrack = {};
-          newTrack.platform = 'spotify';
-          newTrack.track_id = spotify_track.id;
-          newTrack.name = spotify_track.name;
-          newTrack.href = spotify_track.href;
-          newTrack.external_url = spotify_track.external_urls['spotify'];
-          newTrack.track_number = spotify_track.track_number;
-          newTrack.preview_url = spotify_track.preview_url;
-          newTrack.uri = spotify_track.uri;
-          newTrack.explicit = spotify_track.explicit;
-          newTrack.duration = spotify_track.duration_ms;
-          newTrack.isrc = spotify_track.external_ids.isrc;
-          newTrack.release_date = spotify_track.album.release_date;
-          newTrack.artists = spotify_track.artists.map((artist) => {
-            const a = {};
-            a.name = artist.name;
-            a.uri = artist.uri;
-            a.id = artist.id;
-            return a;
-          });
-          const images = spotify_track.album.images;
-          newTrack.artwork = images.length > 0 ? images[0] : null;
-          return newTrack
-        })
-        console.log(tracks)
-        fastify.knex('tracks').insert(tracks, ['*']).onConflict('track_id').merge()
-          .then((insertedRows) => {
-            console.log('These are the inserted rows', insertedRows.map(r => r.id))
-            res.send()
-          })
-          .catch((err) => {
-            console.log('An error occured when inserting rows', err)
-            res.status(500).send(err)
-          })
-      })
-      .catch((err) => {
-        console.log(err)
-        res.status(500).send(err)
-      })
-  })
-
   function insertIntoSpotifyTracks(existingTrack) {
     fastify.knex('spotify_tracks').select('id').where({ id: existingTrack.track_id }).first().then((alreadyTrack) => {
       if (!alreadyTrack) {
