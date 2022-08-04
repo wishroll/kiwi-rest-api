@@ -4,8 +4,9 @@ module.exports = async (fastify, options) => {
     fastify.post('/v1/messages/:message_id/ratings', { onRequest: [fastify.authenticate], schema: create }, async (req, res) => {
         const messageId = req.params.message_id;
         const currentUserId = req.user.id;
+        const score = req.body.score;
         try {
-            const inserts = await fastify.knex('ratings').insert({ user_id: currentUserId, message_id: messageId }, ['*']);
+            const inserts = await fastify.knex('ratings').insert({ user_id: currentUserId, message_id: messageId, score: score }, ['*']);
             if (inserts.length > 0) {
                 res.status(201).send();
             } else {
