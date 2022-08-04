@@ -26,6 +26,7 @@ module.exports = async (fastify, options) => {
   fastify.register(require('./search'))
   fastify.register(require('./devices/'))
   fastify.register(require('./messages/index'))
+  fastify.register(require('./ratings/index'))
 }
 
 /**
