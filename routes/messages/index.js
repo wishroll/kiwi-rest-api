@@ -181,7 +181,7 @@ module.exports = async (fastify, options) => {
         newTrack.track_id = existingTrack.id;
         newTrack.name = existingTrack.name;
         newTrack.href = existingTrack.href;
-        newTrack.external_url = existingTrack.external_urls.spotify;
+        newTrack.external_url = existingTrack.external_urls['spotify'];
         newTrack.track_number = existingTrack.track_number;
         newTrack.preview_url = existingTrack.preview_url;
         newTrack.uri = existingTrack.uri;
