@@ -20987,3 +20987,176 @@
 {"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37347,"time":"2022-08-04T06:09:04.014Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
 {"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37347,"time":"2022-08-04T06:09:04.017Z","msg":"Agent state changed from connected to started."}
 {"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37347,"time":"2022-08-04T06:09:05.018Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:00.562Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:00.618Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:00.647Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:00.651Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:00.651Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:03.342Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:03.342Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BbEF2mGrJAqUADVXXz4M569i62SYAAgBAAAnIQEAAJO3AgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:03.342Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:03.343Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:03.347Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37815,"time":"2022-08-04T06:16:04.348Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37861,"time":"2022-08-04T06:16:41.300Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37861,"time":"2022-08-04T06:16:41.366Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37861,"time":"2022-08-04T06:16:41.403Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37861,"time":"2022-08-04T06:16:41.407Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37861,"time":"2022-08-04T06:16:41.408Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:42.913Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:42.977Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:43.013Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:43.017Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:43.017Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:45.440Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:45.440Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BdkZYHX1uJLbADVXXz4M569i62SYAAgBAAAnIQEAAJPyAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:45.441Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:45.441Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:45.444Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37874,"time":"2022-08-04T06:16:46.446Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:49.196Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:49.248Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:49.277Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:49.281Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:49.281Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:51.776Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:51.776Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BRnb5fP0aSjpADVXXz4M569i62SYAAgBAAAnIQEAAJQKAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:51.776Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:51.778Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:51.781Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":37898,"time":"2022-08-04T06:16:52.782Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:50.532Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:50.580Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:50.612Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:50.616Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:50.616Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:52.435Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:52.436Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BWMmcYCcZCvdADVXXz4M569i62UQAAgBAAAnIQEAAJSKAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:52.436Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:52.437Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:52.440Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38026,"time":"2022-08-04T06:18:53.441Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:53.634Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:53.697Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:53.734Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:53.739Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:53.739Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:55.562Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:55.562Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BdH5rCGCTwCeADVXXz4M569i62UQAAgBAAAnIQEAAJSeAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:55.562Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:55.564Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:55.567Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38046,"time":"2022-08-04T06:18:56.569Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:10.821Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:10.871Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:10.900Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:10.903Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:10.903Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:13.584Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:13.584Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BfnhG5jDLTkiADVXXz4M569i62VMAAgBAAAnIQEAAJS9AgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:13.585Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:13.586Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:13.589Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38077,"time":"2022-08-04T06:19:14.590Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:22.791Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:22.844Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:22.876Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:22.879Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:22.880Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:25.468Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:25.468Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BZczurrqwcZ0ADVXXz4M569i62VMAAgBAAAnIQEAAJTfAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:25.469Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:25.469Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:25.472Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38111,"time":"2022-08-04T06:19:26.473Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:26.646Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:26.698Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:26.726Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:26.730Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:26.730Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:29.081Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:29.081Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BeAZ0jCw3nzlADVXXz4M569i62VMAAgBAAAnIQEAAJT2AgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:29.081Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:29.083Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:29.086Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38134,"time":"2022-08-04T06:19:30.086Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38154,"time":"2022-08-04T06:19:31.856Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38154,"time":"2022-08-04T06:19:31.909Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38154,"time":"2022-08-04T06:19:31.938Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38154,"time":"2022-08-04T06:19:31.942Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38154,"time":"2022-08-04T06:19:31.942Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:34.205Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:34.257Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:34.286Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:34.290Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:34.290Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:36.708Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:36.709Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BSCeXgap62nhADVXXz4M569i62VMAAgBAAAnIQEAAJUYAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:36.709Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:36.710Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:36.713Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38168,"time":"2022-08-04T06:19:37.715Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:37.890Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:37.955Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:37.993Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:37.998Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:37.998Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:39.891Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:39.892Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BanPqVf0wjnAADVXXz4M569i62VMAAgBAAAnIQEAAJUvAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:39.892Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:39.893Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:39.896Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38191,"time":"2022-08-04T06:19:40.896Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38211,"time":"2022-08-04T06:19:44.697Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38211,"time":"2022-08-04T06:19:44.750Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38211,"time":"2022-08-04T06:19:44.778Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38211,"time":"2022-08-04T06:19:44.782Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38211,"time":"2022-08-04T06:19:44.782Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:46.148Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:46.200Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:46.229Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:46.232Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:46.233Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:47.966Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:47.966Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BXtrKGv1SJSzADVXXz4M569i62VMAAgBAAAnIQEAAJVYAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:47.966Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:47.967Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38232,"time":"2022-08-04T06:19:47.970Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:48.578Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:48.627Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:48.655Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:48.658Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:48.659Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:50.369Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:50.369Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID Bc0JDd-oLCgjADVXXz4M569i62VMAAgBAAAnIQEAAJVqAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:50.369Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:50.370Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:50.373Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38250,"time":"2022-08-04T06:19:51.374Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38280,"time":"2022-08-04T06:19:53.052Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38280,"time":"2022-08-04T06:19:53.108Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38280,"time":"2022-08-04T06:19:53.139Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38280,"time":"2022-08-04T06:19:53.142Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38280,"time":"2022-08-04T06:19:53.142Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:54.622Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:54.684Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:54.715Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:54.719Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:54.719Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:56.498Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:56.498Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BSBqK4PoBow2ADVXXz4M569i62VMAAgBAAAnIQEAAJWMAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:56.498Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:56.499Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:56.502Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38284,"time":"2022-08-04T06:19:57.502Z","msg":"Starting initial 1000ms harvest."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:00.490Z","msg":"Using New Relic for Node.js. Agent version: 8.17.0; Node version: v16.14.0."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:00.539Z","msg":"Using LegacyContextManager"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:00.570Z","msg":"Agent state changed from stopped to starting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:00.573Z","msg":"Starting New Relic for Node.js connection process."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:00.573Z","msg":"Agent state changed from starting to connecting."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:02.957Z","msg":"Agent state changed from connecting to connected."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:02.957Z","msg":"Connected to collector-003.newrelic.com:443 with agent run ID BQKQbq2f28OXADVXXz4M569i62WIAAgBAAAnIQEAAJWrAgQ6MojMAwAGOC4xNy4wAApHcmVhdHMtTUJQABNraXdpLWZhc3RpZnktc2VydmVy.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:02.957Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/3495775/applications/976390348","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:02.959Z","msg":"Valid event_harvest_config received. Updating harvest cycles. {\"report_period_ms\":5000,\"harvest_limits\":{\"error_event_data\":8,\"log_event_data\":833,\"analytic_event_data\":833,\"custom_event_data\":83}}"}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:02.962Z","msg":"Agent state changed from connected to started."}
+{"v":0,"level":30,"name":"newrelic","hostname":"Greats-MBP","pid":38315,"time":"2022-08-04T06:20:03.963Z","msg":"Starting initial 1000ms harvest."}
