@@ -3,7 +3,7 @@ module.exports = async (fastify, options) => {
   const { show } = require('./schema/v1/show')
   const create = require('./schema/v1/create')
   const jsf = require('json-schema-faker')
-  const { sendNotificationOnReceivedSong} = require('../../services/notifications/notifications')
+  const { sendNotificationOnReceivedSong } = require('../../services/notifications/notifications')
 
   fastify.get('/v1/me/messages', { onRequest: [fastify.authenticate], schema: receivedMessagesIndex }, async (req, res) => {
     const currentUserId = req.user.id;
@@ -101,13 +101,17 @@ module.exports = async (fastify, options) => {
           insertIntoSpotifyTracks(results[0])
         }
       }
-      const messages = await Promise.all(recipients.map(async (recipient) => {
+      const insertData = await Promise.all(recipients.map(async (recipient) => {
         const id = recipient.id
-        const message = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: id, track_id: trackId, text: text })
         sendNotificationOnReceivedSong(currentUserId, id).catch()
-        return message
+        return { sender_id: currentUserId, recipient_id: id, track_id: trackId, text: text }
       }))
-      res.status(201).send()
+      const messages = await fastify.knex('messages').insert(insertData, ['*'])
+      if (messages.length > 0) {
+        res.status(201).send()
+      } else {
+        res.status(400).send({ error: true, message: 'Failed to create messages' })
+      }
     } catch (error) {
       res.status(500).send({ error: true, message: error })
     }
