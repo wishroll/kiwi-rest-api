@@ -26,6 +26,8 @@ module.exports = async (fastify, options) => {
         const data = messages.map((message) => {
           message.track = tracks.find((v) => v.track_id === message.track_id)
           message.rating = ratings.find((v) => v.message_id === message.id)
+          message.is_rated = message.rating == true
+          console.log('Is the message rated?', message.is_rated)
           message.sender = users.find((v) => v.id === message.sender_id)
           return message
         })

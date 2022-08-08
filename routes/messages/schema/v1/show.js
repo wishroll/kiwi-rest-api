@@ -35,6 +35,7 @@ const show = {
           }
         },
         text: { type: 'string' },
+        is_rated: { type: 'boolean', description: 'Whether the message has been rated' },
         track: {
           type: 'object', properties: {
             track_id: { type: 'string' },
