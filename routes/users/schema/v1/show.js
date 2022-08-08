@@ -28,8 +28,8 @@ module.exports = {
                 created_at: { type: 'string' },
                 rating: {
                     type: 'object', properties: {
-                        score: { type: 'number', minimum: 0.0 },
-                        color: { type: 'string' },
+                        score: { type: 'number', minimum: 0.00 },
+                        hex_code: { type: 'string', description: "The hex value mapping to and representing the user's score" },
                     }
                 }
             },
