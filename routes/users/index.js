@@ -39,7 +39,7 @@ module.exports = async (fastify, options) => {
        * Returns a specific user
        */
   const show = require('./schema/v1/show')
-  fastify.get('/users/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
+  fastify.get('/users/:id', { onRequest: [fastify.authenticate]}, async (req, res) => {
     const userId = req.params.id;
     try {
       const user = await fastify.knex('users')
@@ -53,10 +53,29 @@ module.exports = async (fastify, options) => {
       }
     } catch (error) {
       res.status(500).send({ error: true, message: error })
+    }
+  })
 
+  fastify.get('/v1/users/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
+    const userId = req.params.id;
+    try {
+      const user = await fastify.knex('users')
+        .select(['id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username'])
+        .where({ id: userId })
+        .first()
+      user.rating = {score: 0.11, hex_code: '#EA1D3B'}
+      if (user) {
+        res.status(200).send(user)
+      } else {
+        res.status(404).send({ error: true, message: "Not found" })
+      }
+    } catch (error) {
+      res.status(500).send({ error: true, message: error })
     }
 
   })
+
+
 
   fastify.get('/users/:id/tracks/sent', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
