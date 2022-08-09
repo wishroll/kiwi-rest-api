@@ -1,16 +1,14 @@
 const knex = require('../../services/db/postgres/knex_fastify_plugin');
-// export function updateUserRating(userId, score) {
-//     return knex('user_ratings').where({ user_id: userId }).first().increment({ num_ratings: 1 })
-//         .then((rating) => {
-//             knex('user_ratings').where({ id: rating.id }).update({ score: (rating.score / rating.num_ratings) })
-//                 .then((result) => {
-//                     return result
-//                 })
-//                 .catch((err) => {
-//                     return err
-//                 })
-//         })
-//         .catch((err) => {
-//             return err
-//         })
-// }
+function updateUserRating(userId, score) {
+    console.log('This is the user id of the user whom we are updating', userId, 'This is the score of the user whom we are updating', score)
+    knex('user_ratings').insert({ user_id: userId, score: score, num_ratings: 1 }, ['*']).onConflict('user_id').merge({num_ratings: knex.raw("?? + ?", ["user_ratings.num_ratings", 1]), score: knex.raw("(?? + ?) / CAST((?? + ?) AS FLOAT)", ["user_ratings.score", score, "user_ratings.num_ratings", 1])})
+        .then((result) => {
+            console.log('This is the result of inserting or updating a users rating', result)
+            return result
+        })
+        .catch((err) => {
+            console.log(err)
+            return err
+        })
+}
+module.exports = {updateUserRating}

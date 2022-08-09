@@ -1,6 +1,4 @@
 const { updateMessageSenderRating } = require('../../algos/users/update_message_sender_rating.js');
-const { updateUserRating } = require('../../algos/users/update_user_rating.js');
-
 module.exports = async (fastify, options) => {
     const create = require('./schema/v1/create.js')
 

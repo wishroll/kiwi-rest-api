@@ -1,3 +1,5 @@
+const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score')
+
 module.exports = async (fastify, options) => {
   const crypto = require('crypto')
   const multer = require('fastify-multer')
@@ -122,7 +124,7 @@ module.exports = async (fastify, options) => {
         .first()
       const rating = await fastify.knex('user_ratings').where({ user_id: userId }).first()
       if (rating) {
-        rating.hex_code = getHexCodeForScore(rating.average_score)
+        rating.hex_code = getHexCodeForScore(rating.score)
         user.rating = rating
       }
       if (user) {

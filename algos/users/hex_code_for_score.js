@@ -1,4 +1,4 @@
-export function getHexCodeForScore(score) {
+function getHexCodeForScore(score) {
     switch (true) {
         case (score < 0.45):
             return '#EA1D3B'
@@ -10,3 +10,4 @@ export function getHexCodeForScore(score) {
             break;
     }
 }
+module.exports = {getHexCodeForScore}
