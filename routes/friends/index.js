@@ -132,6 +132,9 @@ module.exports = async (fastify, options) => {
   fastify.post('/v2/friends/request', { onRequest: [fastify.authenticate], schema: friendshipRequest }, async (req, res) => {
     const currentUserId = req.user.id
     const requestedUserId = req.body.requested_user_id
+    if (currentUserId === requestedUserId) {
+      return res.status(400).send({error: true, message: "Request sent to current user"})
+    }
     try {
       const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
       if (request) {
@@ -149,6 +152,9 @@ module.exports = async (fastify, options) => {
   fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate], schema: friendship }, async (req, res) => {
     const currentUserId = req.user.id
     const requestingUserId = req.body.requesting_user_id
+    if (currentUserId === requestingUserId) {
+      return res.status(400).send({ error: true, message: "Can't accept request from current user" })
+    }
     try {
       const friend_request = await fastify.knex('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).first()
       if (friend_request) {
@@ -252,7 +258,7 @@ module.exports = async (fastify, options) => {
       return res.status(400).send({ message: 'No contacts' })
     }
     try {
-      const users = await fastify.knex('users').whereIn('phone_number', contacts).offset(offset).limit(limit)
+      const users = await fastify.knex('users').whereNot('id', currentUserId).whereIn('phone_number', contacts).offset(offset).limit(limit)
       if (users.length > 0) {
         await Promise.all(users.map(async user => {
           const userId = user.id
