@@ -1,3 +1,4 @@
+const { updateMessageSenderRating } = require('../../algos/users/update_message_sender_rating.js');
 module.exports = async (fastify, options) => {
     const create = require('./schema/v1/create.js')
 
@@ -8,6 +9,7 @@ module.exports = async (fastify, options) => {
         try {
             const inserts = await fastify.knex('ratings').insert({ user_id: currentUserId, message_id: messageId, score: score }, ['*']);
             if (inserts.length > 0) {
+                updateMessageSenderRating(messageId, score)
                 res.status(201).send();
             } else {
                 res.status(400).send({ error: true, message: 'Failed to create rating' });

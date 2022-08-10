@@ -1,3 +1,5 @@
+const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score')
+
 module.exports = async (fastify, options) => {
   const crypto = require('crypto')
   const multer = require('fastify-multer')
@@ -39,7 +41,7 @@ module.exports = async (fastify, options) => {
        * Returns a specific user
        */
   const show = require('./schema/v1/show')
-  fastify.get('/users/:id', { onRequest: [fastify.authenticate]}, async (req, res) => {
+  fastify.get('/users/:id', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const userId = req.params.id;
     try {
       const user = await fastify.knex('users')
@@ -55,27 +57,6 @@ module.exports = async (fastify, options) => {
       res.status(500).send({ error: true, message: error })
     }
   })
-
-  fastify.get('/v1/users/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
-    const userId = req.params.id;
-    try {
-      const user = await fastify.knex('users')
-        .select(['id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username'])
-        .where({ id: userId })
-        .first()
-      user.rating = {score: 0.11, hex_code: '#EA1D3B'}
-      if (user) {
-        res.status(200).send(user)
-      } else {
-        res.status(404).send({ error: true, message: "Not found" })
-      }
-    } catch (error) {
-      res.status(500).send({ error: true, message: error })
-    }
-
-  })
-
-
 
   fastify.get('/users/:id/tracks/sent', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
@@ -128,4 +109,37 @@ module.exports = async (fastify, options) => {
         return res.status(500).send({ success: false, message: 'An error occured' })
       })
   })
+
+
+  /**
+   * Version 1
+   */
+
+  fastify.get('/v1/users/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
+    const userId = req.params.id;
+    try {
+      const user = await fastify.knex('users')
+        .select(['id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username'])
+        .where({ id: userId })
+        .first()
+      const rating = await fastify.knex('user_ratings').where({ user_id: userId }).first()
+      if (rating) {
+        rating.hex_code = getHexCodeForScore(rating.score)
+        user.rating = rating
+      }
+      if (user) {
+        res.status(200).send(user)
+      } else {
+        res.status(404).send({ error: true, message: "Not found" })
+      }
+    } catch (error) {
+      res.status(500).send({ error: true, message: error })
+    }
+  })
+
+
+
+
+
+
 }

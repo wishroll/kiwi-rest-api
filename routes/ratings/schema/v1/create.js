@@ -19,8 +19,9 @@ module.exports = {
     body: {
         type: 'object',
         properties: {
-            score: { type: 'number', minimum: 0, description: 'The value of the rating: between 0.00 and 1.00' }
-        }
+            score: { type: 'number', minimum: 0.00, description: 'The value of the rating: between 0.00 and 1.00' }
+        },
+        required: ['score']
     },
     response: {
         201: {
