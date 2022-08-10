@@ -126,6 +126,9 @@ module.exports = async (fastify, options) => {
       if (rating) {
         rating.hex_code = getHexCodeForScore(rating.score)
         user.rating = rating
+      } else {
+        const defaultScore = 0.10;
+        user.rating = {score: defaultScore, hex_code: getHexCodeForScore(defaultScore)}
       }
       if (user) {
         res.status(200).send(user)
