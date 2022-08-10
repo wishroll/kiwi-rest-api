@@ -25,6 +25,7 @@ module.exports = {
       { name: 'Registration', description: 'Sign up' },
       { name: 'Sessions', description: 'User Sessions' },
       { name: 'Search', description: 'Search Users' },
+      { name: 'Widgets', description: 'Get data needed for widget display' }
     ]
   },
   uiConfig: {
