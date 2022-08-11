@@ -27,7 +27,16 @@ module.exports = {
                     track_id: { type: 'string' },
                     platform: { type: 'string', enum: ['spotify', 'apple_music'] },
                     artwork_url: { type: 'string', description: 'The url of the album artwork' },
-                    sender_avatar_url: { type: 'string', description: 'The url of the senders avatar' }
+                    sender_avatar_url: { type: 'string', description: 'The url of the senders avatar' },
+                    name: { type: 'string', description: 'The name of the song' },
+                    artists: {
+                        type: 'array', items: {
+                            type: 'object',
+                            properties: {
+                                name: { type: 'string' },
+                            }
+                        }
+                    }
                 },
                 required: ['track_id', 'platform', 'sender_avatar_url', 'artwork_url']
             }
