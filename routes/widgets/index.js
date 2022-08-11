@@ -6,7 +6,7 @@ module.exports = async (fastify, options) => {
         const offset = req.query.offset;
         try {
             const results = await fastify.knex('tracks')
-                .select(['tracks.track_id as track_id', 'tracks.platform as platform', 'tracks.artwork as artwork', 'users.avatar_url as sender_avatar_url'])
+                .select(['tracks.track_id as track_id', 'tracks.platform as platform', 'tracks.artwork as artwork', 'tracks.name as name', 'tracks.artists as artists', 'users.avatar_url as sender_avatar_url'])
                 .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
                 .innerJoin('users', 'messages.sender_id', '=', 'users.id')
                 .where('messages.recipient_id', '=', currentUserId)
