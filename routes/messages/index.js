@@ -3,6 +3,7 @@ module.exports = async (fastify, options) => {
   const { show } = require('./schema/v1/show')
   const create = require('./schema/v1/create')
   const jsf = require('json-schema-faker')
+  const { sendNotificationOnReceivedSong } = require('../../services/notifications/notifications')
 
   fastify.get('/v1/me/messages', { onRequest: [fastify.authenticate], schema: receivedMessagesIndex }, async (req, res) => {
     const currentUserId = req.user.id;
@@ -25,6 +26,8 @@ module.exports = async (fastify, options) => {
         const data = messages.map((message) => {
           message.track = tracks.find((v) => v.track_id === message.track_id)
           message.rating = ratings.find((v) => v.message_id === message.id)
+          message.is_rated = message.rating == true
+          console.log('Is the message rated?', message.is_rated)
           message.sender = users.find((v) => v.id === message.sender_id)
           return message
         })
@@ -100,26 +103,20 @@ module.exports = async (fastify, options) => {
           insertIntoSpotifyTracks(results[0])
         }
       }
-      const messages = await Promise.all(recipients.map(async (recipient) => {
+      const insertData = await Promise.all(recipients.map(async (recipient) => {
         const id = recipient.id
-        const message = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: id, track_id: trackId, text: text })
-        return message
+        sendNotificationOnReceivedSong(currentUserId, id).catch()
+        return { sender_id: currentUserId, recipient_id: id, track_id: trackId, text: text }
       }))
-      res.status(201).send()
+      const messages = await fastify.knex('messages').insert(insertData, ['*'])
+      if (messages.length > 0) {
+        res.status(201).send()
+      } else {
+        res.status(400).send({ error: true, message: 'Failed to create messages' })
+      }
     } catch (error) {
       res.status(500).send({ error: true, message: error })
     }
-  })
-
-  fastify.post('/v1/update/tracks', async (req, res) => {
-    fastify.knex('spotify_tracks').then((spotify_tracks) => {
-      Promise.all(spotify_tracks.map((track) => {
-        insertIntoTracksTable(track)
-      }))
-    }).catch((err) => {
-      console.log(err)
-    });
-    res.send()
   })
 
   function insertIntoSpotifyTracks(existingTrack) {
@@ -140,41 +137,6 @@ module.exports = async (fastify, options) => {
         newTrack.album = { artists: existingTrack.artists, images: [existingTrack.artwork] }
         newTrack.artists = existingTrack.artists;
         fastify.knex('spotify_tracks').insert(newTrack, ['id']).then((insertResults) => {
-          if (insertResults) {
-            console.log("UPdated tracks table with value", insertResults)
-          }
-        })
-      }
-    })
-  }
-
-  function insertIntoTracksTable(existingTrack) {
-    fastify.knex('tracks').select(['track_id', 'platform', 'id']).where({ track_id: existingTrack.id, platform: 'spotify' }).first().then((alreadyTrack) => {
-      if (!alreadyTrack) {
-        console.log("In here!")
-        const newTrack = {};
-        newTrack.platform = 'spotify';
-        newTrack.track_id = existingTrack.id;
-        newTrack.name = existingTrack.name;
-        newTrack.href = existingTrack.href;
-        newTrack.external_url = existingTrack.external_urls.spotify;
-        newTrack.track_number = existingTrack.track_number;
-        newTrack.preview_url = existingTrack.preview_url;
-        newTrack.uri = existingTrack.uri;
-        newTrack.explicit = existingTrack.explicit;
-        newTrack.duration = existingTrack.duration_ms;
-        newTrack.isrc = existingTrack.external_ids.isrc;
-        newTrack.release_date = existingTrack.album.release_date;
-        newTrack.artists = existingTrack.artists.map((artist) => {
-          const a = {};
-          a.name = artist.name;
-          a.uri = artist.uri;
-          a.id = artist.id;
-          return a;
-        });
-        const images = existingTrack.album.images;
-        newTrack.artwork = images.length > 0 ? images[0] : null;
-        fastify.knex('tracks').insert(newTrack, ['id']).then((insertResults) => {
           if (insertResults) {
             console.log("UPdated tracks table with value", insertResults)
           }

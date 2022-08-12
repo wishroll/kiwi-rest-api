@@ -24,13 +24,13 @@ const receivedMessagesIndex = {
       items: {
         type: 'object',
         properties: {
-          id: { type: 'integer', minimum: 1 },
-          uuid: { type: 'string' },
-          created_at: { type: 'string' },
-          updated_at: { type: 'string' },
+          id: { type: 'integer', minimum: 1, description: 'The primary key id of the message' },
+          uuid: { type: 'string', description: 'The unique alphanumeric id of the message' },
+          created_at: { type: 'string', description: 'The datetime when the message was created' },
+          updated_at: { type: 'string', description: 'The last timestamp when the message was updated' },
           sender: {
             type: 'object', properties: {
-              id: { type: 'integer', minimum: 1 },
+              id: { type: 'integer', minimum: 1, description: 'The id of the user who created the message' },
               uuid: { type: 'string' },
               display_name: { type: 'string' },
               username: { type: 'string' },
@@ -38,6 +38,7 @@ const receivedMessagesIndex = {
             }
           },
           text: { type: 'string' },
+          is_rated: { type: 'boolean', description: 'Whether the message has been rated' },
           track: {
             type: 'object', properties: {
               track_id: { type: 'string' },
@@ -78,11 +79,11 @@ const receivedMessagesIndex = {
           rating: {
             type: 'object',
             properties: {
-              score: { type: 'number', minimum: 0.0 },
+              score: { type: 'number', minimum: 0.0, description: 'The score' },
             }
-          }
+          },
         },
-        required: ['id', 'uuid', 'created_at', 'updated_at', 'text']
+        required: ['id', 'uuid', 'created_at', 'updated_at', 'text', 'is_rated']
       }
     },
     404: {
