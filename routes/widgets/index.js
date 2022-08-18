@@ -19,6 +19,8 @@ module.exports = async (fastify, options) => {
                 })
                 console.log(results)
                 res.status(200).send(results)
+            } else {
+                res.status(404).send({error: true, message: "Not found"})
             }
         } catch (error) {
             console.log(error)
