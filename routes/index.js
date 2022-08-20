@@ -28,6 +28,7 @@ module.exports = async (fastify, options) => {
   fastify.register(require('./messages/index'))
   fastify.register(require('./ratings/index'))
   fastify.register(require('./widgets/index'))
+  fastify.register(require('../services/api/firebase/cloud_messaging/index'))
 }
 
 /**
