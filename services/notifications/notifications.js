@@ -1,6 +1,6 @@
 const push = require('./notification_settings')
 const knex = require('../db/postgres/knex_fastify_plugin')
-function generateNotificationData () {
+function generateNotificationData() {
   const data = {
     title: '', // REQUIRED for Android
     topic: '', // REQUIRED for iOS (apn and gcm)
@@ -59,8 +59,14 @@ function generateNotificationData () {
   }
   return data
 }
-
-const sendPushNotification = async (userIds, notificationData) => {
+/**
+ * Use the push notification module to push notifications to a list of users
+ * @async
+ * @param {number[]} userIds - The ids of the users intended to receive the notification 
+ * @param {Object} notificationData - The notification data
+ * @returns {Promise<*>} Resolves the result of the notification or an error 
+ */
+async function sendPushNotification(userIds, notificationData) {
   try {
     const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id').whereIn('users.id', userIds)
     if (devices.length < 1) { // Check that device tokens isn't empty
@@ -74,6 +80,21 @@ const sendPushNotification = async (userIds, notificationData) => {
     console.log('An error occured when sending notification', error)
     return error
   }
+}
+/**
+ * Create a push notification when a user has rated a song
+ * @param {number} messageId - The id of the message being rated 
+ * @returns {Promise<any>}
+ */
+const sendNotificationOnCreatedRating = async (messageId) => {
+  const userId = await knex('users').select('users.id').innerJoin('messages', 'users.id', '=', 'messages.sender_id').where('messages.id', '=', messageId).first();
+  console.log('This is the userId of the message sender', userId.id)
+  const notificationData = generateNotificationData()
+  notificationData.body = `Someone just rated a song you sent! Check out your updated music rating`
+  notificationData.topic = 'org.reactjs.native.example.mutualsapp'
+  notificationData.title = `New rating 👀`
+  notificationData.mutableContent = 1
+  return sendPushNotification([userId.id], notificationData)
 }
 
 const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {
@@ -95,7 +116,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
   return sendPushNotification([requestedUserId], notificationData)
 }
 
-async function sendDailyNotificationBlast (title, body) {
+async function sendDailyNotificationBlast(title, body) {
   const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
   if (devices.length < 1) {
     return new Error('No devices')
@@ -129,14 +150,14 @@ async function promiseAllInBatches(task, items, batchSize) {
   let position = 0;
   let results = [];
   while (position < items.length) {
-      const itemsForBatch = items.slice(position, position + batchSize);
-      results = [...results, ...await Promise.allSettled(itemsForBatch.map(item => task(item)))];
-      position += batchSize;
+    const itemsForBatch = items.slice(position, position + batchSize);
+    results = [...results, ...await Promise.allSettled(itemsForBatch.map(item => task(item)))];
+    position += batchSize;
   }
   return results;
 }
 
-async function sendNotificationOnReceivedSong (senderUserId, recipientUserId) {
+async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
   const senderUser = await knex('users').where({ id: senderUserId }).first()
   const recipientUser = await knex('users').where({ id: recipientUserId }).first()
   if (!senderUser || !recipientUser) {
@@ -144,7 +165,7 @@ async function sendNotificationOnReceivedSong (senderUserId, recipientUserId) {
   }
   const notification = generateNotificationData()
   notification.body = `${senderUser.display_name || senderUser.username} sent you a song!`
-  notification.title = '🥝  New Kiwi 🥝'
+  notification.title = '🥝 New Kiwi 🥝'
   notification.sound = 'activity_notification_sound.caf'
   notification.pushType = 'alert'
   notification.mutableContent = 1
@@ -170,4 +191,4 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   }
   return sendPushNotification([requesterUserId], notificationData)
 }
-module.exports = { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest, sendDailyNotificationBlast, sendNotificationOnReceivedSong }
+module.exports = { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest, sendDailyNotificationBlast, sendNotificationOnReceivedSong, sendNotificationOnCreatedRating }
