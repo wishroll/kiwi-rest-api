@@ -48,7 +48,8 @@ module.exports = {
     },
     pool: {
       min: process.env.MIN_CONNECTIONS || 100,
-      max: process.env.MAX_CONNECTIONS || 500
+      max: process.env.MAX_CONNECTIONS || 9000, 
+      
     },
     migrations: {
       directory: './services/db/postgres/migrations'
