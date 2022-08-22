@@ -56,12 +56,36 @@ Array.prototype.sample = function () {
 
 const databaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL || process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL || process.env.HEROKU_POSTGRESQL_GRAY_URL]; // array of db urls
 
-
-
-function generateAndConfigKnexDB(maxConnections, minConnections, ...databaseUrls) {
+/**
+ * 
+ * @param {number} maxConnections 
+ * @param {number} minConnections 
+ * @param {string} databaseUrl 
+ * @returns 
+ */
+function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
+    switch (process.env.NODE_ENV) {
+        case 'production':
+            return knex(generateProductionConfig(databaseUrl, 'postgresql', maxConnections, minConnections))
+        case 'development':
+            return knex(generateDevelopmentConfig("greatokonkwo", "greatokonkwo"))
+        default:
+            return null
+    }
+}
+/**
+ * 
+ * @param {number} maxConnections 
+ * @param {number} minConnections 
+ * @param {string[]} databaseUrls 
+ * @override
+ * @returns 
+ */
+function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, databaseUrls) {
     switch (process.env.NODE_ENV) {
         case 'production':
             const url = databaseUrls.sample()
+            console.log("This is the chosen url", url)
             return knex(generateProductionConfig(url, 'postgresql', maxConnections, minConnections))
         case 'development':
             return knex(generateDevelopmentConfig("greatokonkwo", "greatokonkwo"))
@@ -70,6 +94,6 @@ function generateAndConfigKnexDB(maxConnections, minConnections, ...databaseUrls
     }
 }
 
-const readDB  = generateAndConfigKnexDB(MAX_CONNECTIONS, MAX_CONNECTIONS, databaseUrls)
+const readDB = generateAndConfigKnexDBMultipleUrls(MAX_CONNECTIONS, MAX_CONNECTIONS, databaseUrls)
 const writeDB = generateAndConfigKnexDB(MAX_CONNECTION_POOL_CONNECTIONS, MAX_CONNECTION_POOL_CONNECTIONS, process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL)
 module.exports = { readDB, writeDB }
