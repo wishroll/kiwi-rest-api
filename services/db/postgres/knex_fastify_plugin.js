@@ -4,9 +4,9 @@ const knex = require('knex');
 //config knex
 //create knex variables
 
-async function generateProductionConfig(databaseUrl = process.env.DATABASE_CONNECTION_URL, client = 'postgresql', maxConnections = 400, minConnections = 100) {
+function generateProductionConfig(databaseUrl, client, maxConnections = 400, minConnections = 100) {
     return {
-        client: client,
+        client: 'postgresql',
         connection: {
             connectionString: databaseUrl,
             ssl: { rejectUnauthorized: false }
@@ -66,7 +66,7 @@ const stagingDatabaseUrls = [process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.
 function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
     switch (process.env.NODE_ENV) {
         case 'production':
-            return knex(generateProductionConfig(databaseUrl, 'postgresql', maxConnections, minConnections))
+            return knex(generateProductionConfig(databaseUrl, maxConnections, minConnections))
         case 'development':
             return knex(generateDevelopmentConfig("greatokonkwo", "greatokonkwo"))
         default:
@@ -83,10 +83,10 @@ function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
  */
 function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, databaseUrls) {
     switch (process.env.NODE_ENV) {
-        case 'development':
+        case 'production':
             const url = databaseUrls.sample()
             console.log("This is the chosen url", url)
-            return knex(generateProductionConfig(url, 'postgresql', maxConnections, minConnections))
+            return knex(generateProductionConfig(url, maxConnections, minConnections))
         case 'development':
             return knex(generateDevelopmentConfig("greatokonkwo", "greatokonkwo"))
         default:
