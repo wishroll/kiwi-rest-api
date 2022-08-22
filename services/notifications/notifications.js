@@ -1,5 +1,5 @@
 const push = require('./notification_settings')
-const knex = require('../db/postgres/knex_fastify_plugin')
+const { readDB } = require('../db/postgres/knex_fastify_plugin')
 function generateNotificationData() {
   const data = {
     title: '', // REQUIRED for Android
@@ -68,7 +68,7 @@ function generateNotificationData() {
  */
 async function sendPushNotification(userIds, notificationData) {
   try {
-    const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id').whereIn('users.id', userIds)
+    const devices = await readDB('devices').select('token').join('users', 'devices.user_id', '=', 'users.id').whereIn('users.id', userIds)
     if (devices.length < 1) { // Check that device tokens isn't empty
       return new Error('No devices')
     }
@@ -87,7 +87,7 @@ async function sendPushNotification(userIds, notificationData) {
  * @returns {Promise<any>}
  */
 const sendNotificationOnCreatedRating = async (messageId) => {
-  const userId = await knex('users').select('users.id').innerJoin('messages', 'users.id', '=', 'messages.sender_id').where('messages.id', '=', messageId).first();
+  const userId = await readDB('users').select('users.id').innerJoin('messages', 'users.id', '=', 'messages.sender_id').where('messages.id', '=', messageId).first();
   console.log('This is the userId of the message sender', userId.id)
   const notificationData = generateNotificationData()
   notificationData.body = `Someone just rated a song you sent! Check out your updated music rating`
@@ -98,8 +98,8 @@ const sendNotificationOnCreatedRating = async (messageId) => {
 }
 
 const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {
-  const requestedUser = await knex('users').where({ id: requestedUserId }).first()
-  const requesterUser = await knex('users').where({ id: requesterUserId }).first()
+  const requestedUser = await readDB('users').where({ id: requestedUserId }).first()
+  const requesterUser = await readDB('users').where({ id: requesterUserId }).first()
   if (!requestedUser || !requesterUser) {
     return new Error('No users found')
   }
@@ -117,7 +117,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
 }
 
 async function sendDailyNotificationBlast(title, body) {
-  const devices = await knex('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
+  const devices = await readDB('devices').select('token').join('users', 'devices.user_id', '=', 'users.id')
   if (devices.length < 1) {
     return new Error('No devices')
   }
@@ -158,8 +158,8 @@ async function promiseAllInBatches(task, items, batchSize) {
 }
 
 async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
-  const senderUser = await knex('users').where({ id: senderUserId }).first()
-  const recipientUser = await knex('users').where({ id: recipientUserId }).first()
+  const senderUser = await readDB('users').where({ id: senderUserId }).first()
+  const recipientUser = await readDB('users').where({ id: recipientUserId }).first()
   if (!senderUser || !recipientUser) {
     return new Error('User not found')
   }
@@ -174,8 +174,8 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
 }
 
 const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requestedUserId) => {
-  const requestedUser = await knex('users').where({ id: requestedUserId }).first()
-  const requesterUser = await knex('users').where({ id: requesterUserId }).first()
+  const requestedUser = await readDB('users').where({ id: requestedUserId }).first()
+  const requesterUser = await readDB('users').where({ id: requesterUserId }).first()
   if (!requestedUser || !requesterUser) {
     return new Error('No users found')
   }

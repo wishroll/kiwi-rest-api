@@ -8,7 +8,7 @@ module.exports = async (fastify, options) => {
         const currentUserId = req.user.id;
         const score = req.body.score;
         try {
-            const inserts = await fastify.knex('ratings').insert({ user_id: currentUserId, message_id: messageId, score: score }, ['*']);
+            const inserts = await fastify.writeDb('ratings').insert({ user_id: currentUserId, message_id: messageId, score: score }, ['*']);
             if (inserts.length > 0) {
                 updateMessageSenderRating(messageId, score)
                 sendNotificationOnCreatedRating(messageId).catch((error) => console.log(error))

@@ -5,7 +5,7 @@ module.exports = async (fastify, options) => {
         const limit = req.query.limit;
         const offset = req.query.offset;
         try {
-            const results = await fastify.knex('tracks')
+            const results = await fastify.readDb('tracks')
                 .select(['tracks.track_id as track_id', 'tracks.platform as platform', 'tracks.artwork as artwork', 'tracks.name as name', 'tracks.artists as artists', 'users.avatar_url as sender_avatar_url'])
                 .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
                 .innerJoin('users', 'messages.sender_id', '=', 'users.id')

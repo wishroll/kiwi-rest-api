@@ -4,7 +4,7 @@ module.exports = async (fastify, options) => {
         const token = req.body.token;
         const currentUserId = req.user.id;
         try {
-            const insert = await fastify.knex('firebase_cloud_messaging_tokens').insert({ token, user_id: currentUserId }, ['*']).onConflict(['user_id', 'token']).merge({token});
+            const insert = await fastify.writeDb('firebase_cloud_messaging_tokens').insert({ token, user_id: currentUserId }, ['*']).onConflict(['user_id', 'token']).merge({token});
             if (insert && insert.length > 0) {
                 console.log(insert)
                 res.status(201).send(insert[0])
