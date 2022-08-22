@@ -94,6 +94,6 @@ function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, dat
     }
 }
 
-const readDB = generateAndConfigKnexDBMultipleUrls(MAX_CONNECTIONS, MAX_CONNECTIONS, process.env.NODE_ENV === 'production' ? productionDatabaseUrls : stagingDatabaseUrls)
+const readDB = generateAndConfigKnexDBMultipleUrls(MAX_CONNECTIONS, MAX_CONNECTIONS, process.env.API_ENV === 'production' ? productionDatabaseUrls : stagingDatabaseUrls)
 const writeDB = generateAndConfigKnexDB(MAX_CONNECTION_POOL_CONNECTIONS, MAX_CONNECTION_POOL_CONNECTIONS, process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL)
 module.exports = { readDB, writeDB }
