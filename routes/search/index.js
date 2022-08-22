@@ -1,5 +1,6 @@
 module.exports = async (fastify, options) => {
   const index = require('./schema/v1/users/index')
+  const { searchUsers } = require('../../services/api/neo4j/search/index')
   fastify.get('/search/users', { onRequest: [fastify.authenticate], schema: index }, async (req, res) => {
     const currentUserId = req.user.id
     const query = req.query.query

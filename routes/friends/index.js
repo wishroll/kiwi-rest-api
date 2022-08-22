@@ -4,6 +4,8 @@ module.exports = async (fastify, options) => {
   const {contacts, friends, requested, requests} = require('./schema/v1/index')
   const {friendship, friendshipRequest} = require('./schema/v1/create')
   const {deleteFriendship, deleteFriendshipRequest} = require('./schema/v1/delete')
+  const {createFriendship} = require('../../services/api/neo4j/friendships/index');
+  const {createFriendRequest} = require('../../services/api/neo4j/friendships/index'); 
 
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
@@ -132,14 +134,14 @@ module.exports = async (fastify, options) => {
   fastify.post('/v2/friends/request', { onRequest: [fastify.authenticate], schema: friendshipRequest }, async (req, res) => {
     const currentUserId = req.user.id
     const requestedUserId = req.body.requested_user_id
-    if (currentUserId === requestedUserId) {
+    if (currentUserId == requestedUserId) {
       return res.status(400).send({error: true, message: "Request sent to current user"})
     }
     try {
       const request = await fastify.knex('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
       if (request) {
+        createFriendRequest(currentUserId, requestedUserId).catch(err => console.log(err))
         sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch() // Send out notification
-          .catch((err) => console.log(err))
         res.status(201).send()
       } else {
         res.status(500).send({ error: 'Unable to create request' })
@@ -152,25 +154,26 @@ module.exports = async (fastify, options) => {
   fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate], schema: friendship }, async (req, res) => {
     const currentUserId = req.user.id
     const requestingUserId = req.body.requesting_user_id
-    if (currentUserId === requestingUserId) {
+    if (currentUserId == requestingUserId) {
       return res.status(400).send({ error: true, message: "Can't accept request from current user" })
     }
     try {
-      const friend_request = await fastify.knex('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).first()
-      if (friend_request) {
+      const friend_request = await fastify.knex('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).del('id')
+      if (friend_request && friend_request.length > 0) {
+        console.log("The result of deleting the friend request", friend_request)
         const friendship = await fastify.knex('friends').insert({ friend_id: currentUserId, user_id: requestingUserId })
         if (friendship) {
+          createFriendship(currentUserId, requestingUserId).catch((err) => console.log(`An error occured when creating a friendship in the neo4j instance ${err}`))
           sendPushNotificationOnAcceptedFriendRequest(requestingUserId, currentUserId).catch()
-          await fastify.knex('friend_requests').where({ id: friend_request.id }).del()
           res.status(201).send()
         } else {
-          res.status(500).send({ message: 'Unable to create new friendship' })
+          res.status(500).send({ error: true, message: 'Unable to create new friendship' })
         }
       } else {
-        res.status(404).send({ message: 'There are no friend requests sent' })
+        res.status(404).send({error: true,  message: 'There are no friend requests sent' })
       }
     } catch (error) {
-      res.status(500).send(error)
+      res.status(500).send({error: true, message: error})
     }
   })
 
