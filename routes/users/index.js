@@ -1,5 +1,5 @@
 const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score')
-
+const { updateUserNode } = require('../../services/api/neo4j/users/index')
 module.exports = async (fastify, options) => {
   const crypto = require('crypto')
   const multer = require('fastify-multer')
@@ -102,6 +102,8 @@ module.exports = async (fastify, options) => {
       .where({ id: userId })
       .update(updateParams, ['id', 'uuid', 'display_name', 'username', 'phone_number', 'created_at', 'updated_at', 'avatar_url'])
       .then((rows) => {
+        const updatedUser = rows[0]
+        updateUserNode(userId, updatedUser).catch(err => console.log(`An error occured when updating a user node ${err}`));
         return res.status(200).send(rows)
       })
       .catch((err) => {
@@ -128,7 +130,7 @@ module.exports = async (fastify, options) => {
         user.rating = rating
       } else {
         const defaultScore = 0.10;
-        user.rating = {score: defaultScore, hex_code: getHexCodeForScore(defaultScore)}
+        user.rating = { score: defaultScore, hex_code: getHexCodeForScore(defaultScore) }
       }
       if (user) {
         res.status(200).send(user)
@@ -139,10 +141,5 @@ module.exports = async (fastify, options) => {
       res.status(500).send({ error: true, message: error })
     }
   })
-
-
-
-
-
 
 }
