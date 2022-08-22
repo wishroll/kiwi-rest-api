@@ -231,7 +231,7 @@ module.exports = async (fastify, options) => {
     const userId = req.body.user_id
     try {
       const friendRequests = await fastify.writeDb('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).del('id')
-      if (friendRequests && friendRequest.length > 0) {
+      if (friendRequests && friendRequests.length > 0) {
         // deleteFriendRequestRelationship(currentUserId, userId).catch(err => console.log(`Error occured when deleting friend request relationship ${err}`))
         res.status(200).send()
       } else {
