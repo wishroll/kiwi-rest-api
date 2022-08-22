@@ -54,8 +54,7 @@ Array.prototype.sample = function () {
     return this[Math.floor(Math.random() * this.length)];
 }
 
-const productionDatabaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL]; // array of db urls
-const stagingDatabaseUrls = [process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_GRAY_URL];
+const databaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL || process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL || process.env.HEROKU_POSTGRESQL_GRAY_URL]; // array of db urls
 
 
 
@@ -71,6 +70,6 @@ function generateAndConfigKnexDB(maxConnections, minConnections, ...databaseUrls
     }
 }
 
-const readDB  = generateAndConfigKnexDB(MAX_CONNECTIONS, MAX_CONNECTIONS, productionDatabaseUrls || stagingDatabaseUrls)
+const readDB  = generateAndConfigKnexDB(MAX_CONNECTIONS, MAX_CONNECTIONS, databaseUrls || stagingDatabaseUrls)
 const writeDB = generateAndConfigKnexDB(MAX_CONNECTION_POOL_CONNECTIONS, MAX_CONNECTION_POOL_CONNECTIONS, process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL)
 module.exports = { readDB, writeDB }
