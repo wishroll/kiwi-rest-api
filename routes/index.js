@@ -31,30 +31,3 @@ module.exports = async (fastify, options) => {
   fastify.register(require('../services/api/firebase/cloud_messaging/index'))
 }
 
-/**
- *
- *  Routes for version one of the WishRoll API
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- */

@@ -1,6 +1,7 @@
 const { phone } = require('phone')
 module.exports = async (fastify, options) => {
   const signupVerifiedCacheKey = (phoneNumber) => { return `signup-verified-phone-number ${phoneNumber}` }
+  const { createUserNode } = require('../../services/api/neo4j/users/index')
 
   /**
  *
@@ -85,9 +86,6 @@ module.exports = async (fastify, options) => {
 
   fastify.post('/signup', async (req, res) => {
     const phoneNumber = req.body.phone_number
-    // const countryCode = req.body.country_code
-    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
-
     if (!phoneNumber) {
       return res.status(400).send()
     }
@@ -96,13 +94,14 @@ module.exports = async (fastify, options) => {
       const cacheKey = signupVerifiedCacheKey(phoneNumber)
       const result = await fastify.redisClient.get(cacheKey)
       if (result) {
-        const results = await fastify.knex('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name'])
+        const results = await fastify.knex('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name', 'phone_number'])
         if (results.length > 0) {
           const user = results[0]
           const id = parseInt(user.id)
           const uuid = user.uuid
           const token = fastify.jwt.sign({ id, uuid }, { expiresIn: '365 days' })
           await fastify.redisClient.del(cacheKey)
+          createUserNode(user).catch(err => console.log(`An error occured when creating the user node for the graph db\n${err}`))
           res.status(201).send({ access_token: token })
         } else {
           // User record wasn't created in db
