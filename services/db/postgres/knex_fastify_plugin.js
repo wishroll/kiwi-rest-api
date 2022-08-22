@@ -54,8 +54,8 @@ Array.prototype.sample = function () {
     return this[Math.floor(Math.random() * this.length)];
 }
 
-const databaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL || process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL || process.env.HEROKU_POSTGRESQL_GRAY_URL]; // array of db urls
-
+const productionDatabaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL]; // array of db urls
+const stagingDatabaseUrls = [process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_GRAY_URL];
 /**
  * 
  * @param {number} maxConnections 
@@ -83,7 +83,7 @@ function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
  */
 function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, databaseUrls) {
     switch (process.env.NODE_ENV) {
-        case 'production':
+        case 'development':
             const url = databaseUrls.sample()
             console.log("This is the chosen url", url)
             return knex(generateProductionConfig(url, 'postgresql', maxConnections, minConnections))
@@ -94,6 +94,6 @@ function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, dat
     }
 }
 
-const readDB = generateAndConfigKnexDBMultipleUrls(MAX_CONNECTIONS, MAX_CONNECTIONS, databaseUrls)
+const readDB = generateAndConfigKnexDBMultipleUrls(MAX_CONNECTIONS, MAX_CONNECTIONS, process.env.NODE_ENV === 'production' ? productionDatabaseUrls : stagingDatabaseUrls)
 const writeDB = generateAndConfigKnexDB(MAX_CONNECTION_POOL_CONNECTIONS, MAX_CONNECTION_POOL_CONNECTIONS, process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL)
 module.exports = { readDB, writeDB }
