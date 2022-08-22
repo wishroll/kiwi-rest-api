@@ -37,8 +37,4 @@ async function updateUserNode(userId, updates) {
     }
 }
 
-async function getOverallRating() {
-
-}
-
 module.exports = { createUserNode, updateUserNode }

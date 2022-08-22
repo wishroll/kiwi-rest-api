@@ -15,10 +15,12 @@ async function createFriendship(user1Id, user2Id) {
         const writeResult = await session.writeTransaction(tx =>
             tx.run(query)
         )
+        console.log(writeResult.summary)
         const records = writeResult.records;
+        console.log(records)
         return records
     } catch (error) {
-        console.log("An error occured when writing to neo4j aurardb instance with function: create friendship", error)
+        return error
     } finally {
         await session.close()
     }
@@ -38,9 +40,10 @@ async function createFriendRequest(requestingUserId, requestedUserId) {
         const writeResult = await session.writeTransaction(tx =>
             tx.run(query)
         )
-        console.log("Successfully created friend requests", writeResult.summary, writeResult.records)
+        console.log(writeResult.summary)
+        return writeResult.records;
     } catch (error) {
-        console.log("An error occured when writing to neo4j aurardb instance with function: create friendship", error)
+        return error
     } finally {
         await session.close()
     }
@@ -55,7 +58,6 @@ async function getFriends(userId) {
         console.log(`These are the results of fetching user: ${userId}'s friends ${records}`);
         return result.records;
     } catch (error) {
-        console.log(`An error occured when fetching user ${userId}'s friends`)
         return error
     } finally {
         await session.close();
@@ -69,7 +71,6 @@ async function getFriendsRequested(userId) {
         const query = `MATCH (User {id: ${userId}})-[:FRIENDS_REQUESTED]->(u:User)`;
         const result = await session.readTransaction(tx => tx.run(query));
         const records = result.records;
-        console.log(`These are the results of fetching user: ${userId}'s friends ${records}`);
         return records;
     } catch (error) {
         console.log(`An error occured when fetching user ${userId}'s friends`)
@@ -88,31 +89,48 @@ async function getFriendsRequesting(userId) {
         console.log(`These are the results of fetching user: ${userId}'s friends ${records}`);
         return records;
     } catch (error) {
-        console.log(`An error occured when fetching user ${userId}'s friends`)
         return error
     } finally {
         await session.close();
     }
 }
 
-async function deleteFriendship(user1Id, user2Id) {
+async function deleteFriendshipRelationship(user1Id, user2Id) {
     const session = driver.session({ database: 'neo4j' });
     try {
-        const query = `MATCH (u1:User {id: ${requestingUserId}})
-        MATCH (u2:User {id: ${requestedUserId}})
-        MATCH (u1)-[fr:FRIEND_REQUESTED]->(u2)
+        const query = `MATCH (u1:User {id: ${user1Id}})
+        MATCH (u2:User {id: ${user2Id}})
+        MATCH (u1)-[fr:FRIENDS_WITH]->(u2)
         DELETE fr`
+        const writeResult = await session.writeTransaction(tx =>
+            tx.run(query)
+        )
+        console.log(writeResult.summary)
+        return writeResult.records;
     } catch (error) {
-
+        return error
     } finally {
         await session.close();
     }
 
 }
 
-async function deleteFriendRequest(user1Id, user2Id) {
+async function deleteFriendRequestRelationship(requestingUserId, requestedUserId) {
     const session = driver.session({ database: 'neo4j' });
-
+    try {
+        const query = `MATCH (u1:User {id: ${requestingUserId}})
+                        MATCH (u2:User {id: ${requestedUserId}})
+                        MATCH (u1)-[fr:FRIEND_REQUESTED]->(u2)
+                        DELETE fr`
+        const writeResult = await session.writeTransaction(tx =>
+            tx.run(query)
+        )
+        return writeResult.records;
+    } catch (error) {
+        return error
+    } finally {
+        await session.close();
+    }
 }
 
-module.exports = { createFriendship, createFriendRequest, getFriends, getFriendsRequested, getFriendsRequesting }
+module.exports = { createFriendship, createFriendRequest, getFriends, getFriendsRequested, getFriendsRequesting, deleteFriendshipRelationship, deleteFriendRequestRelationship }

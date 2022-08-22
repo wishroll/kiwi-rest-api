@@ -142,17 +142,4 @@ module.exports = async (fastify, options) => {
     }
   })
 
-
-  fastify.post('/users', async (req, res) => {
-    try {
-      const result = await createUserNode(req.body)
-      res.status(201).send(result)
-    } catch (error) {
-      res.status(500).send()
-    }
-
-  })
-
-
-
 }
