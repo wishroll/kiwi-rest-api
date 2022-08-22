@@ -44,7 +44,7 @@ module.exports = async (fastify, options) => {
   fastify.get('/users/:id', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const userId = req.params.id;
     try {
-      const user = await fastify.knex('users')
+      const user = await fastify.readDb('users')
         .select(['id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username'])
         .where({ id: userId })
         .first()
@@ -63,7 +63,7 @@ module.exports = async (fastify, options) => {
     const offset = req.query.offset
     const userId = req.params.id
     try {
-      const tracks = await fastify.knex('spotify_tracks')
+      const tracks = await fastify.readDb('spotify_tracks')
 
         .select(['spotify_tracks.id as id', 'spotify_tracks.name as name', 'spotify_tracks.created_at as created_at', 'spotify_tracks.updated_at as updated_at', 'spotify_tracks.uri as uri', 'spotify_tracks.track_number as track_number', 'spotify_tracks.track as track', 'spotify_tracks.type as type', 'spotify_tracks.preview_url as preview_url', 'spotify_tracks.popularity as popularity', 'spotify_tracks.is_local as is_local', 'spotify_tracks.href as href', 'spotify_tracks.explicit as explicit', 'spotify_tracks.episode as episode', 'spotify_tracks.duration_ms as duration_ms', 'spotify_tracks.disc_number as disc_number', 'spotify_tracks.available_markets as available_markets', 'spotify_tracks.album as album', 'spotify_tracks.artists as artists', 'spotify_tracks.external_ids as external_ids', 'spotify_tracks.external_urls as external_urls'])
         .join('messages', 'spotify_tracks.id', '=', 'messages.track_id')
@@ -97,7 +97,7 @@ module.exports = async (fastify, options) => {
       const avatarUrl = `${protocol}://${hostName}/media/redirect/${signedId}/${key}`
       updateParams.avatar_url = avatarUrl
     }
-    fastify.knex('users')
+    fastify.writeDb('users')
       .select('id')
       .where({ id: userId })
       .update(updateParams, ['id', 'uuid', 'display_name', 'username', 'phone_number', 'created_at', 'updated_at', 'avatar_url'])
@@ -120,11 +120,11 @@ module.exports = async (fastify, options) => {
   fastify.get('/v1/users/:id', { onRequest: [fastify.authenticate], schema: show }, async (req, res) => {
     const userId = req.params.id;
     try {
-      const user = await fastify.knex('users')
+      const user = await fastify.readDb('users')
         .select(['id', 'uuid', 'display_name', 'created_at', 'updated_at', 'avatar_url', 'username'])
         .where({ id: userId })
         .first()
-      const rating = await fastify.knex('user_ratings').where({ user_id: userId }).first()
+      const rating = await fastify.readDb('user_ratings').where({ user_id: userId }).first()
       if (rating) {
         rating.hex_code = getHexCodeForScore(rating.score)
         user.rating = rating

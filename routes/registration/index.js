@@ -17,7 +17,7 @@ module.exports = async (fastify, options) => {
 
     try {
       // If there is no value for the key, fetch db instead
-      const user = await fastify.knex('users')
+      const user = await fastify.readDb('users')
         .select('phone_number')
         .where({ phone_number: phoneNumber })
         .first()
@@ -94,7 +94,7 @@ module.exports = async (fastify, options) => {
       const cacheKey = signupVerifiedCacheKey(phoneNumber)
       const result = await fastify.redisClient.get(cacheKey)
       if (result) {
-        const results = await fastify.knex('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name', 'phone_number'])
+        const results = await fastify.writeDb('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name', 'phone_number'])
         if (results.length > 0) {
           const user = results[0]
           const id = parseInt(user.id)
