@@ -12,7 +12,7 @@ module.exports = async (fastify, options) => {
     }
 
     try {
-      const rows = await fastify.knex('users').select('phone_number').where({ phone_number: phoneNumber })
+      const rows = await fastify.readDb('users').select('phone_number').where({ phone_number: phoneNumber })
       console.log(`This is the rows ${rows}`)
       rows && rows.length > 0 ? res.status(200).send() : res.status(404).send()
     } catch (error) {
@@ -82,7 +82,7 @@ module.exports = async (fastify, options) => {
     try {
       const verified = await fastify.redisClient.get(cacheKey)
       if (verified) {
-        const user = await fastify.knex('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first()
+        const user = await fastify.readDb('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first()
         const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' })
         await fastify.redisClient.del(cacheKey)
         res.status(200).send({ access_token: token })

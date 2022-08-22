@@ -7,7 +7,7 @@ module.exports = async (fastify, options) => {
     const offset = req.query.offset
     const limit = req.query.limit
     try {
-      const tracks = await fastify.knex('spotify_tracks').join('messages', 'spotify_tracks.id', '=', 'messages.track_id').join('users', 'messages.sender_id', '=', 'users.id').where('messages.recipient_id', '=', currentUserId).orderBy('messages.created_at', 'desc').offset(offset).limit(limit)
+      const tracks = await fastify.readDb('spotify_tracks').join('messages', 'spotify_tracks.id', '=', 'messages.track_id').join('users', 'messages.sender_id', '=', 'users.id').where('messages.recipient_id', '=', currentUserId).orderBy('messages.created_at', 'desc').offset(offset).limit(limit)
       if (tracks.length > 0) {
         res.status(200).send(tracks)
       } else {
@@ -27,33 +27,33 @@ module.exports = async (fastify, options) => {
     }
 
     try {
-      const createdFriendsRows = await fastify.knex('friends').select('friends.friend_id').where({ user_id: currentUserId })
+      const createdFriendsRows = await fastify.readDb('friends').select('friends.friend_id').where({ user_id: currentUserId })
       const createdFriends = createdFriendsRows.map((row) => row.friend_id)
-      const acceptedFriendsRows = await fastify.knex('friends').select('friends.user_id').where({ friend_id: currentUserId })
+      const acceptedFriendsRows = await fastify.readDb('friends').select('friends.user_id').where({ friend_id: currentUserId })
       const acceptedFriends = acceptedFriendsRows.map((row) => row.user_id)
       const friends = createdFriends.concat(acceptedFriends)
       if (friends.length > 0) {
-        const users = await fastify.knex('users').select('id').whereIn('id', friends)
+        const users = await fastify.readDb('users').select('id').whereIn('id', friends)
         if (users.length > 0) {
           const records = await Promise.all(
             tracks.map(async (track) => {
-              const existingTrack = await fastify.knex('spotify_tracks').select('id').where({ id: track.id }).first()
+              const existingTrack = await fastify.readDb('spotify_tracks').select('id').where({ id: track.id }).first()
               if (existingTrack) {
                 const records = await Promise.all(
                   users.map(async (user_id) => {
-                    const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: existingTrack.id })
+                    const record = await fastify.writeDb('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: existingTrack.id })
                     return record
                   })
                 )
                 return records
               } else {
-                const createdRecords = await fastify.knex('spotify_tracks').insert(track, ['id'])
+                const createdRecords = await fastify.writeDb('spotify_tracks').insert(track, ['id'])
                 if (createdRecords && createdRecords.length > 0) {
                   console.log(createdRecords)
                   const track = createdRecords[0]
                   const records = await Promise.all(
                     users.map(async (user_id) => {
-                      const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: track.id })
+                      const record = await fastify.writeDb('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: track.id })
                       return record
                     })
                   )
@@ -96,16 +96,16 @@ module.exports = async (fastify, options) => {
     }
     try {
       const recipientIds = recipients.map((recipient) => recipient.id)
-      const users = await fastify.knex('users').select('id').whereIn('id', recipientIds)
+      const users = await fastify.readDb('users').select('id').whereIn('id', recipientIds)
       if (users.length <= 0) {
         res.status(404).send({ error: true, message: 'No users found' })
       }
-      const existingTrack = await fastify.knex('spotify_tracks').where({ id: track.id }).first()
+      const existingTrack = await fastify.readDb('spotify_tracks').where({ id: track.id }).first()
       if (existingTrack) {
         insertIntoTracksTable(existingTrack)
         const records = await Promise.all(
           users.map(async (user_id) => {
-            const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: existingTrack.id })
+            const record = await fastify.writeDb('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: existingTrack.id })
             sendNotificationOnReceivedSong(currentUserId, user_id.id).catch()
             return record
           })
@@ -116,14 +116,14 @@ module.exports = async (fastify, options) => {
           res.status(500).send({ error: true, message: 'Error creating records' })
         }
       } else {
-        const createdRecords = await fastify.knex('spotify_tracks').insert(track, ['*'])
+        const createdRecords = await fastify.writeDb('spotify_tracks').insert(track, ['*'])
         if (createdRecords && createdRecords.length > 0) {
           console.log(createdRecords)
           const track = createdRecords[0]
           insertIntoTracksTable(track)
           const records = await Promise.all(
             users.map(async (user_id) => {
-              const record = await fastify.knex('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: track.id })
+              const record = await fastify.writeDb('messages').insert({ sender_id: currentUserId, recipient_id: user_id.id, track_id: track.id })
               sendNotificationOnReceivedSong(currentUserId, user_id.id).catch()
               return record
             })
@@ -143,7 +143,7 @@ module.exports = async (fastify, options) => {
   })
 
   function insertIntoTracksTable(existingTrack) {
-    fastify.knex('tracks').select(['track_id', 'platform', 'id']).where({ track_id: existingTrack.id, platform: 'spotify' }).first().then((alreadyTrack) => {
+    fastify.readDb('tracks').select(['track_id', 'platform', 'id']).where({ track_id: existingTrack.id, platform: 'spotify' }).first().then((alreadyTrack) => {
       if (!alreadyTrack) {
         console.log("In here!")
         const newTrack = {};
@@ -168,7 +168,7 @@ module.exports = async (fastify, options) => {
         });
         const images = existingTrack.album.images;
         newTrack.artwork = images.length > 0 ? images[0] : null;
-        fastify.knex('tracks').insert(newTrack, ['id']).then((insertResults) => {
+        fastify.writeDb('tracks').insert(newTrack, ['id']).then((insertResults) => {
           if (insertResults) {
             console.log("UPdated tracks table with value", insertResults)
           }
