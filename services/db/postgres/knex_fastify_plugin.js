@@ -70,6 +70,6 @@ function generateAndConfigKnexDB(maxConnections, minConnections, ...databaseUrls
     }
 }
 
-const readDB  = generateAndConfigKnexDB(MAX_CONNECTIONS, MAX_CONNECTIONS, databaseUrls || stagingDatabaseUrls)
+const readDB  = generateAndConfigKnexDB(MAX_CONNECTIONS, MAX_CONNECTIONS, databaseUrls)
 const writeDB = generateAndConfigKnexDB(MAX_CONNECTION_POOL_CONNECTIONS, MAX_CONNECTION_POOL_CONNECTIONS, process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL)
 module.exports = { readDB, writeDB }
