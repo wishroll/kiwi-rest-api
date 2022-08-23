@@ -35,7 +35,7 @@ module.exports = {
                     friendship_status: { type: 'string', enum: ['none', 'friends', 'pending_sent', 'pending_received'] }
 
                 },
-                required: ['id', 'uuid', 'created_at', 'updated_at', 'username', 'display_name', 'friendship_status']
+                required: ['id', 'uuid', 'username', 'display_name']
             }
         },
         404: {
