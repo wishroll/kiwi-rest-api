@@ -5,11 +5,10 @@ async function searchUsers(q, offset = 0, limit = 10) {
     const session = driver.session({ database: 'neo4j' });
     try {
         const query = `
+
         CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "${q}~", {limit:${limit}, skip:${offset}}) YIELD node, score
         RETURN node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name
-        order by score desc
-        skip ${offset} 
-        limit ${limit}`;
+        order by score desc`;
         const result = await session.readTransaction(tx => tx.run(query));
         const records = result.records.map(r => {
             return { id: r.get('id'), uuid: r.get('uuid'), username: r.get('username'), display_name: r.get('display_name') }
