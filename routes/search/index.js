@@ -6,12 +6,15 @@ module.exports = async (fastify, options) => {
     const query = req.query.query
     const limit = req.query.limit
     const offset = req.query.offset
+    if (!query || query.length < 1) {
+      return res.status(400).send({ error: true, message: 'Missing Query' })
+    }
     try {
       const users = await searchUsers(query, offset, limit)
       if (users && users.length > 0) {
         res.status(200).send(users)
       } else {
-        res.status(404).send({error: true, message: "Not found"})
+        res.status(404).send({ error: true, message: "Not found" })
       }
     } catch (error) {
       console.log(error)
