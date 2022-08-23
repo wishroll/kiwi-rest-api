@@ -6,11 +6,11 @@ async function searchUsers(q, offset = 0, limit = 10) {
     try {
         const query = `
         CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "${q}~", {limit:${limit}, skip:${offset}}) YIELD node, score
-        RETURN node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name
+        RETURN node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url
         order by score desc`;
         const result = await session.readTransaction(tx => tx.run(query));
         const records = result.records.map(r => {
-            return { id: r.get('id'), uuid: r.get('uuid'), username: r.get('username'), display_name: r.get('display_name') }
+            return { id: r.get('id'), uuid: r.get('uuid'), username: r.get('username'), display_name: r.get('display_name'), avatar_url: r.get('avatar_url') }
         });
         console.log(records);
         return records;
