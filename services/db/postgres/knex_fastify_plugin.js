@@ -54,8 +54,8 @@ Array.prototype.sample = function () {
     return this[Math.floor(Math.random() * this.length)];
 }
 
-const productionDatabaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL]; // array of db urls
-const stagingDatabaseUrls = [process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_GRAY_URL];
+const productionDatabaseUrls = [process.env.HEROKU_POSTGRESQL_PURPLE_URL, process.env.HEROKU_POSTGRESQL_IVORY_URL, process.env.HEROKU_POSTGRESQL_AMBER_URL, process.env.HEROKU_POSTGRESQL_BRONZE_URL]; // array of db urls
+const stagingDatabaseUrls = [process.env.HEROKU_POSTGRESQL_CRIMSON_URL, process.env.HEROKU_POSTGRESQL_GRAY_URL, process.env.HEROKU_POSTGRESQL_TEAL, process.env.HEROKU_POSTGRESQL_CYAN];
 /**
  * 
  * @param {number} maxConnections 
