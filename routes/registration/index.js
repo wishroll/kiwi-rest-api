@@ -17,7 +17,7 @@ module.exports = async (fastify, options) => {
 
     try {
       // If there is no value for the key, fetch db instead
-      const user = await fastify.readDb('users')
+      const user = await fastify.writeDb('users')
         .select('phone_number')
         .where({ phone_number: phoneNumber })
         .first()
