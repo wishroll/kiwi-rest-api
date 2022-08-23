@@ -5,21 +5,15 @@ async function searchUsers(q, offset = 0, limit = 10) {
     const session = driver.session({ database: 'neo4j' });
     try {
         const query = `
-        MATCH (u:User)
-        WHERE u.username starts with "${q}" or u.display_name starts with "${q}"
-        RETURN u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name
-        UNION
-        CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "${q}~") YIELD node, score
+        CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "${q}~", {limit:${limit}, skip:${offset}}) YIELD node, score
         RETURN node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name
         order by score desc
         skip ${offset} 
         limit ${limit}`;
         const result = await session.readTransaction(tx => tx.run(query));
         const records = result.records.map(r => {
-            const fields = r["_fields"];
-            return fields
-        }
-        );
+            return { id: r.get('id'), uuid: r.get('uuid'), username: r.get('username'), display_name: r.get('display_name') }
+        });
         console.log(records)
         return records;
     } catch (error) {
