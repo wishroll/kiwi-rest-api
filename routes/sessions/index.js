@@ -71,24 +71,13 @@ module.exports = async (fastify, options) => {
 
   fastify.post('/login', async (req, res) => {
     const phoneNumber = req.body.phone_number
-    // const countryCode = req.body.country_code
-    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
-
     if (!phoneNumber) {
       return res.status(400).send()
     }
-    const cacheKey = loginVerifiedPhoneNumberCacheKey(phoneNumber)
-
     try {
-      const verified = await fastify.redisClient.get(cacheKey)
-      if (verified) {
-        const user = await fastify.readDb('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first()
-        const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' })
-        await fastify.redisClient.del(cacheKey)
-        res.status(200).send({ access_token: token })
-      } else {
-        res.status(401).send({ message: 'Unable to verify' })
-      }
+      const user = await fastify.readDb('users').select(['id', 'uuid']).where({ phone_number: phoneNumber }).first()
+      const token = fastify.jwt.sign({ id: user.id, uuid: user.uuid }, { expiresIn: '365 days' })
+      res.status(200).send({ access_token: token })
     } catch (error) {
       res.status(500).send()
     }
