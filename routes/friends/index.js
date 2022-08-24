@@ -275,10 +275,8 @@ module.exports = async (fastify, options) => {
           }
           user.friendship_status = friendshipStatus
         }))
-        res.status(200).send(users)
-      } else {
-        res.status(404).send({ message: 'Not Found' })
       }
+      res.status(200).send(users)
     } catch (error) {
       res.status(500).send(error)
     }
@@ -312,10 +310,8 @@ module.exports = async (fastify, options) => {
           }
           user.friendship_status = friendshipStatus
         }))
-        res.send(requestedUsers)
-      } else {
-        res.status(404).send()
       }
+      res.send(requestedUsers)
     } catch (error) {
       res.status(500).send(error)
     }
@@ -349,10 +345,8 @@ module.exports = async (fastify, options) => {
           }
           user.friendship_status = friendshipStatus
         }))
-        res.send(requestingUsers)
-      } else {
-        res.status(404).send()
       }
+      res.send(requestingUsers)
     } catch (error) {
       res.status(500).send(error)
     }
