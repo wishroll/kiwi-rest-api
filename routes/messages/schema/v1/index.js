@@ -138,20 +138,6 @@ const sentMessagesIndex = {
       items: {
         type: 'object',
         properties: {
-          id: { type: 'integer', minimum: 1 },
-          uuid: { type: 'string' },
-          created_at: { type: 'string' },
-          updated_at: { type: 'string' },
-          sender: {
-            type: 'object', properties: {
-              id: { type: 'integer', minimum: 1 },
-              uuid: { type: 'string' },
-              display_name: { type: 'string' },
-              username: { type: 'string' },
-              avatar_url: { type: 'string' }
-            }
-          },
-          text: { type: 'string' },
           track: {
             type: 'object', properties: {
               track_id: { type: 'string' },
@@ -189,14 +175,7 @@ const sentMessagesIndex = {
               }
             }
           },
-          rating: {
-            type: 'object',
-            properties: {
-              score: { type: 'number', minimum: 0.0 },
-            }
-          }
         },
-        required: ['id', 'uuid', 'created_at', 'updated_at', 'text']
       }
     },
     404: {

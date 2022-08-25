@@ -45,28 +45,40 @@ module.exports = async (fastify, options) => {
     const offset = req.query.offset;
     const userId = req.params.id;
     try {
-      const messages = await fastify.readDb('messages')
+      const tracks = await fastify.readDb('tracks')
+        .select(
+          ['tracks.id as id',
+            'tracks.uuid as uuid',
+            'tracks.track_id as track_id',
+            'tracks.external_url as external_url',
+            'tracks.preview_url as preview_url',
+            'tracks.uri as uri',
+            'tracks.href as href',
+            'tracks.name as name',
+            'tracks.duration as duration',
+            'tracks.track_number as track_number',
+            'tracks.release_date as release_date',
+            'tracks.isrc as isrc',
+            'tracks.explicit as explicit',
+            'tracks.artwork as artwork',
+            'tracks.platform as platform',
+            'messages.id as message_id',
+            'messages.created_at as message_created_at',
+            'messages.updated_at as message_updated_at',
+            'messages.text as message_text',
+            'messages.track_id as message_track_id',
+            'messages.recipient_id as recipient_id'
+          ])
+        .join('messages', 'tracks.track_id', '=', 'messages.track_id')
         .where('messages.sender_id', userId)
+        .distinct('tracks.track_id')
         .offset(offset)
         .limit(limit)
         .orderBy('messages.created_at', 'desc')
-      if (messages.length > 0) {
-        const trackIds = messages.map(m => m.track_id)
-        const messageIds = messages.map(m => m.id)
-        const userIds = messages.map(m => m.sender_id)
-        const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds)
-        const users = await fastify.readDb('users').select().whereIn('id', userIds)
-        const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds)
-        const data = messages.map((message) => {
-          message.track = tracks.find((v) => v.track_id === message.track_id)
-          message.rating = ratings.find((v) => v.message_id === message.id)
-          message.sender = users.find((v) => v.id === message.sender_id)
-          return message
-        })
-        res.status(200).send(data)
-      } else {
-        res.status(404).send({ error: true, message: 'Not found' })
-      }
+      const data = tracks.map((track) => {
+        return { track: track }
+      })
+      res.status(200).send(data)
     } catch (error) {
       res.status(500).send({ error: true, message: error })
     }
