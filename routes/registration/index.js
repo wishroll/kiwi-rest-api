@@ -91,24 +91,17 @@ module.exports = async (fastify, options) => {
     }
 
     try {
-      const cacheKey = signupVerifiedCacheKey(phoneNumber)
-      const result = await fastify.redisClient.get(cacheKey)
-      if (result) {
-        const results = await fastify.writeDb('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name', 'phone_number'])
-        if (results.length > 0) {
-          const user = results[0]
-          const id = parseInt(user.id)
-          const uuid = user.uuid
-          const token = fastify.jwt.sign({ id, uuid }, { expiresIn: '365 days' })
-          await fastify.redisClient.del(cacheKey)
-          createUserNode(user).catch(err => console.log(`An error occured when creating the user node for the graph db\n${err}`))
-          res.status(201).send({ access_token: token })
-        } else {
-          // User record wasn't created in db
-          res.status(500).send({ message: 'An error occured: Couldn\'t create new user' })
-        }
+      const results = await fastify.writeDb('users').insert({ phone_number: phoneNumber }, ['id', 'uuid', 'created_at', 'updated_at', 'avatar_url', 'display_name', 'phone_number'])
+      if (results.length > 0) {
+        const user = results[0]
+        const id = parseInt(user.id)
+        const uuid = user.uuid
+        const token = fastify.jwt.sign({ id, uuid }, { expiresIn: '365 days' })
+        createUserNode(user).catch(err => console.log(`An error occured when creating the user node for the graph db\n${err}`))
+        res.status(201).send({ access_token: token })
       } else {
-        return res.status(401).send({ message: 'Token wasn\'t verified' })
+        // User record wasn't created in db
+        res.status(500).send({ message: 'An error occured: Couldn\'t create new user' })
       }
     } catch (error) {
       res.status(500).send({ message: error })
