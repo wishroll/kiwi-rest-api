@@ -73,10 +73,10 @@ module.exports = async (fastify, options) => {
               ])
             .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
             .where('messages.sender_id', userId)
-            .orderBy('message_created_at', 'desc')
+            .distinctOn('track_id')
             .as('tracks')
             )
-            .distinctOn('tracks.track_id')
+            .orderBy('tracks.message_created_at', 'desc')
             .limit(limit)
             .offset(offset)
       const data = tracks.map((track) => {
