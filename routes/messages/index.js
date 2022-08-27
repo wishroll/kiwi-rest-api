@@ -63,6 +63,7 @@ module.exports = async (fastify, options) => {
                 'tracks.isrc as isrc',
                 'tracks.explicit as explicit',
                 'tracks.artwork as artwork',
+                'tracks.artists as artists',
                 'tracks.platform as platform',
                 'messages.id as message_id',
                 'messages.created_at as message_created_at',
