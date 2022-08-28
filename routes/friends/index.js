@@ -4,7 +4,7 @@ module.exports = async (fastify, options) => {
   const { contacts, friends, requested, requests } = require('./schema/v1/index')
   const { friendship, friendshipRequest } = require('./schema/v1/create')
   const { deleteFriendship, deleteFriendshipRequest } = require('./schema/v1/delete')
-  const { createFriendship, createFriendRequest, deleteFriendRequestRelationship, deleteFriendshipRelationship } = require('../../services/api/neo4j/friendships/index');
+  const { createFriendship, createFriendRequest, deleteFriendRequestRelationship, deleteFriendshipRelationship, getFriends } = require('../../services/api/neo4j/friendships/index');
 
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit
@@ -137,41 +137,41 @@ module.exports = async (fastify, options) => {
       return res.status(400).send({ error: true, message: "Request sent to current user" })
     }
     try {
-      const request = await fastify.writeDb('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId })
-      if (request) {
-        // createFriendRequest(currentUserId, requestedUserId).catch(err => console.log(err))
-        sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch() // Send out notification
-        res.status(201).send()
-      } else {
-        res.status(500).send({ error: 'Unable to create request' })
+      const inserts = await fastify.writeDb('friend_requests').insert({ requested_user_id: requestedUserId, requester_user_id: currentUserId }, ['*'])
+      if (!inserts || inserts.length < 1) {
+        return res.status(500).send({ error: true, message: 'Request Failed' });
       }
+      const request = inserts[0];
+      createFriendRequest(currentUserId, requestedUserId, request.id, request.uuid, request.created_at, request.updated_at).catch(err => console.log(err));
+      sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch(); // Send out notification
+      res.status(201).send();
     } catch (error) {
       res.status(500).send(error)
     }
   })
 
   fastify.post('/v2/friends/accept-request', { onRequest: [fastify.authenticate], schema: friendship }, async (req, res) => {
-    const currentUserId = req.user.id
-    const requestingUserId = req.body.requesting_user_id
+    const currentUserId = req.user.id;
+    const requestingUserId = req.body.requesting_user_id;
     if (currentUserId == requestingUserId) {
       return res.status(400).send({ error: true, message: "Can't accept request from current user" })
     }
     try {
-      const friend_request = await fastify.writeDb('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).del('id')
-      if (friend_request && friend_request.length > 0) {
-        const friendship = await fastify.writeDb('friends').insert({ friend_id: currentUserId, user_id: requestingUserId })
-        if (friendship) {
-          // createFriendship(currentUserId, requestingUserId).catch((err) => console.log(`An error occured when creating a friendship in the neo4j instance ${err}`))
-          sendPushNotificationOnAcceptedFriendRequest(requestingUserId, currentUserId).catch()
-          res.status(201).send()
-        } else {
-          res.status(500).send({ error: true, message: 'Unable to create new friendship' })
-        }
-      } else {
-        res.status(404).send({ error: true, message: 'There are no friend requests sent' })
+      const deletedFriendRequests = await fastify.writeDb('friend_requests').where({ requested_user_id: currentUserId, requester_user_id: requestingUserId }).del('id');
+      if (!deletedFriendRequests || deletedFriendRequests.length < 1) {
+        return res.status(500).send({ error: true, message: 'Request Failed' });
       }
+      const inserts = await fastify.writeDb('friends').insert({ friend_id: currentUserId, user_id: requestingUserId }, ['*']);
+      if (!inserts || inserts.length < 1) {
+        return res.status(500).send({ error: true, message: "Request Failed" });
+      }
+      const friendship = inserts[0];
+      deleteFriendRequestRelationship(requestingUserId, currentUserId).catch();
+      createFriendship(friendship.user_id, friendship.friend_id, friendship.id, friendship.uuid, friendship.created_at, friendship.updated_at).catch((err) => console.log('An error occured when creating the friendship', err));
+      sendPushNotificationOnAcceptedFriendRequest(requestingUserId, currentUserId).catch();
+      res.status(201).send();
     } catch (error) {
-      res.status(500).send({ error: true, message: error })
+      res.status(500).send({ error: true, message: error });
     }
   })
 
@@ -215,7 +215,7 @@ module.exports = async (fastify, options) => {
     try {
       const friendships = await fastify.writeDb('friends').where({ user_id: currentUserId, friend_id: userId }).orWhere({ user_id: userId, friend_id: currentUserId }).del('id')
       if (friendships && friendships.length > 0) {
-        // deleteFriendshipRelationship(userId, currentUserId).catch(err => console.log(`An error occured when deleting friendship relationship ${err}`))
+        deleteFriendshipRelationship(userId, currentUserId).catch(err => console.log(`An error occured when deleting friendship relationship ${err}`))
         res.status(200).send()
       } else {
         res.status(500).send({ error: 'Failed to delete friendship' })
@@ -230,13 +230,12 @@ module.exports = async (fastify, options) => {
     const currentUserId = req.user.id
     const userId = req.body.user_id
     try {
-      const friendRequests = await fastify.writeDb('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).del('id')
-      if (friendRequests && friendRequests.length > 0) {
-        // deleteFriendRequestRelationship(currentUserId, userId).catch(err => console.log(`Error occured when deleting friend request relationship ${err}`))
-        res.status(200).send()
-      } else {
-        res.status(500).send()
+      const friendRequests = await fastify.writeDb('friend_requests').where({ requester_user_id: currentUserId, requested_user_id: userId }).del('id');
+      if (!friendRequests || friendRequests.length < 1) {
+        return res.status(500).send({ error: true })
       }
+      deleteFriendRequestRelationship(currentUserId, userId).catch(err => console.log(`Error occured when deleting friend request relationship ${err}`))
+      res.status(200).send()
     } catch (error) {
       res.status(500).send(error)
     }
@@ -349,6 +348,19 @@ module.exports = async (fastify, options) => {
       res.send(requestingUsers)
     } catch (error) {
       res.status(500).send(error)
+    }
+  })
+
+  fastify.get('/users/:id/friends', { onRequest: [fastify.authenticate], schema: friends }, async (req, res) => {
+    const currentUserId = req.user.id;
+    const userId = req.params.id;
+    const offset = req.query.offset;
+    const limit = req.query.limit;
+    try {
+      const friends = await getFriends(userId, limit, offset);
+      res.status(200).send(friends)
+    } catch (error) {
+      res.status(500).send({ error: true, message: error })
     }
   })
 }
