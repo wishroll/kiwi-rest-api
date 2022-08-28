@@ -10,7 +10,7 @@ async function createFriendship(user1Id, user2Id, id, uuid, createdAt, updatedAt
         const query = `MATCH (u1:User {id: '${user1Id}'})
                        MATCH (u2:User {id: '${user2Id}'})
                        MERGE (u1)-[:FRIENDS_WITH {id: '${id}', uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u2)
-                       MERGE (u2)-[:FRIENDS_WITH]->(u1)
+                       MERGE (u2)-[:FRIENDS_WITH {id: '${id}', uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u1)
                        RETURN u1, u2`
         const writeResult = await session.writeTransaction(tx =>
             tx.run(query)
