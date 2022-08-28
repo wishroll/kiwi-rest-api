@@ -74,7 +74,7 @@ module.exports = async (fastify, options) => {
               ])
             .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
             .where('messages.sender_id', userId)
-            .distinctOn('track_id')
+            .distinctOn('isrc')
             .as('tracks')
             )
             .orderBy('tracks.message_created_at', 'desc')
