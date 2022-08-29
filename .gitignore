@@ -3,6 +3,7 @@ node_modules
 
 # envs
 .env
+.envrc
 
 # logs
 newrelic_agent.log

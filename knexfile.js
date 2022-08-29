@@ -6,10 +6,11 @@ module.exports = {
   development: {
     client: 'postgresql',
     connection: {
-      host: '127.0.0.1',
-      username: 'greatokonkwo',
-      password: 'greatokonkwo',
-      database: 'mutual-api-server-development',
+      host: process.env.DEV_DB_HOST || '127.0.0.1',
+      username: process.env.DEV_DB_USERNAME || 'greatokonkwo',
+      user: process.env.DEV_DB_USERNAME || 'greatokonkwo',
+      password: process.env.DEV_DB_PASSWORD || 'greatokonkwo',
+      database: process.env.DEV_DB || 'mutual-api-server-development',
     },
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
