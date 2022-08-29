@@ -5,16 +5,16 @@ const show = {
   params: {
     type: 'object',
     properties: {
-      id: { type: 'integer', description: 'The id of the message' }
+      id: { type: 'integer', description: 'The id of the message' },
     },
-    required: ['id']
+    required: ['id'],
   },
   headers: {
     type: 'object',
     properties: {
-      Authorization: { type: 'string', description: 'The token used for authentication' }
+      Authorization: { type: 'string', description: 'The token used for authentication' },
     },
-    required: ['Authorization']
+    required: ['Authorization'],
   },
   response: {
     200: {
@@ -26,18 +26,20 @@ const show = {
         created_at: { type: 'string' },
         updated_at: { type: 'string' },
         sender: {
-          type: 'object', properties: {
+          type: 'object',
+          properties: {
             id: { type: 'integer', minimum: 1 },
             uuid: { type: 'string' },
             display_name: { type: 'string' },
             username: { type: 'string' },
-            avatar_url: { type: 'string' }
-          }
+            avatar_url: { type: 'string' },
+          },
         },
         text: { type: 'string' },
         is_rated: { type: 'boolean', description: 'Whether the message has been rated' },
         track: {
-          type: 'object', properties: {
+          type: 'object',
+          properties: {
             track_id: { type: 'string' },
             platform: { type: 'string', enum: ['spotify', 'apple_music'] },
             uri: { type: 'string' },
@@ -56,10 +58,10 @@ const show = {
                   id: { type: 'string' },
                   name: { type: 'string' },
                   uri: { type: 'string' },
-                  href: { type: 'string' }
-                }
+                  href: { type: 'string' },
+                },
               },
-              required: ['id', 'name', 'href']
+              required: ['id', 'name', 'href'],
             },
             explicit: { type: ['boolean'] },
             artwork: {
@@ -67,37 +69,37 @@ const show = {
               properties: {
                 width: { type: 'integer' },
                 height: { type: 'integer' },
-                url: { type: 'string' }
+                url: { type: 'string' },
               },
-              required: ['url']
-            }
-          }
+              required: ['url'],
+            },
+          },
         },
         rating: {
           type: 'object',
           properties: {
             score: { type: 'number', minimum: 0.0 },
-          }
-        }
+          },
+        },
       },
-      required: ['id', 'uuid', 'created_at', 'updated_at']
+      required: ['id', 'uuid', 'created_at', 'updated_at'],
     },
     404: {
       description: 'Not found',
       type: 'object',
       properties: {
         error: { type: 'boolean' },
-        message: { type: 'string' }
-      }
+        message: { type: 'string' },
+      },
     },
     500: {
       description: 'Internal Server Error',
       type: 'object',
       properties: {
         error: { type: 'boolean' },
-        message: { type: 'string' }
-      }
-    }
-  }
-}
-module.exports = { show }
+        message: { type: 'string' },
+      },
+    },
+  },
+};
+module.exports = { show };
