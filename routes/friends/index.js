@@ -1,3 +1,5 @@
+const { getMutualFriends } = require('../../services/api/neo4j/recommendations')
+
 module.exports = async (fastify, options) => {
   const { sendPushNotificationOnReceivedFriendRequest, sendPushNotificationOnAcceptedFriendRequest } = require('../../services/notifications/notifications')
   const { phone } = require('phone')
@@ -358,9 +360,22 @@ module.exports = async (fastify, options) => {
     const limit = req.query.limit;
     try {
       const friends = await getFriends(userId, limit, offset);
-      res.status(200).send(friends)
+      res.status(200).send(friends);
     } catch (error) {
-      res.status(500).send({ error: true, message: error })
+      res.status(500).send({ error: true, message: error });
+    }
+  })
+
+  fastify.get('/users/:id/friends/suggestions', { onRequest: [fastify.authenticate], schema: friends }, async (req, res) => {
+    const currentUserId = req.user.id;
+    const userId = req.params.id;
+    const offset = req.query.offset;
+    const limit = req.query.limit;
+    try {
+      const recommendedUsers = await getMutualFriends(currentUserId, limit, offset);
+      res.status(200).send(recommendedUsers)
+    } catch (error) {
+      res.status(500).send({ error: true, message: error });
     }
   })
 }
