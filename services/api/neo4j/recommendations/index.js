@@ -8,7 +8,12 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
             WHERE NOT (user1)-[:FRIENDS_WITH]-(friend_of_friend)
             AND NOT (user1)-[:FRIEND_REQUESTED]-(friend_of_friend)
             AND user1.id <> friend_of_friend.id
-            RETURN friend_of_friend.id as id, friend_of_friend.uuid as uuid,
+            RETURN distinct(friend_of_friend),
+            EXISTS((user1)-[:FRIENDS_WITH]-(friend_of_friend)) as is_friends,
+            EXISTS((user1)-[:FRIEND_REQUESTED]->(friend_of_friend)) as is_pending_sent,
+            EXISTS((user1)<-[:FRIEND_REQUESTED]-(friend_of_friend)) as is_pending_received,
+            friend_of_friend.id as id,
+            friend_of_friend.uuid as uuid, 
             friend_of_friend.username as username, friend_of_friend.display_name as display_name,
             friend_of_friend.avatar_url as avatar_url, COUNT(*)
             ORDER BY COUNT(*) DESC
@@ -23,6 +28,7 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
+        friendship_status: r.get('is_friends') ? 'friends' : r.get('is_pending_received') ? 'pending_received' : r.get('is_pending_sent') ? 'pending_sent' : 'none'
       };
     });
     return records;
@@ -35,6 +41,6 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
 }
 
 // eslint-disable-next-line no-unused-vars
-async function getRecommendedTracks() {}
+async function getRecommendedTracks() { }
 
 module.exports = { getMutualFriends };
