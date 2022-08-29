@@ -5,7 +5,7 @@ module.exports = async (fastify, _options) => {
     '/search/users',
     { onRequest: [fastify.authenticate], schema: index },
     async (req, res) => {
-      // const currentUserId = req.user.id;
+      const currentUserId = req.user.id;
 
       const query = req.query.query;
       const limit = req.query.limit;
@@ -14,7 +14,7 @@ module.exports = async (fastify, _options) => {
         return res.status(400).send({ error: true, message: 'Missing Query' });
       }
       try {
-        const users = await searchUsers(query, offset, limit);
+        const users = await searchUsers(query, offset, limit, currentUserId);
         res.status(200).send(users);
       } catch (error) {
         console.log(error);

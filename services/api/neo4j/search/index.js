@@ -1,13 +1,15 @@
 'use-strict';
 const { driver } = require('../index');
 
-async function searchUsers(q, offset = 0, limit = 10) {
+async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `
-        CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "${q}~", {limit:${limit}, skip:${offset}}) YIELD node, score
-        RETURN node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url
-        order by score desc`;
+        CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "${q}~") YIELD node, score
+        RETURN DISTINCT(node.id), EXISTS((node)-[:FRIENDS_WITH]-(:User{id: '${currentUserId}'})) as is_friends_with, EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: '${currentUserId}'})) as is_pending_received, EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: '${currentUserId}'})) as is_pending_sent,  node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url, score
+        order by score desc
+        SKIP ${offset}
+        LIMIT ${limit}`;
     const result = await session.readTransaction(tx => tx.run(query));
     const records = result.records.map(r => {
       return {
@@ -16,6 +18,7 @@ async function searchUsers(q, offset = 0, limit = 10) {
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
+        friendship_status: r.get('is_friends') ? 'friends' : r.get('is_pending_received') ? 'pending_received' : r.get('is_pending_sent') ? 'pending_sent' : 'none'
       };
     });
     console.log(records);
