@@ -1,3 +1,11 @@
+# dependencies
 node_modules
+
+# envs
 .env
+
+# logs
 newrelic_agent.log
+
+# eslint cache
+.eslintcache
