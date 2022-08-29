@@ -5,17 +5,17 @@ module.exports = {
   headers: {
     type: 'object',
     properties: {
-      Authorization: { type: 'string', description: 'The token used for authentication' }
+      Authorization: { type: 'string', description: 'The token used for authentication' },
     },
-    required: ['Authorization']
+    required: ['Authorization'],
   },
   querystring: {
     type: 'object',
     properties: {
       limit: { type: 'integer', description: 'The max number of records to return' },
-      offset: { type: 'integer', description: 'The number of records to skip before retrieval' }
+      offset: { type: 'integer', description: 'The number of records to skip before retrieval' },
     },
-    required: ['limit', 'offset']
+    required: ['limit', 'offset'],
   },
   response: {
     200: {
@@ -27,19 +27,18 @@ module.exports = {
           id: { type: 'integer', minimum: 1 },
           uuid: { type: 'string' },
           created_at: { type: 'string' },
-          updated_at: { type: 'string' }
-
+          updated_at: { type: 'string' },
         },
-        required: ['id', 'uuid', 'created_at', 'updated_at']
-      }
+        required: ['id', 'uuid', 'created_at', 'updated_at'],
+      },
     },
     404: {
       description: 'Not Found',
       type: 'object',
       properties: {
         error: { type: 'boolean' },
-        message: { type: 'string' }
-      }
+        message: { type: 'string' },
+      },
     },
     500: {
       description: 'Internal Server Error',
@@ -47,8 +46,8 @@ module.exports = {
       type: 'object',
       properties: {
         error: { type: 'boolean' },
-        message: { type: 'string' }
-      }
-    }
-  }
-}
+        message: { type: 'string' },
+      },
+    },
+  },
+};

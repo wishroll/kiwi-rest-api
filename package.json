@@ -9,7 +9,7 @@
     "seed": "knex seed:run --knexfile knexfile.js",
     "test": "tap && standard --fix",
     "lint": "eslint . --cache",
-    "lint --fix": "eslint --fix"
+    "lint:fix": "eslint . --fix --cache"
   },
   "author": "Great Okonkwo",
   "license": "ISC",
