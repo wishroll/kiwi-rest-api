@@ -366,7 +366,7 @@ module.exports = async (fastify, options) => {
     }
   })
 
-  fastify.get('/users/:id/friends/suggestions', { onRequest: [fastify.authenticate], schema: friends }, async (req, res) => {
+  fastify.get('/users/me/friends/suggestions', { onRequest: [fastify.authenticate], schema: friends }, async (req, res) => {
     const currentUserId = req.user.id;
     const userId = req.params.id;
     const offset = req.query.offset;
