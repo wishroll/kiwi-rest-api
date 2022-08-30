@@ -14,7 +14,7 @@ async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
         CALL db.index.fulltext.queryNodes("INDEX_USERS_DISPLAY_NAME_FULLTEXT", "${q}~") YIELD node, score
         RETURN distinct(node.id), EXISTS((node)-[:FRIENDS_WITH]-(:User{id: '${currentUserId}'})) as is_friends, EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: '${currentUserId}'})) as is_pending_received, EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: '${currentUserId}'})) as is_pending_sent, node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url, score
         order by score desc
-        SKIP ${offset / 2}
+        SKIP ${offset}
         LIMIT ${limit / 2}
         `;
         const result = await session.readTransaction(tx => tx.run(query));
