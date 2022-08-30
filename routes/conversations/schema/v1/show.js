@@ -5,16 +5,16 @@ module.exports = {
   headers: {
     type: 'object',
     properties: {
-      Authorization: { type: 'string', description: 'The token used for authentication' }
+      Authorization: { type: 'string', description: 'The token used for authentication' },
     },
-    required: ['Authorization']
+    required: ['Authorization'],
   },
   params: {
     type: 'object',
     properties: {
-      id: { type: 'integer', description: 'The id of the conversation' }
+      id: { type: 'integer', description: 'The id of the conversation' },
     },
-    required: ['id']
+    required: ['id'],
   },
   response: {
     200: {
@@ -24,17 +24,17 @@ module.exports = {
         id: { type: 'integer', minimum: 1 },
         uuid: { type: 'string' },
         created_at: { type: 'string' },
-        updated_at: { type: 'string' }
+        updated_at: { type: 'string' },
       },
-      required: ['id', 'uuid', 'created_at', 'updated_at']
+      required: ['id', 'uuid', 'created_at', 'updated_at'],
     },
     404: {
       description: 'Not Found',
       type: 'object',
       properties: {
         error: { type: 'boolean' },
-        message: { type: 'string' }
-      }
+        message: { type: 'string' },
+      },
     },
     500: {
       description: 'Internal Server Error',
@@ -42,8 +42,8 @@ module.exports = {
       type: 'object',
       properties: {
         error: { type: 'boolean' },
-        message: { type: 'string' }
-      }
-    }
-  }
-}
+        message: { type: 'string' },
+      },
+    },
+  },
+};
