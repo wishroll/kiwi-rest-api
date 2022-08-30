@@ -24,9 +24,9 @@ function generateProductionConfig(databaseUrl, client, maxConnections = 400, min
 }
 
 function generateDevelopmentConfig(
-  username,
-  password,
-  _host = '127.0.0.1',
+  username = 'greatokonkwo',
+  password = 'greatokonkwo',
+  host = '127.0.0.1',
   database = 'mutual-api-server-development',
   _minConnections = 10,
   _maxConnections = 10,
@@ -34,10 +34,11 @@ function generateDevelopmentConfig(
   return {
     client: 'postgresql',
     connection: {
-      host: '127.0.0.1',
-      username,
-      password,
-      database,
+      host: process.env.DEV_DB_HOST || host,
+      username: process.env.DEV_DB_USERNAME || username,
+      user: process.env.DEV_DB_USERNAME || username,
+      password: process.env.DEV_DB_PASSWORD || password,
+      database: process.env.DEV_DB || database,
     },
     pool: {
       min: process.env.MIN_CONNECTIONS || 10,
