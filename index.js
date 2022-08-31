@@ -8,6 +8,7 @@ fastify.ready(err => {
   if (err) throw err;
   fastify.swagger();
 });
+fastify.register(require('@fastify/compress'));
 fastify.register(require('./routes/index'));
 fastify.listen(
   {
