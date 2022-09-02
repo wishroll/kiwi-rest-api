@@ -27,7 +27,7 @@ async function updateUserNode(userId, updates) {
   delete updates.id;
   const session = driver.session({ database: 'neo4j' });
   try {
-    let query = `MATCH (u:User {id: '${userId}'})`;
+    let query = `MATCH (u:User {id: ${userId}})`;
     Object.keys(updates).forEach(
       key => (query = query.concat(` SET u.${key} = '${updates[key]}'`)),
     );
