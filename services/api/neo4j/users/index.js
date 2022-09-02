@@ -7,7 +7,7 @@ const { driver } = require('../index');
 async function createUserNode(user) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MERGE (u:User {id: "${user.id}", uuid: "${user.uuid}", username: "${user.username}", display_name: "${user.display_name}", phone_number: "${user.phone_number}", created_at: "${user.created_at}", updated_at: "${user.updated_at}"})
+    const query = `MERGE (u:User {id: ${user.id}, uuid: "${user.uuid}", username: "${user.username}", display_name: "${user.display_name}", phone_number: "${user.phone_number}", created_at: "${user.created_at}", updated_at: "${user.updated_at}"})
                         RETURN u`;
     const result = await session.writeTransaction(tx => tx.run(query));
     console.log('User has been successfully created');
@@ -27,7 +27,7 @@ async function updateUserNode(userId, updates) {
   delete updates.id;
   const session = driver.session({ database: 'neo4j' });
   try {
-    let query = `MATCH (u:User {id: '${userId}'})`;
+    let query = `MATCH (u:User {id: ${userId}})`;
     Object.keys(updates).forEach(
       key => (query = query.concat(` SET u.${key} = '${updates[key]}'`)),
     );

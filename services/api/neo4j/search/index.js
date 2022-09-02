@@ -6,13 +6,13 @@ async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
     try {
         const query = `
         CALL db.index.fulltext.queryNodes("INDEX_USERS_USERNAME_FULLTEXT", "${q}") YIELD node, score
-        RETURN distinct(node.id), EXISTS((node)-[:FRIENDS_WITH]-(:User{id: '${currentUserId}'})) as is_friends, EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: '${currentUserId}'})) as is_pending_received, EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: '${currentUserId}'})) as is_pending_sent, node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url, score
+        RETURN distinct(node.id), EXISTS((node)-[:FRIENDS_WITH]-(:User{id: ${currentUserId}})) as is_friends, EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: ${currentUserId}})) as is_pending_received, EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: ${currentUserId}})) as is_pending_sent, node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url, score
         order by score desc
         SKIP ${offset}
         LIMIT ${limit}
         UNION ALL 
         CALL db.index.fulltext.queryNodes("INDEX_USERS_DISPLAY_NAME_FULLTEXT", "${q}~") YIELD node, score
-        RETURN distinct(node.id), EXISTS((node)-[:FRIENDS_WITH]-(:User{id: '${currentUserId}'})) as is_friends, EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: '${currentUserId}'})) as is_pending_received, EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: '${currentUserId}'})) as is_pending_sent, node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url, score
+        RETURN distinct(node.id), EXISTS((node)-[:FRIENDS_WITH]-(:User{id: ${currentUserId}})) as is_friends, EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: ${currentUserId}})) as is_pending_received, EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: ${currentUserId}})) as is_pending_sent, node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, node.avatar_url as avatar_url, score
         order by score desc
         SKIP ${offset}
         LIMIT ${limit}
