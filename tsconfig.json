@@ -14,11 +14,12 @@
     "strictNullChecks": true,
     "incremental": true,
 
-    "outDir": "./../build",
+    "outDir": "./build",
+    "rootDir": "./",
 
     /* To be removed after full migration */
     "allowJs": true
   },
-  "exclude": ["node_modules", "**/*.js", "./**/*.js"],
-  "include": ["**/*.ts", "./**/*.ts"]
+  "exclude": ["node_modules"],
+  "include": ["**/*.ts", "*.ts", "**/*.ts", "*.js"]
 }

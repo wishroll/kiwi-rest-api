@@ -11,5 +11,6 @@ newrelic_agent.log
 # eslint cache
 .eslintcache
 
-# miscs
+# build files
+build
 tsconfig.tsbuildinfo
