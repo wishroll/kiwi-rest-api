@@ -36,6 +36,6 @@ _. Use `> pgcli -h 0.0.0.0 -p 5432 -d wishroll-dev -u wishroll-user -W`
 3. Run seeds
 4. Use `> npm run seed`
 
-### Run app in development mode
+### Run app
 
-1. Use `> npm run dev`
+1. Use `> npm start`
