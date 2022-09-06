@@ -12,8 +12,7 @@
     "seed": "knex seed:run --knexfile knexfile.js",
     "test": "tap && standard --fix",
     "lint": "eslint . --cache",
-    "lint:fix": "eslint . --fix --cache",
-    "typecheck": "tsc --noEmit"
+    "lint:fix": "eslint . --fix --cache"
   },
   "author": "Great Okonkwo",
   "license": "ISC",
@@ -48,9 +47,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6",
-    "@types/node": "^18.7.15",
-    "@typescript-eslint/eslint-plugin": "^5.36.2",
-    "@typescript-eslint/parser": "^5.36.2",
+    "@typescript-eslint/eslint-plugin": "^5.30.7",
+    "@typescript-eslint/parser": "^5.30.7",
     "dotenv": "^16.0.0",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
@@ -62,7 +60,6 @@
     "nodemon": "^2.0.15",
     "prettier": "2.7.1",
     "standard": "^16.0.4",
-    "tap": "^16.0.1",
-    "typescript": "^4.8.2"
+    "tap": "^16.0.1"
   }
 }
