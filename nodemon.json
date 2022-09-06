@@ -1,0 +1,13 @@
+{
+  "verbose": true,
+  "ignore": [
+    "build",
+    "./newrelic_agent.log",
+    ".eslintcache",
+    "tsconfig.tsbuildinfo",
+    "package-lock.json"
+  ],
+  "exec": "tsc --incremental && node build/index.js",
+  "ext": "ts,js,json",
+  "watch": ["**/*.js", "**/*.ts", "**/*.json", ".env", ".envrc"]
+}
