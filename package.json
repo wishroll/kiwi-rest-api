@@ -4,7 +4,7 @@
   "description": "The app server api for the mutual app.",
   "main": "master.js",
   "scripts": {
-    "build": "tsc",
+    "build": "./node_modules/typescript/bin/tsc",
     "dev": "nodemon",
     "start": "node build/master.js",
     "deploy": "npm run build && npm run start",
