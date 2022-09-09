@@ -14,6 +14,7 @@
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix --cache",
     "postinstall": "npm run build"
+    "typecheck": "tsc --noEmit"
   },
   "author": "Great Okonkwo",
   "license": "ISC",
@@ -48,8 +49,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^6.0.0-alpha.6",
-    "@typescript-eslint/eslint-plugin": "^5.30.7",
-    "@typescript-eslint/parser": "^5.30.7",
+    "@types/node": "^18.7.15",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
     "dotenv": "^16.0.0",
     "eslint": "^8.20.0",
     "eslint-config-prettier": "^8.5.0",
