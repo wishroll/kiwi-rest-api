@@ -1,4 +1,4 @@
-function getHexCodeForScore(score: number): string | undefined {
+function getHexCodeForScore(score) {
   switch (true) {
     case score < 0.45:
       return '#EA1D3B';
