@@ -1,8 +1,24 @@
-module.exports = async (fastify, _options) => {
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyInstance } from 'fastify/types/instance';
+import { RedisClientType } from 'redis';
+
+// needed to import to extend fastify types
+import 'fastify-jwt/jwt';
+import { Knex } from 'knex';
+
+export interface WishrollFastifyInstance extends FastifyInstance {
+  authenticate: () => void;
+  redisClient: RedisClientType;
+  jwtVerify: () => void;
+  readDb: Knex;
+  writeDb: Knex;
+}
+
+module.exports = async (fastify: WishrollFastifyInstance, _options: any) => {
   fastify.register(require('fastify-jwt'), {
     secret: process.env.MASTER_KEY,
   });
-  fastify.decorate('authenticate', async (req, res) => {
+  fastify.decorate('authenticate', async (req: FastifyRequest, res: FastifyReply) => {
     try {
       await req.jwtVerify();
     } catch (err) {

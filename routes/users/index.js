@@ -180,6 +180,13 @@ module.exports = async (fastify, _options) => {
     { onRequest: [fastify.authenticate], schema: show },
     async (req, res) => {
       const userId = req.params.id;
+
+      const cacheKey = `get-v1-users-${userId}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
       try {
         const user = await fastify
           .readDb('users')
@@ -203,6 +210,11 @@ module.exports = async (fastify, _options) => {
           user.rating = { score: defaultScore, hex_code: getHexCodeForScore(defaultScore) };
         }
         if (user) {
+          fastify.redisClient.set(cacheKey, JSON.stringify(user), {
+            EX: 60 * 60 * 30,
+            KEEPTTL: true,
+          });
+
           res.status(200).send(user);
         } else {
           res.status(404).send({ error: true, message: 'Not found' });
