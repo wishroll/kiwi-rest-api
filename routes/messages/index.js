@@ -1,5 +1,5 @@
 module.exports = async (fastify, _options) => {
-  const { receivedMessagesIndex, sentMessagesIndex } = require('./schema/v1/index');
+  const { receivedMessagesIndex, sentMessagesIndex, sentTracksIndex } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
   const jsf = require('json-schema-faker');
@@ -20,28 +20,27 @@ module.exports = async (fastify, _options) => {
           .offset(offset)
           .limit(limit)
           .orderBy('messages.created_at', 'desc');
-        if (messages.length > 0) {
-          const trackIds = messages.map(m => m.track_id);
-          const messageIds = messages.map(m => m.id);
-          const userIds = messages.map(m => m.sender_id);
-          const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
-          const ratings = await fastify
-            .readDb('ratings')
-            .select()
-            .whereIn('message_id', messageIds);
-          const users = await fastify.readDb('users').select().whereIn('id', userIds);
-          const data = messages.map(message => {
-            message.track = tracks.find(v => v.track_id === message.track_id);
-            message.rating = ratings.find(v => v.message_id === message.id);
-            message.is_rated = message.rating === true;
-            console.log('Is the message rated?', message.is_rated);
-            message.sender = users.find(v => v.id === message.sender_id);
-            return message;
-          });
-          res.status(200).send(data);
-        } else {
-          res.status(404).send({ error: true, message: 'Not found' });
+        if (messages.length < 1) {
+          return res.status(200).send([]);
         }
+        const trackIds = messages.map(m => m.track_id);
+        const messageIds = messages.map(m => m.id);
+        const userIds = messages.map(m => m.sender_id);
+        const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
+        const ratings = await fastify
+          .readDb('ratings')
+          .select()
+          .whereIn('message_id', messageIds);
+        const users = await fastify.readDb('users').select().whereIn('id', userIds);
+        const data = messages.map(message => {
+          message.track = tracks.find(v => v.track_id === message.track_id);
+          message.rating = ratings.find(v => v.message_id === message.id);
+          message.is_rated = message.rating !== undefined;
+          console.log('Is the message rated?', message.is_rated);
+          message.sender = users.find(v => v.id === message.sender_id);
+          return message;
+        });
+        res.status(200).send(data);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
       }
@@ -49,8 +48,47 @@ module.exports = async (fastify, _options) => {
   );
 
   fastify.get(
+    '/v1/me/messages/sent',
+    { onRequest: [fastify.authenticate], schema: receivedMessagesIndex },
+    async (req, res) => {
+      const limit = req.query.limit;
+      const offset = req.query.offset;
+      const currentUserId = req.user.id;
+      try {
+        const messages = await fastify
+          .readDb('messages')
+          .where('messages.sender_id', currentUserId)
+          .offset(offset)
+          .limit(limit)
+          .orderBy('messages.created_at', 'desc');
+        if (messages.length < 1) {
+          return res.status(200).send([]);
+        }
+        const trackIds = messages.map(m => m.track_id);
+        const messageIds = messages.map(m => m.id);
+        const currentUser = fastify.readDb('users').select().where({ id: currentUserId }).first();
+        const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
+        const ratings = await fastify
+          .readDb('ratings')
+          .select()
+          .whereIn('message_id', messageIds);
+        const data = messages.map(message => {
+          message.track = tracks.find(v => v.track_id === message.track_id);
+          message.rating = ratings.find(v => v.message_id === message.id);
+          message.is_rated = message.rating !== undefined;
+          console.log('Is the message rated?', message.is_rated);
+          message.sender = currentUser;
+          return message;
+        });
+        res.status(200).send(data);
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
+    })
+
+  fastify.get(
     '/v1/users/:id/messages/sent',
-    { onRequest: [fastify.authenticate], schema: sentMessagesIndex },
+    { onRequest: [fastify.authenticate], schema: sentTracksIndex },
     async (req, res) => {
       const limit = req.query.limit;
       const offset = req.query.offset;

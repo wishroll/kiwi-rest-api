@@ -194,6 +194,9 @@ module.exports = async (fastify, _options) => {
           ])
           .where({ id: userId })
           .first();
+        if (user === undefined) {
+          return res.status(404).send();
+        }
         const rating = await fastify.readDb('user_ratings').where({ user_id: userId }).first();
         if (rating) {
           rating.hex_code = getHexCodeForScore(rating.score);
