@@ -21,7 +21,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         return res.status(400).send({ error: true, message: 'Missing Query' });
       }
 
-      const cacheKey = `get-search-users-${query.toLowerCase()}-${limit}-${offset}`;
+      const cacheKey = `get-search-users-${query.toLowerCase()}-${limit}-${offset}-${currentUserId}`;
 
       const cachedResponse = await fastify.redisClient.get(cacheKey);
 

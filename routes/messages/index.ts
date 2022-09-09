@@ -92,7 +92,9 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const offset = req.query.offset;
       const userId = req.params.id;
 
-      const cacheKey = `get-v1-users-${userId}-messages-sent-${limit}-${offset}`;
+      const currentUserId = req.user.id;
+
+      const cacheKey = `get-v1-users-${userId}-messages-sent-${limit}-${offset}-${currentUserId}`;
       const cachedResponse = await fastify.redisClient.get(cacheKey);
       if (cachedResponse) {
         return res.status(200).send(JSON.parse(cachedResponse));
