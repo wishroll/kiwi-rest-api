@@ -1,5 +1,15 @@
-module.exports = async (fastify, _options) => {
-  const { receivedMessagesIndex, sentMessagesIndex, sentTracksIndex } = require('./schema/v1/index');
+// @ts-nocheck
+// TODO: Create interfaces for every schema and remove nocheck
+
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { WishrollFastifyInstance } from '../index';
+
+module.exports = async (fastify: WishrollFastifyInstance) => {
+  const {
+    receivedMessagesIndex,
+    sentMessagesIndex,
+    sentTracksIndex,
+  } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
   const jsf = require('json-schema-faker');
@@ -8,11 +18,25 @@ module.exports = async (fastify, _options) => {
   fastify.get(
     '/v1/me/messages',
     { onRequest: [fastify.authenticate], schema: receivedMessagesIndex },
-    async (req, res) => {
+    async (
+      req: FastifyRequest<{
+        Querystring: { limit: number; offset: number };
+      }>,
+      res: FastifyReply,
+    ) => {
+      // @ts-ignore
       const currentUserId = req.user.id;
-      console.log(currentUserId);
+
       const limit = req.query.limit;
       const offset = req.query.offset;
+
+      const cacheKey = `get-v1-me-messages-${currentUserId}-${limit}-${offset}`;
+
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
       try {
         const messages = await fastify
           .readDb('messages')
@@ -27,10 +51,7 @@ module.exports = async (fastify, _options) => {
         const messageIds = messages.map(m => m.id);
         const userIds = messages.map(m => m.sender_id);
         const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
-        const ratings = await fastify
-          .readDb('ratings')
-          .select()
-          .whereIn('message_id', messageIds);
+        const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const users = await fastify.readDb('users').select().whereIn('id', userIds);
         const data = messages.map(message => {
           message.track = tracks.find(v => v.track_id === message.track_id);
@@ -40,6 +61,11 @@ module.exports = async (fastify, _options) => {
           message.sender = users.find(v => v.id === message.sender_id);
           return message;
         });
+
+        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
+          EX: 60 * 60 * 1,
+        });
+
         res.status(200).send(data);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
@@ -68,10 +94,7 @@ module.exports = async (fastify, _options) => {
         const messageIds = messages.map(m => m.id);
         const currentUser = fastify.readDb('users').select().where({ id: currentUserId }).first();
         const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
-        const ratings = await fastify
-          .readDb('ratings')
-          .select()
-          .whereIn('message_id', messageIds);
+        const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const data = messages.map(message => {
           message.track = tracks.find(v => v.track_id === message.track_id);
           message.rating = ratings.find(v => v.message_id === message.id);
@@ -84,15 +107,36 @@ module.exports = async (fastify, _options) => {
       } catch (error) {
         res.status(500).send({ error: true, message: error });
       }
-    })
+    },
+  );
 
   fastify.get(
     '/v1/users/:id/messages/sent',
     { onRequest: [fastify.authenticate], schema: sentTracksIndex },
-    async (req, res) => {
+    async (
+      req: FastifyRequest<{
+        Querystring: {
+          limit: number;
+          offset: number;
+        };
+        Params: {
+          id: number;
+        };
+      }>,
+      res,
+    ) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
       const userId = req.params.id;
+
+      const currentUserId = req.user.id;
+
+      const cacheKey = `get-v1-users-${userId}-messages-sent-${limit}-${offset}-${currentUserId}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
       try {
         const tracks = await fastify.readDb
           .select('*')
@@ -135,6 +179,11 @@ module.exports = async (fastify, _options) => {
           console.log(track.message_created_at);
           return { track };
         });
+
+        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
+          EX: 60 * 60 * 1,
+        });
+
         res.status(200).send(data);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
@@ -145,9 +194,7 @@ module.exports = async (fastify, _options) => {
   fastify.get(
     '/v1/messages/:id',
     { onRequest: [fastify.authenticate], schema: show },
-    async (req, res) => {
-      // const currentUserId = req.user.id;
-
+    async (_req, res) => {
       const message = jsf.generate(show.response[200]);
       res.status(200).send(message);
     },
@@ -157,7 +204,9 @@ module.exports = async (fastify, _options) => {
     '/v1/messages',
     { onRequest: [fastify.authenticate], schema: create },
     async (req, res) => {
+      // @ts-ignore
       const currentUserId = req.user.id;
+
       const recipientIds = req.body.recipient_ids;
       const track = req.body.track;
       const text = req.body.text;
@@ -169,7 +218,7 @@ module.exports = async (fastify, _options) => {
             message: `Recipients could not be found for the given ids: ${recipientIds.toString()}`,
           });
         }
-        let trackId;
+        let trackId: any;
         const existingTrack = await fastify
           .readDb('tracks')
           .select()
