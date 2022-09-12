@@ -20,6 +20,6 @@
     /* To be removed after full migration */
     "allowJs": true
   },
-  "exclude": ["node_modules"],
-  "include": ["**/*.ts", "*.ts", "**/*.ts", "*.js"]
+  "exclude": ["node_modules", "build"],
+  "include": ["**/*.ts", "*.ts", "**/*.js", "*.js"]
 }

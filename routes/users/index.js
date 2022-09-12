@@ -207,6 +207,13 @@ module.exports = async (fastify, _options) => {
     { onRequest: [fastify.authenticate], schema: show },
     async (req, res) => {
       const userId = req.params.id;
+
+      const cacheKey = `get-v1-users-${userId}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
       try {
         const user = await fastify
           .readDb('users')
@@ -222,7 +229,8 @@ module.exports = async (fastify, _options) => {
           ])
           .where({ id: userId })
           .first();
-        if (!user) {
+
+        if (user === undefined) {
           return res.status(404).send({ error: true, message: 'Not found' })
         }
         const rating = await fastify.readDb('user_ratings').where({ user_id: userId }).first();
@@ -233,7 +241,16 @@ module.exports = async (fastify, _options) => {
           const defaultScore = 0.1;
           user.rating = { score: defaultScore, hex_code: getHexCodeForScore(defaultScore) };
         }
-        res.status(200).send(user);
+        if (user) {
+          fastify.redisClient.set(cacheKey, JSON.stringify(user), {
+            EX: 60 * 30,
+            KEEPTTL: true,
+          });
+
+          res.status(200).send(user);
+        } else {
+          res.status(404).send({ error: true, message: 'Not found' });
+        }
       } catch (error) {
         res.status(500).send({ error: true, message: error });
       }
