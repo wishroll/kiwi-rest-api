@@ -63,7 +63,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         });
 
         fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 60 * 1,
+          EX: 60 * 1,
         });
 
         res.status(200).send(data);
@@ -181,7 +181,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         });
 
         fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 60 * 1,
+          EX: 60 * 1,
         });
 
         res.status(200).send(data);

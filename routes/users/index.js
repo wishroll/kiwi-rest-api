@@ -214,7 +214,7 @@ module.exports = async (fastify, _options) => {
         }
         if (user) {
           fastify.redisClient.set(cacheKey, JSON.stringify(user), {
-            EX: 60 * 60 * 30,
+            EX: 60 * 30,
             KEEPTTL: true,
           });
 
