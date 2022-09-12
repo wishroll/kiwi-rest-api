@@ -29,6 +29,7 @@
     "fastify-multer": "^2.0.2",
     "forky": "^1.2.0",
     "google-libphonenumber": "^3.2.27",
+    "googleapis": "^107.0.0",
     "json-schema-faker": "^0.5.0-rcv.44",
     "knex": "^1.0.3",
     "multer": "^1.4.4",

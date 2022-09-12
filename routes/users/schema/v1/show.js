@@ -26,6 +26,7 @@ module.exports = {
         username: { type: 'string' },
         avatar_url: { type: 'string' },
         created_at: { type: 'string' },
+        share_link: { type: 'string' },
         rating: {
           type: 'object',
           properties: {

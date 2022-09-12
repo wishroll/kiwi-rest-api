@@ -1,5 +1,6 @@
 const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score');
 const { updateUserNode } = require('../../services/api/neo4j/users/index');
+const { createDynamicProfileLink } = require('../../services/api/google/firebase/dynamiclinks/index')
 module.exports = async (fastify, _options) => {
   const crypto = require('crypto');
   const multer = require('fastify-multer');
@@ -128,7 +129,7 @@ module.exports = async (fastify, _options) => {
   fastify.put(
     '/users',
     { onRequest: [fastify.authenticate], preHandler: upload.single('avatar') },
-    (req, res) => {
+    async (req, res) => {
       const userId = req.user.id;
       const updateParams = req.body;
       if (req.file) {
@@ -143,32 +144,58 @@ module.exports = async (fastify, _options) => {
         const avatarUrl = `${protocol}://${hostName}/media/redirect/${signedId}/${key}`;
         updateParams.avatar_url = avatarUrl;
       }
-      fastify
-        .writeDb('users')
-        .select('id')
-        .where({ id: userId })
-        .update(updateParams, [
-          'id',
-          'uuid',
-          'display_name',
-          'username',
-          'phone_number',
-          'created_at',
-          'updated_at',
-          'avatar_url',
-        ])
-        .then(rows => {
-          const updatedUser = rows[0];
-          updateUserNode(userId, updatedUser).catch(err =>
-            console.log(`An error occured when updating a user node ${err}`),
-          );
-          return res.status(200).send(rows);
-        })
-        .catch(err => {
-          console.error(err);
-          return res.status(500).send({ success: false, message: 'An error occured' });
-        });
-    },
+      try {
+        const results = await fastify
+          .writeDb('users')
+          .select('id')
+          .where({ id: userId })
+          .update(updateParams, [
+            'id',
+            'uuid',
+            'display_name',
+            'username',
+            'phone_number',
+            'created_at',
+            'updated_at',
+            'avatar_url',
+            'share_link'
+          ]);
+
+        let updatedUser = results[0];
+
+        if (updateParams.username) {
+          try {
+            const shareLink = await createDynamicProfileLink(updatedUser);
+            // console.log(`This is the share link ${shareLink}`);
+            const results = await fastify
+              .writeDb('users')
+              .select('id')
+              .where({ id: userId })
+              .update({ share_link: shareLink }, [
+                'id',
+                'uuid',
+                'display_name',
+                'username',
+                'created_at',
+                'updated_at',
+                'avatar_url',
+                'share_link']);
+            updatedUser = results[0];
+          } catch (error) {
+            console.log('An error occured when updating the profile link');
+          }
+        }
+
+        updateUserNode(userId, updatedUser).catch(err =>
+          console.log(`An error occured when updating a user node ${err}`),
+        );
+
+        res.status(200).send(updatedUser);
+
+      } catch (error) {
+        res.status(500).send({ error: true, message: 'An error occured' })
+      }
+    }
   );
 
   /**
@@ -191,9 +218,13 @@ module.exports = async (fastify, _options) => {
             'updated_at',
             'avatar_url',
             'username',
+            'share_link'
           ])
           .where({ id: userId })
           .first();
+        if (!user) {
+          return res.status(404).send({ error: true, message: 'Not found' })
+        }
         const rating = await fastify.readDb('user_ratings').where({ user_id: userId }).first();
         if (rating) {
           rating.hex_code = getHexCodeForScore(rating.score);
@@ -202,11 +233,7 @@ module.exports = async (fastify, _options) => {
           const defaultScore = 0.1;
           user.rating = { score: defaultScore, hex_code: getHexCodeForScore(defaultScore) };
         }
-        if (user) {
-          res.status(200).send(user);
-        } else {
-          res.status(404).send({ error: true, message: 'Not found' });
-        }
+        res.status(200).send(user);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
       }
