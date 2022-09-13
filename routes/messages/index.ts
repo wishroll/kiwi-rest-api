@@ -4,6 +4,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
+import { sentTracksIndexV2 } from './schema/v1';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
   const {
@@ -87,7 +88,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const currentUserId = req.user.id;
 
       const limit = req.query.limit;
-      const lastId = req.query.lastId;
+      const lastId = req.query.lastId ?? MAX_BIGINT;
 
       const cacheKey = `get-v2-me-messages-${currentUserId}-${limit}-${lastId}`;
 
@@ -101,7 +102,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const messages = await fastify
           .readDb('messages')
           .where('messages.recipient_id', currentUserId)
-          .andWhere('messages.id', '<', lastId ?? MAX_BIGINT)
+          .andWhere('messages.id', '<', lastId)
           .orderBy('messages.id', 'desc')
           .limit(limit);
         if (messages.length < 1) {
@@ -255,6 +256,88 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         fastify.redisClient.set(cacheKey, JSON.stringify(data), {
           EX: 60 * 60 * 1,
+        });
+
+        res.status(200).send(data);
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
+    },
+  );
+
+  fastify.get(
+    '/v2/users/:id/messages/sent',
+    { onRequest: [fastify.authenticate], schema: sentTracksIndexV2 },
+    async (
+      req: FastifyRequest<{
+        Querystring: {
+          limit: number;
+          lastId?: number;
+        };
+        Params: {
+          id: number;
+        };
+      }>,
+      res,
+    ) => {
+      const limit = req.query.limit;
+      const lastId = req.query.lastId ?? MAX_BIGINT;
+      const userId = req.params.id;
+
+      // @ts-ignore
+      const currentUserId = req.user.id;
+
+      const cacheKey = `get-v2-users-${userId}-messages-sent-${limit}-${lastId}-${currentUserId}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
+      try {
+        const tracks = await fastify.readDb
+          .select('*')
+          .from(
+            fastify
+              .readDb('tracks')
+              .select([
+                'tracks.id as id',
+                'tracks.uuid as uuid',
+                'tracks.track_id as track_id',
+                'tracks.external_url as external_url',
+                'tracks.preview_url as preview_url',
+                'tracks.uri as uri',
+                'tracks.href as href',
+                'tracks.name as name',
+                'tracks.duration as duration',
+                'tracks.track_number as track_number',
+                'tracks.release_date as release_date',
+                'tracks.isrc as isrc',
+                'tracks.explicit as explicit',
+                'tracks.artwork as artwork',
+                'tracks.artists as artists',
+                'tracks.platform as platform',
+                'messages.id as message_id',
+                'messages.created_at as message_created_at',
+                'messages.updated_at as message_updated_at',
+                'messages.text as message_text',
+                'messages.track_id as message_track_id',
+                'messages.recipient_id as recipient_id',
+              ])
+              .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
+              .where('messages.sender_id', userId)
+              .distinctOn('isrc')
+              .as('tracks'),
+          )
+          .where('id', '<', lastId ?? MAX_BIGINT)
+          .orderBy('tracks.message_created_at', 'desc')
+          .limit(limit);
+
+        const data = tracks.map(track => {
+          return { track };
+        });
+
+        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
+          EX: 60 * 1,
         });
 
         res.status(200).send(data);

@@ -219,6 +219,18 @@ const sentTracksIndex = {
   },
 };
 
+const sentTracksIndexV2 = {
+  ...sentTracksIndex,
+  query: {
+    type: 'object',
+    properties: {
+      limit: { type: 'integer', minimum: 1 },
+      lastId: { type: 'integer' },
+    },
+    required: ['limit'],
+  },
+};
+
 const sentMessagesIndex = {
   description: 'Return a list of song messages that the current user has sent',
   tags: ['Messages'],
@@ -340,4 +352,5 @@ module.exports = {
   sentMessagesIndex,
   sentTracksIndex,
   receivedMessagesIndexV2,
+  sentTracksIndexV2,
 };
