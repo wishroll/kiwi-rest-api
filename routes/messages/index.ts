@@ -2,13 +2,14 @@
 // TODO: Create interfaces for every schema and remove nocheck
 
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
   const {
     receivedMessagesIndex,
-    sentMessagesIndex,
     sentTracksIndex,
+    receivedMessagesIndexV2,
   } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
@@ -64,6 +65,78 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         fastify.redisClient.set(cacheKey, JSON.stringify(data), {
           EX: 60 * 60 * 1,
+        });
+
+        res.status(200).send(data);
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
+    },
+  );
+
+  fastify.get(
+    '/v2/me/messages',
+    { onRequest: [fastify.authenticate], schema: receivedMessagesIndexV2 },
+    async (
+      req: FastifyRequest<{
+        Querystring: { limit: number; lastId?: number };
+      }>,
+      res: FastifyReply,
+    ) => {
+      // @ts-ignore
+      const currentUserId = req.user.id;
+
+      const limit = req.query.limit;
+      const lastId = req.query.lastId;
+
+      const cacheKey = `get-v2-me-messages-${currentUserId}-${limit}-${lastId}`;
+
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
+      try {
+        const messages = await fastify
+          .readDb('messages')
+          .where('messages.recipient_id', currentUserId)
+          .andWhere('messages.id', '<', lastId ?? MAX_BIGINT)
+          .orderBy('messages.id', 'desc')
+          .limit(limit);
+        if (messages.length < 1) {
+          return res.status(200).send([]);
+        }
+
+        let trackIds = [];
+        let messageIds = [];
+        let userIds = [];
+
+        messages.forEach(({ track_id, id, sender_id }) => {
+          trackIds = [...trackIds, track_id];
+          messageIds = [...messageIds, id];
+          userIds = [...userIds, sender_id];
+        });
+
+        const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
+        const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
+        const users = await fastify.readDb('users').select().whereIn('id', userIds);
+
+        const data = messages.map(message => {
+          const isMessageRated = message.rating !== undefined;
+          console.log('Is the message rated?', isMessageRated);
+
+          return {
+            ...message,
+            track: tracks.find(track => track.track_id === message.track_id),
+            rating: ratings.find(rating => rating.message_id === message.id),
+            is_rated: isMessageRated,
+            sender: users.find(user => user.id === message.sender_id),
+          };
+        });
+
+        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
+          EX: 60 * 1,
         });
 
         res.status(200).send(data);
