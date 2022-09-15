@@ -91,18 +91,19 @@ async function sendPushNotification(userIds, notificationData) {
  * @returns {Promise<any>}
  */
 const sendNotificationOnCreatedRating = async messageId => {
-  const userId = await readDB('users')
-    .select('users.id')
+  const data = await readDB('users')
+    .select(['users.id', 'messages.id as message_id'])
     .innerJoin('messages', 'users.id', '=', 'messages.sender_id')
     .where('messages.id', '=', messageId)
     .first();
-  console.log('This is the userId of the message sender', userId.id);
+  console.log('This is the userId of the message sender', data.id);
   const notificationData = generateNotificationData();
   notificationData.body = 'Someone just rated a song you sent! Check out your updated music rating';
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
+  notificationData.custom = { type: 'sent_message', message_id: data.message_id }
   notificationData.mutableContent = 1;
-  return sendPushNotification([userId.id], notificationData);
+  return sendPushNotification([data.id], notificationData);
 };
 
 const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {
@@ -112,16 +113,15 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${
-    requesterUser.display_name || requesterUser.username
-  } added you!\nAdd them back to start sending songs.`;
+  notificationData.body = `${requesterUser.display_name || requesterUser.username
+    } added you!\nAdd them back to start sending songs.`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
   notificationData.mutableContent = 1;
   notificationData.custom = {
-    requester_user: requesterUser,
-    type: 'ReceivedFriendRequest',
+    type: 'user',
+    user_id: requesterUser.id,
   };
   return sendPushNotification([requestedUserId], notificationData);
 };
@@ -169,7 +169,7 @@ async function promiseAllInBatches(task, items, batchSize) {
   return results;
 }
 
-async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
+async function sendNotificationOnReceivedSong(messageId, senderUserId, recipientUserId) {
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
   if (!senderUser || !recipientUser) {
@@ -182,6 +182,10 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
   notification.pushType = 'alert';
   notification.mutableContent = 1;
   notification.topic = 'org.reactjs.native.example.mutualsapp';
+  notification.custom = {
+    type: 'received_message',
+    message_id: messageId
+  }
   return sendPushNotification([recipientUserId], notification);
 }
 
@@ -192,16 +196,15 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${
-    requestedUser.display_name || requestedUser.username
-  } added you back! You can now send songs to each other.`;
+  notificationData.body = `${requestedUser.display_name || requestedUser.username
+    } added you back! You can now send songs to each other.`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
   notificationData.mutableContent = 1;
   notificationData.custom = {
-    requested_user: requestedUser,
-    type: 'AcceptedFriendRequest',
+    type: 'user',
+    user_id: requestedUser.id,
   };
   return sendPushNotification([requesterUserId], notificationData);
 };
