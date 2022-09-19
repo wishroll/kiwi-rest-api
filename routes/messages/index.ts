@@ -65,7 +65,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         });
 
         fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 60 * 1,
+          EX: 60 * 1,
         });
 
         res.status(200).send(data);
@@ -255,7 +255,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         });
 
         fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 60 * 1,
+          EX: 60 * 1,
         });
 
         res.status(200).send(data);
@@ -395,11 +395,15 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const insertData = await Promise.all(
           recipients.map(async recipient => {
             const id = recipient.id;
-            sendNotificationOnReceivedSong(currentUserId, id).catch();
             return { sender_id: currentUserId, recipient_id: id, track_id: trackId, text };
           }),
         );
         const messages = await fastify.writeDb('messages').insert(insertData, ['*']);
+        await Promise.all(
+          messages.map(async message => {
+            sendNotificationOnReceivedSong(message.id, currentUserId, message.recipient_id).catch();
+          }),
+        );
         if (messages.length > 0) {
           res.status(201).send();
         } else {

@@ -33,7 +33,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       try {
         const users = await searchUsers(query, offset, limit, currentUserId);
 
-        fastify.redisClient.set(cacheKey, JSON.stringify(users), { EX: 60 * 60 * 5 });
+        fastify.redisClient.set(cacheKey, JSON.stringify(users), { EX: 60 * 5 });
 
         return res.status(200).send(users);
       } catch (error) {
