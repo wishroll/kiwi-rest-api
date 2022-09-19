@@ -1,4 +1,4 @@
-module.exports = {
+const search = {
   description: 'Return an array of users',
   tags: ['Search'],
   summary: 'Returns a list of users',
@@ -58,4 +58,36 @@ module.exports = {
       },
     },
   },
+};
+
+const searchV2 = {
+  ...search,
+  querystring: {
+    type: 'object',
+    properties: {
+      limit: { type: 'integer', description: 'The max number of records to return' },
+      lastId: { type: 'integer', description: 'Last user ID retreived from backend' },
+      lastScore: { type: 'integer', description: 'Number of last score retreived from backend' },
+      query: { type: 'string', description: 'The query to search against' },
+    },
+    required: ['limit', 'query'],
+  },
+  response: {
+    ...search.response,
+    200: {
+      ...search.response[200],
+      items: {
+        ...search.response[200].items,
+        properties: {
+          ...search.response[200].items.properties,
+          score: { type: 'string' },
+        },
+      },
+    },
+  },
+};
+
+module.exports = {
+  search,
+  searchV2,
 };
