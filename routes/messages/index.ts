@@ -194,9 +194,40 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
   fastify.get(
     '/v1/messages/:id',
     { onRequest: [fastify.authenticate], schema: show },
-    async (_req, res) => {
-      const message = jsf.generate(show.response[200]);
-      res.status(200).send(message);
+    async (req, res) => {
+      const messageId = req.params.id;
+
+      const cacheKey = `get-v1-messages-${messageId}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
+      try {
+        const message = await fastify.readDb('messages').where({ id: messageId }).first();
+
+        if (message) {
+          const track = await fastify
+            .readDb('tracks')
+            .where({ track_id: message.track_id })
+            .first();
+          const rating = await fastify.readDb('ratings').where({ message_id: message.id }).first();
+          const sender = await fastify.readDb('users').where({ id: message.sender_id }).first();
+          message.track = track;
+          message.rating = rating;
+          message.is_rated = rating !== undefined;
+          message.sender = sender;
+
+          fastify.redisClient.set(cacheKey, JSON.stringify(message), {
+            EX: 60 * 1,
+          });
+          res.status(200).send(message);
+        } else {
+          res.status(404).send({ error: true, message: 'Not found' });
+        }
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 
