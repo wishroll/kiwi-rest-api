@@ -54,37 +54,17 @@ async function searchUsersV2(
 ) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    // TODO: Investigate possibility of adding column with concatenated value of display name and username.
-    // Case below is not optimised, but fixes issue with double entries
     const query = `
-    CALL {
-      CALL db.index.fulltext.queryNodes("INDEX_USERS_USERNAME_FULLTEXT", "${q}") YIELD node, score
-
-      RETURN node.id, EXISTS((node)-[:FRIENDS_WITH]-(:User{id: ${currentUserId}})) as is_friends, 
-      EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: ${currentUserId}})) as is_pending_received, 
-      EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: ${currentUserId}})) as is_pending_sent, 
-      node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, 
-      node.avatar_url as avatar_url, round(score, 2, 'CEILING') as score
-
-      UNION
-
-      CALL db.index.fulltext.queryNodes("INDEX_USERS_DISPLAY_NAME_FULLTEXT", "${q}~") YIELD node, score
-
-      RETURN node.id, EXISTS((node)-[:FRIENDS_WITH]-(:User{id: ${currentUserId}})) as is_friends, 
-      EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: ${currentUserId}})) as is_pending_received, 
-      EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: ${currentUserId}})) as is_pending_sent, 
-      node.id as id, node.uuid as uuid, node.username as username, node.display_name as display_name, 
-      node.avatar_url as avatar_url, round(score, 2, 'CEILING') as score
-    }
-
-    WITH distinct id, max(score) as score, uuid, username, 
-    display_name, avatar_url, is_friends,
-    is_pending_received, is_pending_sent
-
-    WHERE round(score, 2, 'CEILING') <= ${lastScore} AND (id < ${lastId} OR round(score, 2, 'CEILING') < ${lastScore})
-
-    RETURN *
-
+    CALL db.index.fulltext.queryNodes("INDEX_USERS_FULLTEXT", "username:${q} OR display_name:${q}~") YIELD node, score
+  
+    WHERE round(score, 2, 'CEILING') <= ${lastScore} AND (node.id < ${lastId} OR round(score, 2, 'CEILING') < ${lastScore})
+  
+    RETURN node.id as id, EXISTS((node)-[:FRIENDS_WITH]-(:User{id: ${currentUserId}})) as is_friends, 
+    EXISTS((node)-[:FRIEND_REQUESTED]->(:User{id: ${currentUserId}})) as is_pending_received, 
+    EXISTS((node)<-[:FRIEND_REQUESTED]-(:User{id: ${currentUserId}})) as is_pending_sent, 
+    node.uuid as uuid, node.username as username, node.display_name as display_name, 
+    node.avatar_url as avatar_url, round(score, 2, 'CEILING') as score
+  
     ORDER BY round(score, 2, 'CEILING') DESC, id DESC
     LIMIT ${limit}
     `;

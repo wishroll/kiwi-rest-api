@@ -48,7 +48,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
     { onRequest: [fastify.authenticate], schema: searchV2 },
     async (
       req: FastifyRequest<{
-        Querystring: { query: string; limit: number; lastScore?: number; lastId?: number };
+        Querystring: { query: string; limit: number; lastScore?: string; lastId?: number };
       }>,
       res: FastifyReply,
     ) => {

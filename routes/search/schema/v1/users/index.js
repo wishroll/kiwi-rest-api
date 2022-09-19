@@ -67,7 +67,7 @@ const searchV2 = {
     properties: {
       limit: { type: 'integer', description: 'The max number of records to return' },
       lastId: { type: 'integer', description: 'Last user ID retreived from backend' },
-      lastScore: { type: 'integer', description: 'Number of last score retreived from backend' },
+      lastScore: { type: 'string', description: 'Number of last score retreived from backend' },
       query: { type: 'string', description: 'The query to search against' },
     },
     required: ['limit', 'query'],
