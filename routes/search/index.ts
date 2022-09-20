@@ -2,15 +2,16 @@ import { WishrollFastifyInstance } from '../index';
 import { FastifyReply } from 'fastify/types/reply';
 import { FastifyRequest } from 'fastify/types/request';
 import { searchUsersV2 } from '../../services/api/neo4j/search';
-const { search, searchV2 } = require('./schema/v1/users/index');
-const { searchUsers } = require('../../services/api/neo4j/search/index');
+import { search } from './schema/v1/users/index';
+import { search as searchV2 } from './schema/v2/users/index';
+import { searchUsers } from '../../services/api/neo4j/search/index';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
   fastify.get(
     '/search/users',
     { onRequest: [fastify.authenticate], schema: search },
     async (
-      req: FastifyRequest<{ Querystring: { query: string; limit: string; offset: string } }>,
+      req: FastifyRequest<{ Querystring: { query: string; limit: number; offset: number } }>,
       res: FastifyReply,
     ) => {
       // @ts-ignore

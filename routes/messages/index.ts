@@ -4,14 +4,13 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
-import { sentTracksIndexV2 } from './schema/v1';
+import {
+  receivedMessagesIndex as receivedMessagesIndexV2,
+  sentTracksIndex as sentTracksIndexV2,
+} from './schema/v2';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
-  const {
-    receivedMessagesIndex,
-    sentTracksIndex,
-    receivedMessagesIndexV2,
-  } = require('./schema/v1/index');
+  const { receivedMessagesIndex, sentTracksIndex } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
   const jsf = require('json-schema-faker');
@@ -266,7 +265,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
   );
 
   fastify.get(
-    '/v2/users/:id/messages/sent',
+    '/v2/users/messages/sent',
     { onRequest: [fastify.authenticate], schema: sentTracksIndexV2 },
     async (
       req: FastifyRequest<{
@@ -274,24 +273,14 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           limit: number;
           lastId?: number;
         };
-        Params: {
-          id: number;
-        };
       }>,
       res,
     ) => {
       const limit = req.query.limit;
       const lastId = req.query.lastId ?? MAX_BIGINT;
-      const userId = req.params.id;
 
       // @ts-ignore
       const currentUserId = req.user.id;
-
-      const cacheKey = `get-v2-users-${userId}-messages-sent-${limit}-${lastId}-${currentUserId}`;
-      const cachedResponse = await fastify.redisClient.get(cacheKey);
-      if (cachedResponse) {
-        return res.status(200).send(JSON.parse(cachedResponse));
-      }
 
       try {
         const tracks = await fastify.readDb
@@ -324,7 +313,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
                 'messages.recipient_id as recipient_id',
               ])
               .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
-              .where('messages.sender_id', userId)
+              .where('messages.sender_id', currentUserId)
               .distinctOn('isrc')
               .as('tracks'),
           )
@@ -334,10 +323,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         const data = tracks.map(track => {
           return { track };
-        });
-
-        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 1,
         });
 
         res.status(200).send(data);
