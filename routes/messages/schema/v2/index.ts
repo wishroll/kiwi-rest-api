@@ -176,6 +176,7 @@ export const sentTracksIndex = {
                 },
                 required: ['url'],
               },
+              id: { type: 'integer' },
             },
           },
         },
