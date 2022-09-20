@@ -195,6 +195,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
     '/v1/messages/:id',
     { onRequest: [fastify.authenticate], schema: show },
     async (req, res) => {
+      const currentUserId = req.user.id;
       const messageId = req.params.id;
 
       const cacheKey = `get-v1-messages-${messageId}`;
@@ -206,25 +207,29 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       try {
         const message = await fastify.readDb('messages').where({ id: messageId }).first();
 
-        if (message) {
-          const track = await fastify
-            .readDb('tracks')
-            .where({ track_id: message.track_id })
-            .first();
-          const rating = await fastify.readDb('ratings').where({ message_id: message.id }).first();
-          const sender = await fastify.readDb('users').where({ id: message.sender_id }).first();
-          message.track = track;
-          message.rating = rating;
-          message.is_rated = rating !== undefined;
-          message.sender = sender;
-
-          fastify.redisClient.set(cacheKey, JSON.stringify(message), {
-            EX: 60 * 1,
-          });
-          res.status(200).send(message);
-        } else {
+        if (!message) {
           res.status(404).send({ error: true, message: 'Not found' });
+          return;
         }
+        if (message.sender_id !== currentUserId && message.recipient_id !== currentUserId) {
+          res.status(403).send({ error: true, message: 'Forbidden' });
+          return;
+        }
+
+        const [track, rating, sender] = await Promise.all([
+          fastify.readDb('tracks').where({ track_id: message.track_id }).first(),
+          fastify.readDb('ratings').where({ message_id: message.id }).first(),
+          fastify.readDb('users').where({ id: message.sender_id }).first(),
+        ]);
+        message.track = track;
+        message.rating = rating;
+        message.is_rated = rating !== undefined;
+        message.sender = sender;
+
+        fastify.redisClient.set(cacheKey, JSON.stringify(message), {
+          EX: 60 * 1,
+        });
+        res.status(200).send(message);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
       }
