@@ -1,4 +1,4 @@
-const search = {
+export const search = {
   description: 'Return an array of users',
   tags: ['Search'],
   summary: 'Returns a list of users',
@@ -13,10 +13,11 @@ const search = {
     type: 'object',
     properties: {
       limit: { type: 'integer', description: 'The max number of records to return' },
-      offset: { type: 'integer', description: 'The number of records to skip before retrieval' },
+      lastId: { type: 'integer', description: 'Last user ID retreived from backend' },
+      lastScore: { type: 'string', description: 'Number of last score retreived from backend' },
       query: { type: 'string', description: 'The query to search against' },
     },
-    required: ['limit', 'offset', 'query'],
+    required: ['limit', 'query'],
   },
   response: {
     200: {
@@ -36,8 +37,9 @@ const search = {
             type: 'string',
             enum: ['none', 'friends', 'pending_sent', 'pending_received'],
           },
+          score: { type: 'string' },
         },
-        required: ['id', 'uuid', 'username', 'display_name'],
+        required: ['id', 'uuid', 'username', 'display_name', 'score'],
       },
     },
     404: {
@@ -58,8 +60,4 @@ const search = {
       },
     },
   },
-};
-
-module.exports = {
-  search,
 };
