@@ -3,13 +3,12 @@ import { FromSchema } from 'json-schema-to-ts';
 export const swapBody = {
   type: 'object',
   properties: {
-    redirect_uri: { type: 'string', description: 'Spotify redirect URI' },
     code: {
       type: 'string',
       description: 'The code returned from Spotify account service to be used in the token request',
     },
   },
-  required: ['redirect_uri', 'code'],
+  required: ['code'],
 } as const;
 
 export const swapSchema = {
