@@ -126,6 +126,13 @@ export const sentTracksIndex = {
     },
     required: ['limit'],
   },
+  params: {
+    type: 'object',
+    properties: {
+      id: { type: 'integer', description: 'The id of the user' },
+    },
+    required: ['id'],
+  },
   headers: {
     type: 'object',
     properties: {

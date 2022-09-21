@@ -5,6 +5,7 @@ import { searchUsersV2 } from '../../services/api/neo4j/search';
 import { search } from './schema/v1/users/index';
 import { search as searchV2 } from './schema/v2/users/index';
 import { searchUsers } from '../../services/api/neo4j/search/index';
+import { MAX_32INT_NEO4J, MAX_SEARCH_MATCH_SCORE } from '../../utils/numbers';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
   fastify.get(
@@ -62,12 +63,9 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         return res.status(400).send({ error: true, message: 'Missing Query' });
       }
 
-      const cacheKey =
-        `get-v2-search-users-${query.toLowerCase()}-${limit}-${currentUserId}` + lastId
-          ? `-${lastId}`
-          : '' + lastScore
-          ? `-${lastScore}`
-          : '';
+      const cacheKey = `get-v2-search-users-${query.toLowerCase()}-${limit}-${currentUserId}-${
+        lastId ?? MAX_32INT_NEO4J
+      }-${lastScore ?? MAX_SEARCH_MATCH_SCORE}`;
 
       const cachedResponse = await fastify.redisClient.get(cacheKey);
 
