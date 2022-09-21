@@ -321,6 +321,6 @@ const sentMessagesIndex = {
       },
     },
   },
-}
+};
 
 module.exports = { receivedMessagesIndex, sentMessagesIndex, sentTracksIndex };
