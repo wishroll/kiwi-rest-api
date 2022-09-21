@@ -123,13 +123,14 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const users = await fastify.readDb('users').select().whereIn('id', userIds);
 
         const data = messages.map(message => {
-          const isMessageRated = message.rating !== undefined;
+          const rating = ratings.find(rating => rating.message_id === message.id);
+          const isMessageRated = rating !== undefined;
           console.log('Is the message rated?', isMessageRated);
 
           return {
             ...message,
             track: tracks.find(track => track.track_id === message.track_id),
-            rating: ratings.find(rating => rating.message_id === message.id),
+            rating,
             is_rated: isMessageRated,
             sender: users.find(user => user.id === message.sender_id),
           };
@@ -265,7 +266,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
   );
 
   fastify.get(
-    '/v2/users/messages/sent',
+    '/v2/users/:id/messages/sent',
     { onRequest: [fastify.authenticate], schema: sentTracksIndexV2 },
     async (
       req: FastifyRequest<{
@@ -273,14 +274,15 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           limit: number;
           lastId?: number;
         };
+        Params: {
+          id: number;
+        };
       }>,
       res,
     ) => {
       const limit = req.query.limit;
       const lastId = req.query.lastId ?? MAX_BIGINT;
-
-      // @ts-ignore
-      const currentUserId = req.user.id;
+      const userId = req.params.id;
 
       try {
         const tracks = await fastify.readDb
@@ -313,7 +315,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
                 'messages.recipient_id as recipient_id',
               ])
               .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
-              .where('messages.sender_id', currentUserId)
+              .where('messages.sender_id', userId)
               .distinctOn('isrc')
               .as('tracks'),
           )
