@@ -1,5 +1,6 @@
 import { FastifyReply } from 'fastify';
 import fetch, { FetchError } from 'node-fetch';
+import { encrypt } from '../../../utils/encrypt';
 
 const spotifyClientID = process.env.SPOTIFY_CLIENT_ID;
 const spotifyClientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -11,6 +12,21 @@ export const authString = Buffer.from(spotifyClientID + ':' + spotifyClientSecre
   'base64',
 );
 export const authHeader = `Basic ${authString}`;
+
+export const handleSpotifyToken = async (res: FastifyReply, body: Record<string, string>) =>
+  tokenRequestHandler(res, async () => {
+    const spotifyResponse = await spotifyPost(body).then(response => response.json());
+
+    if ('error' in spotifyResponse) {
+      return res.status(500).send(spotifyResponse);
+    }
+
+    if (spotifyResponse.refresh_token) {
+      spotifyResponse.refresh_token = encrypt(spotifyResponse.refresh_token);
+    }
+
+    return res.status(200).send(spotifyResponse);
+  });
 
 export const tokenRequestHandler = async (res: FastifyReply, fetcher: () => Promise<void>) => {
   try {
@@ -27,7 +43,7 @@ export const tokenRequestHandler = async (res: FastifyReply, fetcher: () => Prom
   }
 };
 
-export const spotifyPost = async (url: string, params: Record<string, string>) => {
+export const spotifyPost = async (params: Record<string, string>) => {
   const body = new URLSearchParams(params);
 
   const reqData = {
@@ -39,5 +55,5 @@ export const spotifyPost = async (url: string, params: Record<string, string>) =
     body,
   };
 
-  return fetch(url, reqData);
+  return fetch(spotifyTokenEndpoint, reqData);
 };
