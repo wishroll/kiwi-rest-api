@@ -266,7 +266,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
   );
 
   fastify.get(
-    '/v2/users/:id/messages/sent',
+    '/v2/users/:id/tracks/sent',
     { onRequest: [fastify.authenticate], schema: sentTracksIndexV2 },
     async (
       req: FastifyRequest<{
@@ -446,7 +446,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       .first()
       .then(alreadyTrack => {
         if (!alreadyTrack) {
-          console.log('In here!');
           const newTrack = {};
           newTrack.id = existingTrack.track_id;
           newTrack.name = existingTrack.name;
