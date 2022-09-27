@@ -64,12 +64,15 @@ module.exports = {
       },
       recipient_ids: {
         type: 'array',
-        minItems: 1,
         items: {
           type: 'integer',
         },
       },
       text: { type: 'string' },
+      send_to_all: {
+        type: 'boolean',
+        description: 'If set to true, recipient_ids will be ignored',
+      },
     },
     required: ['track', 'recipient_ids'],
   },
