@@ -2,6 +2,7 @@
 // TODO: Create interfaces for every schema and remove nocheck
 
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { getAllUserFriendIds } from '../../utils/friends';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
 import {
@@ -401,10 +402,12 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const recipientIds = req.body.recipient_ids;
-      const track = req.body.track;
-      const text = req.body.text;
+      const { recipient_ids, track, text, send_to_all } = req.body;
+
       try {
+        const recipientIds = send_to_all
+          ? await getAllUserFriendIds(fastify, currentUserId)
+          : recipient_ids;
         const recipients = await fastify.readDb('users').select('id').whereIn('id', recipientIds);
         if (recipients.length < 1) {
           return res.status(400).send({

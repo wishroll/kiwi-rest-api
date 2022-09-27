@@ -16,6 +16,7 @@ module.exports = async (fastify, _options) => {
     deleteFriendshipRelationship,
     getFriends,
   } = require('../../services/api/neo4j/friendships/index');
+  const { getAllUserFriendIds } = require('../../utils/friends');
 
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
     // const limit = req.query.limit;
@@ -145,21 +146,11 @@ module.exports = async (fastify, _options) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
       try {
-        const createdFriendsRows = await fastify
-          .readDb('friends')
-          .select('friends.friend_id')
-          .where({ user_id: currentUserId });
-        const createdFriends = createdFriendsRows.map(row => row.friend_id);
-        const acceptedFriendsRows = await fastify
-          .readDb('friends')
-          .select('friends.user_id')
-          .where({ friend_id: currentUserId });
-        const acceptedFriends = acceptedFriendsRows.map(row => row.user_id);
-        const friends = createdFriends.concat(acceptedFriends);
+        const friendsIds = await getAllUserFriendIds(fastify, currentUserId);
         const users = await fastify
           .readDb('users')
           .select()
-          .whereIn('id', friends)
+          .whereIn('id', friendsIds)
           .limit(limit)
           .offset(offset);
         if (users.length > 0) {
