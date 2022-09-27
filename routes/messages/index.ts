@@ -58,7 +58,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           message.track = tracks.find(v => v.track_id === message.track_id);
           message.rating = ratings.find(v => v.message_id === message.id);
           message.is_rated = message.rating !== undefined;
-          console.log('Is the message rated?', message.is_rated);
           message.sender = users.find(v => v.id === message.sender_id);
           return message;
         });
@@ -125,7 +124,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const data = messages.map(message => {
           const rating = ratings.find(rating => rating.message_id === message.id);
           const isMessageRated = rating !== undefined;
-          console.log('Is the message rated?', isMessageRated);
 
           return {
             ...message,
@@ -154,6 +152,14 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
       const currentUserId = req.user.id;
+
+      const cacheKey = `get-v1-me-messages-sent-${currentUserId}-${limit}-${offset}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
       try {
         const messages = await fastify
           .readDb('messages')
@@ -166,16 +172,21 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         }
         const trackIds = messages.map(m => m.track_id);
         const messageIds = messages.map(m => m.id);
+        const recipientIds = messages.map(m => m.recipient_id);
         const currentUser = fastify.readDb('users').select().where({ id: currentUserId }).first();
         const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
+        const recipientUsers = await fastify.readDb('users').select().whereIn('id', recipientIds);
         const data = messages.map(message => {
           message.track = tracks.find(v => v.track_id === message.track_id);
           message.rating = ratings.find(v => v.message_id === message.id);
           message.is_rated = message.rating !== undefined;
-          console.log('Is the message rated?', message.is_rated);
           message.sender = currentUser;
+          message.recipient = recipientUsers.find(v => v.id === message.recipient_id);
           return message;
+        });
+        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
+          EX: 60 * 1,
         });
         res.status(200).send(data);
       } catch (error) {
