@@ -1,3 +1,4 @@
+import { sendNotificationOnNewReply } from '../../services/notifications/notifications';
 import { decrypt, encrypt } from '../../utils/encrypt';
 import { BusinessLogicError, withErrorHandler } from '../../utils/errors';
 import { WishrollFastifyInstance } from '../index';
@@ -39,12 +40,12 @@ export default async (fastify: WishrollFastifyInstance) => {
     { onRequest: [fastify.authenticate], schema: createReplyBodySchema },
     withErrorHandler(async (req, res) => {
       const recommendationMessageId = req.params.id;
-      const { recipient_id, text } = req.body;
+      const { recipient_id: recipientId, text } = req.body;
 
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      if (recipient_id == currentUserId) {
+      if (recipientId == currentUserId) {
         throw new BusinessLogicError(req, {
           statusCode: 500,
           additionalInfo: 'Can not send message to myself',
@@ -54,7 +55,7 @@ export default async (fastify: WishrollFastifyInstance) => {
       const recipient = await fastify
         .readDb('users')
         .select('id')
-        .where({ id: recipient_id })
+        .where({ id: recipientId })
         .first();
 
       if (!recipient) {
@@ -66,12 +67,22 @@ export default async (fastify: WishrollFastifyInstance) => {
 
       await fastify.writeDb('replies').insert({
         message_id: recommendationMessageId,
-        recipient_id,
+        recipient_id: recipientId,
         sender_id: currentUserId,
         text: encrypt(text),
         seen: false,
       });
-      return res.status(201).send({ message: 'Reply sent succesfully' });
+      return res
+        .status(201)
+        .send({ message: 'Reply sent succesfully' })
+        .then(
+          () => {
+            sendNotificationOnNewReply({ recipientId, text, senderId: currentUserId });
+          },
+          e => {
+            throw e;
+          },
+        );
     }),
   );
 

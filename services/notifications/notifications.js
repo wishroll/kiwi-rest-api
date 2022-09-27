@@ -101,7 +101,7 @@ const sendNotificationOnCreatedRating = async messageId => {
   notificationData.body = 'Someone just rated a song you sent! Check out your updated music rating';
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
-  notificationData.custom = { type: 'sent_message', message_id: data.message_id }
+  notificationData.custom = { type: 'sent_message', message_id: data.message_id };
   notificationData.mutableContent = 1;
   return sendPushNotification([data.id], notificationData);
 };
@@ -113,8 +113,9 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${requesterUser.display_name || requesterUser.username
-    } added you!\nAdd them back to start sending songs.`;
+  notificationData.body = `${
+    requesterUser.display_name || requesterUser.username
+  } added you!\nAdd them back to start sending songs.`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
@@ -184,8 +185,8 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   notification.topic = 'org.reactjs.native.example.mutualsapp';
   notification.custom = {
     type: 'received_message',
-    message_id: messageId
-  }
+    message_id: messageId,
+  };
   return sendPushNotification([recipientUserId], notification);
 }
 
@@ -196,8 +197,9 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${requestedUser.display_name || requestedUser.username
-    } added you back! You can now send songs to each other.`;
+  notificationData.body = `${
+    requestedUser.display_name || requestedUser.username
+  } added you back! You can now send songs to each other.`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
@@ -208,10 +210,23 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   };
   return sendPushNotification([requesterUserId], notificationData);
 };
+
+const sendNotificationOnNewReply = async ({ recipientId, text, senderId }) => {
+  const data = await readDB('users').select('*').where({ id: senderId }).first();
+  const notificationData = generateNotificationData();
+  notificationData.body = text;
+  notificationData.topic = 'org.reactjs.native.example.mutualsapp';
+  notificationData.title = data.display_name;
+  notificationData.custom = { type: 'sent_reply' };
+  notificationData.mutableContent = 1;
+  return sendPushNotification([recipientId], notificationData);
+};
+
 module.exports = {
   sendPushNotificationOnReceivedFriendRequest,
   sendPushNotificationOnAcceptedFriendRequest,
   sendDailyNotificationBlast,
   sendNotificationOnReceivedSong,
   sendNotificationOnCreatedRating,
+  sendNotificationOnNewReply,
 };
