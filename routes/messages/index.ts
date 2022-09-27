@@ -10,7 +10,11 @@ import {
 } from './schema/v2';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
-  const { receivedMessagesIndex, sentTracksIndex } = require('./schema/v1/index');
+  const {
+    receivedMessagesIndex,
+    sentTracksIndex,
+    sentMessagesIndex,
+  } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
   const jsf = require('json-schema-faker');
@@ -147,7 +151,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
   fastify.get(
     '/v1/me/messages/sent',
-    { onRequest: [fastify.authenticate], schema: receivedMessagesIndex },
+    { onRequest: [fastify.authenticate], schema: sentMessagesIndex },
     async (req, res) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
