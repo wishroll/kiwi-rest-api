@@ -5,7 +5,7 @@
 exports.up = function (knex) {
   return knex.schema.createTable('replies', t => {
     t.bigIncrements('id').unsigned().notNullable().primary();
-    t.dateTime('created_at').notNullable();
+    t.dateTime('created_at').notNullable().defaultTo(knex.fn.now());
     t.string('text').notNullable();
     t.boolean('seen').notNullable().defaultTo(false);
 
