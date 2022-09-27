@@ -177,7 +177,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const trackIds = messages.map(m => m.track_id);
         const messageIds = messages.map(m => m.id);
         const recipientIds = messages.map(m => m.recipient_id);
-        const currentUser = fastify.readDb('users').select().where({ id: currentUserId }).first();
+        const currentUser = await fastify.readDb('users').select().where({ id: currentUserId }).first();
         const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const recipientUsers = await fastify.readDb('users').select().whereIn('id', recipientIds);

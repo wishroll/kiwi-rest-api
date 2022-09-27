@@ -70,8 +70,8 @@ const productionDatabaseUrls = [
 const stagingDatabaseUrls = [
   process.env.HEROKU_POSTGRESQL_CRIMSON_URL,
   process.env.HEROKU_POSTGRESQL_GRAY_URL,
-  process.env.HEROKU_POSTGRESQL_TEAL,
-  process.env.HEROKU_POSTGRESQL_CYAN,
+  process.env.HEROKU_POSTGRESQL_TEAL_URL,
+  process.env.HEROKU_POSTGRESQL_CYAN_URL,
 ];
 /**
  *
