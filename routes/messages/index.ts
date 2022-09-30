@@ -383,7 +383,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           fastify.readDb('tracks').where({ track_id: message.track_id }).first(),
           fastify.readDb('ratings').where({ message_id: message.id }).first(),
           fastify.readDb('users').where({ id: message.sender_id }).first(),
-          fastify.readDb('users').where({ id: message.user_id }).first(),
+          fastify.readDb('users').where({ id: message.recipient_id }).first(),
         ]);
         message.track = track;
         message.rating = rating;
