@@ -178,7 +178,11 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const trackIds = messages.map(m => m.track_id);
         const messageIds = messages.map(m => m.id);
         const recipientIds = messages.map(m => m.recipient_id);
-        const currentUser = await fastify.readDb('users').select().where({ id: currentUserId }).first();
+        const currentUser = await fastify
+          .readDb('users')
+          .select()
+          .where({ id: currentUserId })
+          .first();
         const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const recipientUsers = await fastify.readDb('users').select().whereIn('id', recipientIds);
@@ -375,15 +379,17 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           return;
         }
 
-        const [track, rating, sender] = await Promise.all([
+        const [track, rating, sender, recipient] = await Promise.all([
           fastify.readDb('tracks').where({ track_id: message.track_id }).first(),
           fastify.readDb('ratings').where({ message_id: message.id }).first(),
           fastify.readDb('users').where({ id: message.sender_id }).first(),
+          fastify.readDb('users').where({ id: message.user_id }).first(),
         ]);
         message.track = track;
         message.rating = rating;
         message.is_rated = rating !== undefined;
         message.sender = sender;
+        if (currentUserId !== message.user_id) message.recipient = recipient; //return recipient if the current user isn't equal to the
 
         fastify.redisClient.set(cacheKey, JSON.stringify(message), {
           EX: 60 * 1,
