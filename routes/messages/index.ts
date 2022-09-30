@@ -389,7 +389,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         message.rating = rating;
         message.is_rated = rating !== undefined;
         message.sender = sender;
-        if (currentUserId !== message.sender_id) message.recipient = recipient; //return recipient if the current user isn't equal to the
+        if (currentUserId !== message.recipient_id) message.recipient = recipient; //return recipient if the current user isn't equal to the
 
         fastify.redisClient.set(cacheKey, JSON.stringify(message), {
           EX: 60 * 1,
