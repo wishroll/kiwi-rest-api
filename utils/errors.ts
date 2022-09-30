@@ -20,7 +20,6 @@ export const withErrorHandler =
       await fastifyCallback(request, reply);
     } catch (error) {
       if (error instanceof BusinessLogicError) {
-        console.error(error);
         return reply.status(error.statusCode).send({ ...error, message: error.message });
       }
 
@@ -29,7 +28,6 @@ export const withErrorHandler =
         error,
       };
 
-      console.error(errorMessage);
       return reply.status(500).send(errorMessage);
     }
   };
