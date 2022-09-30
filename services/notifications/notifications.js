@@ -211,13 +211,13 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   return sendPushNotification([requesterUserId], notificationData);
 };
 
-const sendNotificationOnNewReply = async ({ recipientId, text, senderId }) => {
+const sendNotificationOnNewReply = async ({ recipientId, text, senderId, messageId }) => {
   const data = await readDB('users').select('*').where({ id: senderId }).first();
   const notificationData = generateNotificationData();
   notificationData.body = text;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = data.display_name;
-  notificationData.custom = { type: 'sent_reply' };
+  notificationData.custom = { type: 'received_reply', message_id: messageId };
   notificationData.mutableContent = 1;
   return sendPushNotification([recipientId], notificationData);
 };

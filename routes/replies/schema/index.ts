@@ -52,9 +52,8 @@ export const updateReplyParams = {
   type: 'object',
   properties: {
     id: { type: 'integer', description: 'The id of the recommendation message' },
-    reply_id: { type: 'integer', description: 'The id of the reply message' },
   },
-  required: ['id', 'reply_id'],
+  required: ['id'],
 } as const;
 
 export const updateReplyBody = {

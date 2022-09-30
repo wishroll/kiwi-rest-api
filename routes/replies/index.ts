@@ -18,12 +18,12 @@ export default async (fastify: WishrollFastifyInstance) => {
     '/messages/:id/replies',
     { onRequest: [fastify.authenticate], schema: repliesSentSchema },
     withErrorHandler(async (req, res) => {
-      const recommendationMessageId = req.params.id;
+      const parentMessageId = req.params.id;
 
       let replies = await fastify
         .readDb('replies')
         .select('*')
-        .where({ message_id: recommendationMessageId })
+        .where({ message_id: parentMessageId })
         .orderBy('replies.created_at', 'desc');
 
       replies = replies.map(reply => ({
@@ -39,7 +39,7 @@ export default async (fastify: WishrollFastifyInstance) => {
     '/messages/:id/replies',
     { onRequest: [fastify.authenticate], schema: createReplyBodySchema },
     withErrorHandler(async (req, res) => {
-      const recommendationMessageId = req.params.id;
+      const parentMessageId = req.params.id;
       const { recipient_id: recipientId, text } = req.body;
 
       // @ts-ignore
@@ -65,19 +65,49 @@ export default async (fastify: WishrollFastifyInstance) => {
         });
       }
 
-      await fastify.writeDb('replies').insert({
-        message_id: recommendationMessageId,
-        recipient_id: recipientId,
-        sender_id: currentUserId,
-        text: encrypt(text),
-        seen: false,
-      });
+      const reply = await fastify.writeDb('replies').insert(
+        {
+          message_id: parentMessageId,
+          recipient_id: recipientId,
+          sender_id: currentUserId,
+          text: encrypt(text),
+        },
+        ['*'],
+      );
+
+      if (!reply) {
+        throw new BusinessLogicError(req, {
+          statusCode: 500,
+          additionalInfo: 'Could not send reply',
+        });
+      }
+
+      const message = await fastify
+        .writeDb('messages')
+        .select('*')
+        .where({ id: parentMessageId })
+        .update(
+          {
+            seen: false,
+            last_sender_id: currentUserId,
+          },
+          ['*'],
+        );
+
       return res
         .status(201)
-        .send({ message: 'Reply sent succesfully' })
+        .send({
+          message: message[0],
+          reply: { ...reply[0], text: decrypt(reply[0].text) },
+        })
         .then(
           () => {
-            sendNotificationOnNewReply({ recipientId, text, senderId: currentUserId });
+            sendNotificationOnNewReply({
+              recipientId,
+              text,
+              senderId: currentUserId,
+              messageId: message[0].id,
+            });
           },
           e => {
             throw e;
@@ -87,35 +117,25 @@ export default async (fastify: WishrollFastifyInstance) => {
   );
 
   fastify.put<{ Params: UpdateReplyParams; Body: UpdateReplyBody }>(
-    '/messages/:id/replies/:reply_id',
+    '/messages/:id/replies',
     { onRequest: [fastify.authenticate], schema: updateReplySchema },
     withErrorHandler(async (req, res) => {
-      const { id: recommendationMessageId, reply_id: replyId } = req.params;
+      const { id: parentMessageId } = req.params;
       const { seen } = req.body;
 
       // @ts-ignore
       const currentUserId = req.user.id;
 
       const result = await fastify
-        .writeDb('replies')
+        .writeDb('messages')
         .select('*')
-        .where({ message_id: recommendationMessageId })
-        .andWhere({ recipient_id: currentUserId })
-        .andWhere({ id: replyId })
-        .update({ seen }, [
-          'id',
-          'seen',
-          'created_at',
-          'text',
-          'seen',
-          'sender_id',
-          'message_id',
-          'recipient_id',
-        ]);
+        .where({ id: parentMessageId })
+        .andWhere('last_sender_id', '<>', currentUserId)
+        .update({ seen }, ['*']);
 
       if (result.length === 0) {
         throw new BusinessLogicError(req, {
-          statusCode: 500,
+          statusCode: 404,
           additionalInfo: 'Could not update message',
         });
       }

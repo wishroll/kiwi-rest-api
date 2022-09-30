@@ -151,6 +151,8 @@ const sentTracksIndex = {
             type: 'object',
             properties: {
               message_id: { type: 'string' },
+              last_sender_id: { type: 'integer' },
+              seen: { type: 'boolean' },
               track_id: { type: 'string' },
               platform: { type: 'string', enum: ['spotify', 'apple_music'] },
               uri: { type: 'string' },
