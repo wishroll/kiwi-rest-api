@@ -97,16 +97,15 @@ const sendNotificationOnCreatedRating = async messageId => {
     .where('messages.id', '=', messageId)
     .first();
   const recipientUser = await readDB('users')
-    .select(['users.id', 'messages.id as message_id'])
+    .select(['users.id', 'users.username', 'users.display_name', 'messages.id as message_id'])
     .innerJoin('messages', 'users.id', '=', 'messages.recipient_id')
     .where('messages.id', '=', messageId)
     .first();
-  console.log('This is the userId of the message sender', senderUser.id);
   const notificationData = generateNotificationData();
   notificationData.body = `${recipientUser.display_name || recipientUser.username} just rated a song you sent!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
-  notificationData.custom = { type: 'sent_message', message_id: senderUser.message_id }
+  notificationData.custom = { type: 'sent_message', message_id: recipientUser.message_id }
   notificationData.mutableContent = 1;
   return sendPushNotification([senderUser.id], notificationData);
 };
