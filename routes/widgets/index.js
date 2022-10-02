@@ -17,6 +17,7 @@ module.exports = async (fastify, _options) => {
             'tracks.name as name',
             'tracks.artists as artists',
             'users.avatar_url as sender_avatar_url',
+            'messages.id as message_id',
           ])
           .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
           .innerJoin('users', 'messages.sender_id', '=', 'users.id')

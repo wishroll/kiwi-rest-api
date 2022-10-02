@@ -24,6 +24,7 @@ module.exports = {
       items: {
         type: 'object',
         properties: {
+          message_id: { type: 'number', description: 'The id of the message' },
           track_id: { type: 'string' },
           platform: { type: 'string', enum: ['spotify', 'apple_music'] },
           artwork_url: { type: 'string', description: 'The url of the album artwork' },
@@ -39,7 +40,7 @@ module.exports = {
             },
           },
         },
-        required: ['track_id', 'platform', 'sender_avatar_url', 'artwork_url'],
+        required: ['track_id', 'platform', 'sender_avatar_url', 'artwork_url', 'message_id'],
       },
     },
     404: {
