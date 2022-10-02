@@ -6,11 +6,13 @@ function updateUserRating(userId, score) {
     'This is the score of the user whom we are updating',
     score,
   );
-  // writeDB.raw("((?? * ??) + ?) / (?? + ?)", ["user_ratings.score", "user_ratings.num_ratings", score, "user_ratings.num_ratings", 1])
   writeDB('user_ratings')
     .insert({ user_id: userId, score, num_ratings: 1 }, ['*'])
     .onConflict('user_id')
-    .merge({ num_ratings: writeDB.raw('?? + ?', ['user_ratings.num_ratings', 1]), score })
+    .merge({
+      num_ratings: writeDB.raw("((?? * ??) + ?) / (?? + ?)", ["user_ratings.score", "user_ratings.num_ratings", score, "user_ratings.num_ratings", 1])
+    })
+
     .then(result => {
       console.log('This is the result of inserting or updating a users rating', result);
       return result;
