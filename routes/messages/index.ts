@@ -374,6 +374,9 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           res.status(404).send({ error: true, message: 'Not found' });
           return;
         }
+        console.log('This is the currentUserId', currentUserId);
+        console.log("This is the sender id", message.sender_id);
+        console.log("This is the recipient id", message.recipient_id);
         if (message.sender_id !== currentUserId && message.recipient_id !== currentUserId) {
           res.status(403).send({ error: true, message: 'Forbidden' });
           return;
