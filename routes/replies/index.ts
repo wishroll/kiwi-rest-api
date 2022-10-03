@@ -8,9 +8,8 @@ import {
   CreateReplyBodyParams,
   CreateReplyBodyBody,
   createReplyBodySchema,
-  UpdateReplyBody,
-  UpdateReplyParams,
-  updateReplySchema,
+  markAsSeenSchema,
+  MarkAsSeenParams,
 } from './schema';
 
 export default async (fastify: WishrollFastifyInstance) => {
@@ -115,12 +114,11 @@ export default async (fastify: WishrollFastifyInstance) => {
     }),
   );
 
-  fastify.put<{ Params: UpdateReplyParams; Body: UpdateReplyBody }>(
-    '/messages/:id/replies',
-    { onRequest: [fastify.authenticate], schema: updateReplySchema },
+  fastify.post<{ Params: MarkAsSeenParams }>(
+    '/messages/:id/mark_as_seen',
+    { onRequest: [fastify.authenticate], schema: markAsSeenSchema },
     withErrorHandler(async (req, res) => {
       const { id: parentMessageId } = req.params;
-      const { seen } = req.body;
 
       // @ts-ignore
       const currentUserId = req.user.id;
@@ -130,7 +128,7 @@ export default async (fastify: WishrollFastifyInstance) => {
         .select('*')
         .where({ id: parentMessageId })
         .andWhere('last_sender_id', '<>', currentUserId)
-        .update({ seen }, ['*']);
+        .update({ seen: true }, ['*']);
 
       if (result.length === 0) {
         throw new BusinessLogicError(req, {

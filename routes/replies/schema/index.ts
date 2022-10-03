@@ -48,7 +48,7 @@ export const createReplyBodySchema = {
   body: createReplyBody,
 };
 
-export const updateReplyParams = {
+export const markAsSeenParams = {
   type: 'object',
   properties: {
     id: { type: 'integer', description: 'The id of the recommendation message' },
@@ -56,20 +56,11 @@ export const updateReplyParams = {
   required: ['id'],
 } as const;
 
-export const updateReplyBody = {
-  type: 'object',
-  properties: {
-    seen: { type: 'boolean', description: 'Is message viewed' },
-  },
-  required: ['seen'],
-} as const;
-
-export const updateReplySchema = {
+export const markAsSeenSchema = {
   description: 'Update status of seen message.',
   tags: ['messages', 'replies'],
   headers: authHeaders,
-  params: updateReplyParams,
-  body: updateReplyBody,
+  params: markAsSeenParams,
 };
 
 export type RepliesSentParams = FromSchema<typeof repliesSentParams>;
@@ -77,5 +68,4 @@ export type RepliesSentParams = FromSchema<typeof repliesSentParams>;
 export type CreateReplyBodyParams = FromSchema<typeof createReplyBody>;
 export type CreateReplyBodyBody = FromSchema<typeof createReplyBody>;
 
-export type UpdateReplyParams = FromSchema<typeof updateReplyParams>;
-export type UpdateReplyBody = FromSchema<typeof updateReplyBody>;
+export type MarkAsSeenParams = FromSchema<typeof markAsSeenParams>;
