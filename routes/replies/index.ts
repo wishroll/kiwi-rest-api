@@ -97,7 +97,6 @@ export default async (fastify: WishrollFastifyInstance) => {
       return res
         .status(201)
         .send({
-          message: message[0],
           reply: { ...reply[0], text: decrypt(reply[0].text) },
         })
         .then(
