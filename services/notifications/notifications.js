@@ -91,19 +91,25 @@ async function sendPushNotification(userIds, notificationData) {
  * @returns {Promise<any>}
  */
 const sendNotificationOnCreatedRating = async messageId => {
-  const data = await readDB('users')
+  const senderUser = await readDB('users')
     .select(['users.id', 'messages.id as message_id'])
     .innerJoin('messages', 'users.id', '=', 'messages.sender_id')
     .where('messages.id', '=', messageId)
     .first();
-  console.log('This is the userId of the message sender', data.id);
+  const recipientUser = await readDB('users')
+    .select(['users.id', 'users.username', 'users.display_name', 'messages.id as message_id'])
+    .innerJoin('messages', 'users.id', '=', 'messages.recipient_id')
+    .where('messages.id', '=', messageId)
+    .first();
   const notificationData = generateNotificationData();
-  notificationData.body = 'Someone just rated a song you sent! Check out your updated music rating';
+  notificationData.body = `${
+    recipientUser.display_name || recipientUser.username
+  } just rated a song you sent!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
-  notificationData.custom = { type: 'sent_message', message_id: data.message_id };
+  notificationData.custom = { type: 'sent_message', message_id: recipientUser.message_id };
   notificationData.mutableContent = 1;
-  return sendPushNotification([data.id], notificationData);
+  return sendPushNotification([senderUser.id], notificationData);
 };
 
 const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {

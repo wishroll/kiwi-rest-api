@@ -2,6 +2,7 @@
 // TODO: Create interfaces for every schema and remove nocheck
 
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { getAllUserFriendIds } from '../../utils/friends';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
 import {
@@ -10,7 +11,11 @@ import {
 } from './schema/v2';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
-  const { receivedMessagesIndex, sentTracksIndex } = require('./schema/v1/index');
+  const {
+    receivedMessagesIndex,
+    sentTracksIndex,
+    sentMessagesIndex,
+  } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
   const jsf = require('json-schema-faker');
@@ -58,7 +63,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           message.track = tracks.find(v => v.track_id === message.track_id);
           message.rating = ratings.find(v => v.message_id === message.id);
           message.is_rated = message.rating !== undefined;
-          console.log('Is the message rated?', message.is_rated);
           message.sender = users.find(v => v.id === message.sender_id);
           return message;
         });
@@ -125,7 +129,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const data = messages.map(message => {
           const rating = ratings.find(rating => rating.message_id === message.id);
           const isMessageRated = rating !== undefined;
-          console.log('Is the message rated?', isMessageRated);
 
           return {
             ...message,
@@ -149,11 +152,19 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
   fastify.get(
     '/v1/me/messages/sent',
-    { onRequest: [fastify.authenticate], schema: receivedMessagesIndex },
+    { onRequest: [fastify.authenticate], schema: sentMessagesIndex },
     async (req, res) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
       const currentUserId = req.user.id;
+
+      const cacheKey = `get-v1-me-messages-sent-${currentUserId}-${limit}-${offset}`;
+      const cachedResponse = await fastify.redisClient.get(cacheKey);
+
+      if (cachedResponse) {
+        return res.status(200).send(JSON.parse(cachedResponse));
+      }
+
       try {
         const messages = await fastify
           .readDb('messages')
@@ -166,16 +177,25 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         }
         const trackIds = messages.map(m => m.track_id);
         const messageIds = messages.map(m => m.id);
-        const currentUser = fastify.readDb('users').select().where({ id: currentUserId }).first();
+        const recipientIds = messages.map(m => m.recipient_id);
+        const currentUser = await fastify
+          .readDb('users')
+          .select()
+          .where({ id: currentUserId })
+          .first();
         const tracks = await fastify.readDb('tracks').select().whereIn('track_id', trackIds);
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
+        const recipientUsers = await fastify.readDb('users').select().whereIn('id', recipientIds);
         const data = messages.map(message => {
           message.track = tracks.find(v => v.track_id === message.track_id);
           message.rating = ratings.find(v => v.message_id === message.id);
           message.is_rated = message.rating !== undefined;
-          console.log('Is the message rated?', message.is_rated);
           message.sender = currentUser;
+          message.recipient = recipientUsers.find(v => v.id === message.recipient_id);
           return message;
+        });
+        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
+          EX: 60 * 1,
         });
         res.status(200).send(data);
       } catch (error) {
@@ -358,20 +378,22 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           res.status(404).send({ error: true, message: 'Not found' });
           return;
         }
-        if (message.sender_id !== currentUserId && message.recipient_id !== currentUserId) {
+        if (message.sender_id != currentUserId && message.recipient_id != currentUserId) {
           res.status(403).send({ error: true, message: 'Forbidden' });
           return;
         }
 
-        const [track, rating, sender] = await Promise.all([
+        const [track, rating, sender, recipient] = await Promise.all([
           fastify.readDb('tracks').where({ track_id: message.track_id }).first(),
           fastify.readDb('ratings').where({ message_id: message.id }).first(),
           fastify.readDb('users').where({ id: message.sender_id }).first(),
+          fastify.readDb('users').where({ id: message.recipient_id }).first(),
         ]);
         message.track = track;
         message.rating = rating;
         message.is_rated = rating !== undefined;
         message.sender = sender;
+        if (currentUserId != message.recipient_id) message.recipient = recipient; //return recipient if the current user isn't equal to the
 
         fastify.redisClient.set(cacheKey, JSON.stringify(message), {
           EX: 60 * 1,
@@ -390,10 +412,12 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const recipientIds = req.body.recipient_ids;
-      const track = req.body.track;
-      const text = req.body.text;
+      const { recipient_ids, track, text, send_to_all } = req.body;
+
       try {
+        const recipientIds = send_to_all
+          ? await getAllUserFriendIds(fastify, currentUserId)
+          : recipient_ids;
         const recipients = await fastify.readDb('users').select('id').whereIn('id', recipientIds);
         if (recipients.length < 1) {
           return res.status(400).send({

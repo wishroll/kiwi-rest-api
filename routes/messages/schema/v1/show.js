@@ -35,6 +35,20 @@ const show = {
             avatar_url: { type: 'string' },
           },
         },
+        recipient: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              minimum: 1,
+              description: 'The id of the user who created the message',
+            },
+            uuid: { type: 'string' },
+            display_name: { type: 'string' },
+            username: { type: 'string' },
+            avatar_url: { type: 'string' },
+          },
+        },
         text: { type: 'string' },
         is_rated: { type: 'boolean', description: 'Whether the message has been rated' },
         track: {
