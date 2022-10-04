@@ -189,6 +189,13 @@ module.exports = async (fastify, _options) => {
           }
         }
 
+        const rating = await fastify.readDb('user_ratings').where({ user_id: userId }).first();
+        if (rating) {
+          updatedUser.rating = rating;
+        } else {
+          const defaultScore = 0.1;
+          updatedUser.rating = { score: defaultScore };
+        }
         fastify.redisClient.set(
           `get-v1-users-${userId}`,
           JSON.stringify({ ...updatedUser, phone_number: undefined }),
