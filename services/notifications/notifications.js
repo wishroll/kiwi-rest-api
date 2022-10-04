@@ -118,7 +118,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
   }
   const notificationData = generateNotificationData();
   notificationData.body = `${requesterUser.display_name || requesterUser.username
-    } added you!\nAdd them back to start sending songs.`;
+    } added you!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
@@ -203,7 +203,7 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   }
   const notificationData = generateNotificationData();
   notificationData.body = `${requestedUser.display_name || requestedUser.username
-    } added you back! You can now send songs to each other.`;
+    } added you back!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
