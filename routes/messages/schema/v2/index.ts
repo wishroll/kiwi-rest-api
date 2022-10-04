@@ -147,6 +147,10 @@ export const sentTracksIndex = {
       items: {
         type: 'object',
         properties: {
+          id: {
+            type: 'integer',
+            description: 'Id of the message related to this track',
+          },
           track: {
             type: 'object',
             properties: {

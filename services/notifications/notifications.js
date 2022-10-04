@@ -107,7 +107,7 @@ const sendNotificationOnCreatedRating = async messageId => {
   } just rated a song you sent!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
-  notificationData.custom = { type: 'sent_message', message_id: recipientUser.message_id };
+  notificationData.custom = { type: 'sent_message', message_id: recipientUser.message_id, link: `kiwi://messages/sent/${recipientUser.message_id}` }
   notificationData.mutableContent = 1;
   return sendPushNotification([senderUser.id], notificationData);
 };
@@ -119,9 +119,8 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${
-    requesterUser.display_name || requesterUser.username
-  } added you!\nAdd them back to start sending songs.`;
+  notificationData.body = `${requesterUser.display_name || requesterUser.username
+    } added you!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
@@ -129,6 +128,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
   notificationData.custom = {
     type: 'user',
     user_id: requesterUser.id,
+    link: `kiwi://v1/users/${requesterUser.id}`
   };
   return sendPushNotification([requestedUserId], notificationData);
 };
@@ -192,6 +192,7 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   notification.custom = {
     type: 'received_message',
     message_id: messageId,
+    link: `kiwi://messages/received/${messageId}`
   };
   return sendPushNotification([recipientUserId], notification);
 }
@@ -203,9 +204,8 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${
-    requestedUser.display_name || requestedUser.username
-  } added you back! You can now send songs to each other.`;
+  notificationData.body = `${requestedUser.display_name || requestedUser.username
+    } added you back!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
@@ -213,6 +213,7 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   notificationData.custom = {
     type: 'user',
     user_id: requestedUser.id,
+    link: `kiwi://v1/users/${requestedUser.id}`
   };
   return sendPushNotification([requesterUserId], notificationData);
 };

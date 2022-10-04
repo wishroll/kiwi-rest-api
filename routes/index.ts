@@ -47,4 +47,5 @@ module.exports = async (fastify: WishrollFastifyInstance, _options: any) => {
   fastify.register(require('../services/api/firebase/cloud_messaging/index'));
   fastify.register(require('../services/api/spotify/tokens'));
   fastify.register(require('./replies/index'));
+  fastify.register(require('./notifications/index'));
 };
