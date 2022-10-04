@@ -260,6 +260,8 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
                 'messages.text as message_text',
                 'messages.track_id as message_track_id',
                 'messages.recipient_id as recipient_id',
+                'messages.last_sender_id as last_sender_id',
+                'messages.seen as seen',
               ])
               .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
               .where('messages.sender_id', userId)
@@ -437,7 +439,14 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const insertData = await Promise.all(
           recipients.map(async recipient => {
             const id = recipient.id;
-            return { sender_id: currentUserId, recipient_id: id, track_id: trackId, text };
+            return {
+              sender_id: currentUserId,
+              recipient_id: id,
+              track_id: trackId,
+              text,
+              seen: false,
+              last_sender_id: currentUserId,
+            };
           }),
         );
         const messages = await fastify.writeDb('messages').insert(insertData, ['*']);

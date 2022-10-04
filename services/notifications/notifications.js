@@ -102,7 +102,9 @@ const sendNotificationOnCreatedRating = async messageId => {
     .where('messages.id', '=', messageId)
     .first();
   const notificationData = generateNotificationData();
-  notificationData.body = `${recipientUser.display_name || recipientUser.username} just rated a song you sent!`;
+  notificationData.body = `${
+    recipientUser.display_name || recipientUser.username
+  } just rated a song you sent!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
   notificationData.custom = { type: 'sent_message', message_id: recipientUser.message_id, link: `kiwi://messages/sent/${recipientUser.message_id}` }
@@ -191,7 +193,7 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
     type: 'received_message',
     message_id: messageId,
     link: `kiwi://messages/received/${messageId}`
-  }
+  };
   return sendPushNotification([recipientUserId], notification);
 }
 
@@ -215,10 +217,23 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   };
   return sendPushNotification([requesterUserId], notificationData);
 };
+
+const sendNotificationOnNewReply = async ({ recipientId, text, senderId, messageId }) => {
+  const data = await readDB('users').select('*').where({ id: senderId }).first();
+  const notificationData = generateNotificationData();
+  notificationData.body = text;
+  notificationData.topic = 'org.reactjs.native.example.mutualsapp';
+  notificationData.title = data.display_name;
+  notificationData.custom = { type: 'received_reply', message_id: messageId };
+  notificationData.mutableContent = 1;
+  return sendPushNotification([recipientId], notificationData);
+};
+
 module.exports = {
   sendPushNotificationOnReceivedFriendRequest,
   sendPushNotificationOnAcceptedFriendRequest,
   sendDailyNotificationBlast,
   sendNotificationOnReceivedSong,
   sendNotificationOnCreatedRating,
+  sendNotificationOnNewReply,
 };
