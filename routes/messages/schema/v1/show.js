@@ -50,6 +50,8 @@ const show = {
           },
         },
         text: { type: 'string' },
+        last_sender_id: { type: 'integer' },
+        seen: { type: 'boolean' },
         is_rated: { type: 'boolean', description: 'Whether the message has been rated' },
         track: {
           type: 'object',
