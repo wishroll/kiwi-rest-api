@@ -1,6 +1,8 @@
 const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score');
 const { updateUserNode } = require('../../services/api/neo4j/users/index');
-const { createDynamicProfileLink } = require('../../services/api/google/firebase/dynamiclinks/index')
+const {
+  createDynamicProfileLink,
+} = require('../../services/api/google/firebase/dynamiclinks/index');
 module.exports = async (fastify, _options) => {
   const crypto = require('crypto');
   const multer = require('fastify-multer');
@@ -158,7 +160,7 @@ module.exports = async (fastify, _options) => {
             'created_at',
             'updated_at',
             'avatar_url',
-            'share_link'
+            'share_link',
           ]);
 
         let updatedUser = results[0];
@@ -179,7 +181,8 @@ module.exports = async (fastify, _options) => {
                 'created_at',
                 'updated_at',
                 'avatar_url',
-                'share_link']);
+                'share_link',
+              ]);
             updatedUser = results[0];
           } catch (error) {
             console.log('An error occured when updating the profile link');
@@ -191,11 +194,10 @@ module.exports = async (fastify, _options) => {
         );
 
         res.status(200).send(updatedUser);
-
       } catch (error) {
-        res.status(500).send({ error: true, message: 'An error occured' })
+        res.status(500).send({ error: true, message: 'An error occured' });
       }
-    }
+    },
   );
 
   /**
@@ -225,13 +227,13 @@ module.exports = async (fastify, _options) => {
             'updated_at',
             'avatar_url',
             'username',
-            'share_link'
+            'share_link',
           ])
           .where({ id: userId })
           .first();
 
         if (user === undefined) {
-          return res.status(404).send({ error: true, message: 'Not found' })
+          return res.status(404).send({ error: true, message: 'Not found' });
         }
         const rating = await fastify.readDb('user_ratings').where({ user_id: userId }).first();
         if (rating) {

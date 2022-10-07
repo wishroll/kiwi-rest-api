@@ -15,7 +15,8 @@
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix --cache",
     "postinstall": "npm run clean && npm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "custom-migration": "node ./utils/custom_migration.js"
   },
   "author": "Great Okonkwo",
   "license": "ISC",
