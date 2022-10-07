@@ -16,11 +16,21 @@ export const repliesSentParams = {
   required: ['id'],
 } as const;
 
+export const repliesSentQuerystring = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', description: 'The max number of records to return' },
+    lastId: { type: 'integer', description: 'Last reply ID retreived from backend' },
+  },
+  required: ['limit'],
+} as const;
+
 export const repliesSentSchema = {
   description: 'Receives replies to recommendation message.',
   tags: ['messages', 'replies'],
   headers: authHeaders,
   params: repliesSentParams,
+  querystring: repliesSentQuerystring,
 };
 
 export const createReplyParams = {
@@ -64,6 +74,7 @@ export const markAsSeenSchema = {
 };
 
 export type RepliesSentParams = FromSchema<typeof repliesSentParams>;
+export type RepliesSentQuerystring = FromSchema<typeof repliesSentQuerystring>;
 
 export type CreateReplyBodyParams = FromSchema<typeof createReplyBody>;
 export type CreateReplyBodyBody = FromSchema<typeof createReplyBody>;
