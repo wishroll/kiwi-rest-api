@@ -32,7 +32,7 @@ async function customMigration() {
         .whereNotNull('username')
         .whereNull('share_link')
         .orderBy('created_at', 'asc')
-        .limit(1);
+        .limit(limit);
 
       console.log('data', data);
 
