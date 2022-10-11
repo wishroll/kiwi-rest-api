@@ -51,6 +51,13 @@ export default async (fastify: WishrollFastifyInstance) => {
         });
       }
 
+      if (!text) {
+        throw new BusinessLogicError(req, {
+          statusCode: 500,
+          additionalInfo: 'Message can not be empty',
+        });
+      }
+
       const recipient = await fastify
         .readDb('users')
         .select('id')
