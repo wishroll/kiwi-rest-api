@@ -1,6 +1,7 @@
 import { sendNotificationOnNewReply } from '../../services/notifications/notifications';
 import { decrypt, encrypt } from '../../utils/encrypt';
 import { BusinessLogicError, withErrorHandler } from '../../utils/errors';
+import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
 import {
   RepliesSentParams,
@@ -10,20 +11,26 @@ import {
   createReplyBodySchema,
   markAsSeenSchema,
   MarkAsSeenParams,
+  RepliesSentQuerystring,
 } from './schema';
 
 export default async (fastify: WishrollFastifyInstance) => {
-  fastify.get<{ Params: RepliesSentParams }>(
+  fastify.get<{ Params: RepliesSentParams; Querystring: RepliesSentQuerystring }>(
     '/messages/:id/replies',
     { onRequest: [fastify.authenticate], schema: repliesSentSchema },
     withErrorHandler(async (req, res) => {
       const parentMessageId = req.params.id;
+      const limit = req.query.limit;
+      const lastId = req.query.lastId ?? MAX_BIGINT;
 
       let replies = await fastify
         .readDb('replies')
         .select('*')
         .where({ message_id: parentMessageId })
-        .orderBy('replies.created_at', 'desc');
+        // @ts-ignore
+        .andWhere('replies.id', '<', lastId)
+        .orderBy('replies.created_at', 'desc')
+        .limit(limit);
 
       replies = replies.map(reply => ({
         ...reply,
