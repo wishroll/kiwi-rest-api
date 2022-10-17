@@ -18,7 +18,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
   } = require('./schema/v1/index');
   const { show } = require('./schema/v1/show');
   const create = require('./schema/v1/create');
-  const jsf = require('json-schema-faker');
   const { sendNotificationOnReceivedSong } = require('../../services/notifications/notifications');
 
   fastify.get(
@@ -35,13 +34,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
       const limit = req.query.limit;
       const offset = req.query.offset;
-
-      const cacheKey = `get-v1-me-messages-${currentUserId}-${limit}-${offset}`;
-
-      const cachedResponse = await fastify.redisClient.get(cacheKey);
-      if (cachedResponse) {
-        return res.status(200).send(JSON.parse(cachedResponse));
-      }
 
       try {
         const messages = await fastify
@@ -67,10 +59,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           return message;
         });
 
-        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 1,
-        });
-
         res.status(200).send(data);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
@@ -92,14 +80,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
       const limit = req.query.limit;
       const lastId = req.query.lastId ?? MAX_BIGINT;
-
-      const cacheKey = `get-v2-me-messages-${currentUserId}-${limit}-${lastId}`;
-
-      const cachedResponse = await fastify.redisClient.get(cacheKey);
-
-      if (cachedResponse) {
-        return res.status(200).send(JSON.parse(cachedResponse));
-      }
 
       try {
         const messages = await fastify
@@ -139,10 +119,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           };
         });
 
-        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 1,
-        });
-
         res.status(200).send(data);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
@@ -157,13 +133,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
       const currentUserId = req.user.id;
-
-      const cacheKey = `get-v1-me-messages-sent-${currentUserId}-${limit}-${offset}`;
-      const cachedResponse = await fastify.redisClient.get(cacheKey);
-
-      if (cachedResponse) {
-        return res.status(200).send(JSON.parse(cachedResponse));
-      }
 
       try {
         const messages = await fastify
@@ -194,9 +163,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           message.recipient = recipientUsers.find(v => v.id === message.recipient_id);
           return message;
         });
-        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 1,
-        });
         res.status(200).send(data);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
@@ -222,14 +188,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
       const userId = req.params.id;
-
-      const currentUserId = req.user.id;
-
-      const cacheKey = `get-v1-users-${userId}-messages-sent-${limit}-${offset}-${currentUserId}`;
-      const cachedResponse = await fastify.redisClient.get(cacheKey);
-      if (cachedResponse) {
-        return res.status(200).send(JSON.parse(cachedResponse));
-      }
 
       try {
         const tracks = await fastify.readDb
@@ -274,10 +232,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const data = tracks.map(track => {
           console.log(track.message_created_at);
           return { track };
-        });
-
-        fastify.redisClient.set(cacheKey, JSON.stringify(data), {
-          EX: 60 * 1,
         });
 
         res.status(200).send(data);
@@ -358,12 +312,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const currentUserId = req.user.id;
       const messageId = req.params.id;
 
-      const cacheKey = `get-v1-messages-${messageId}-${currentUserId}`;
-      const cachedResponse = await fastify.redisClient.get(cacheKey);
-      if (cachedResponse) {
-        return res.status(200).send(JSON.parse(cachedResponse));
-      }
-
       try {
         const message = await fastify.readDb('messages').where({ id: messageId }).first();
 
@@ -388,9 +336,6 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         message.sender = sender;
         if (currentUserId != message.recipient_id) message.recipient = recipient; //return recipient if the current user isn't equal to the
 
-        fastify.redisClient.set(cacheKey, JSON.stringify(message), {
-          EX: 60 * 1,
-        });
         res.status(200).send(message);
       } catch (error) {
         res.status(500).send({ error: true, message: error });
