@@ -284,18 +284,19 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
                 'tracks.artists as artists',
                 'tracks.platform as platform',
                 'messages.created_at as message_created_at',
+                'messages.id as message_id',
               ])
               .innerJoin('messages', 'tracks.track_id', '=', 'messages.track_id')
               .where('messages.sender_id', userId)
               .distinctOn('isrc')
               .as('tracks'),
           )
-          .where('id', '<', lastId)
+          .where('tracks.message_id', '<', lastId)
           .orderBy('tracks.message_created_at', 'desc')
           .limit(limit);
 
         const data = tracks.map(track => {
-          return { id: track.id, track };
+          return { id: track.message_id, track };
         });
 
         res.status(200).send(data);
