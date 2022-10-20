@@ -55,7 +55,7 @@ async function createFriendRequest(
 async function getFriends(userId, limit = 10, offset = 0) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (:User {id: ${userId}})-[:FRIENDS_WITH]->(u:User) return u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
+    const query = `MATCH (User {id: ${userId}})-[:FRIENDS_WITH]->(u:User) return u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
     const result = await session.readTransaction(tx => tx.run(query));
     const records = result.records.map(r => {
       return {
