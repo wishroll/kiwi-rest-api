@@ -34,12 +34,8 @@ function createDynamicProfileLink(user) {
                 },
 
                 "socialMetaTagInfo": {
-                    "socialDescription": `1. At a random time each day, a notification will prompt you and your friends to share a song and a message all at the same time.\n
-                    2. You never know what the notification will say so be ready.\n
-                    3. All of the songs your friends share show up on a widget for your iPhone home screen.\n
-                    4. Anonymously give and receive music ratings and see an average music rating score on your profile.\n
-                    Questions, comments, concerns? DM us at @kiwiwidget :)\n`,
-                    "socialImageLink": `https://is3-ssl.mzstatic.com/image/thumb/PurpleSource122/v4/6b/fe/64/6bfe64b5-ac4c-3882-75bb-459b40eb575d/0b5fdabf-7a0d-4251-affc-a3052e22a5a5_TallTwoCopyRight.png/230x0w.webp`,
+                    "socialDescription": `Kiwi is where you send songs and secret notes throughout the day to the person that's been on your mind - right on their home screen. Rate your crush's music taste and share how you really feel. Check out your potential crush's profile to see if your music taste is compatible. Let the people you like know that you're thinking about them with music. Questions, comments, concerns? DM us at @kiwiwidget`,
+                    "socialImageLink": `https://is5-ssl.mzstatic.com/image/thumb/PurpleSource112/v4/31/85/79/318579d1-8ab0-441d-196b-ac4f33b83ae5/26cdaf80-0c6d-438f-83b8-4c6da9489e82_TallLoveOne.jpg/460x0w.webp`,
                     "socialTitle": `Add ${displayName || username} on Kiwi 🥝`
                 },
             },
