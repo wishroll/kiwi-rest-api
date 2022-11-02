@@ -1,4 +1,5 @@
 const knex = require('knex');
+const { default: logger } = require('../../../logger');
 // env
 // config file
 // config knex
@@ -103,7 +104,7 @@ function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, dat
     case 'production':
       // eslint-disable-next-line no-case-declarations
       const url = databaseUrls.sample();
-      console.log('This is the chosen url', url);
+      logger.debug({ url }, 'This is the chosen url');
       return knex(generateProductionConfig(url, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));

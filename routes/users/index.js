@@ -168,7 +168,6 @@ module.exports = async (fastify, _options) => {
         if (updateParams.username) {
           try {
             const shareLink = await createDynamicProfileLink(updatedUser);
-            // console.log(`This is the share link ${shareLink}`);
             const results = await fastify
               .writeDb('users')
               .select('id')
@@ -185,7 +184,7 @@ module.exports = async (fastify, _options) => {
               ]);
             updatedUser = results[0];
           } catch (error) {
-            console.log('An error occured when updating the profile link');
+            req.log.error(error, 'An error occured when updating the profile link');
           }
         }
 
@@ -206,11 +205,12 @@ module.exports = async (fastify, _options) => {
         );
 
         updateUserNode(userId, updatedUser).catch(err =>
-          console.log(`An error occured when updating a user node ${err}`),
+          req.log.error(err, 'An error occured when updating a user node'),
         );
 
         res.status(200).send(updatedUser);
       } catch (error) {
+        req.log.error(error);
         res.status(500).send({ error: true, message: 'An error occured' });
       }
     },

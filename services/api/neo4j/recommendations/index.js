@@ -1,4 +1,5 @@
 'use-strict';
+const { logError } = require('../../../../logger');
 const { driver } = require('../index');
 
 async function getMutualFriends(userId, limit = 10, offset = 0) {
@@ -39,7 +40,7 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
     });
     return records;
   } catch (error) {
-    console.log(error);
+    logError(error, `An error occured when fetching mutual friends of user: ${userId}`);
     return error;
   } finally {
     await session.close();

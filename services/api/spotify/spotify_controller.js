@@ -23,7 +23,7 @@ module.exports = async (fastify, _options) => {
           res.status(404).send();
         }
       } catch (error) {
-        console.log(error);
+        req.log.error(error);
         res.status(500).send({ error: true, message: error });
       }
     },
@@ -78,7 +78,7 @@ module.exports = async (fastify, _options) => {
                     .writeDb('spotify_tracks')
                     .insert(track, ['id']);
                   if (createdRecords && createdRecords.length > 0) {
-                    console.log(createdRecords);
+                    req.log.debug(createdRecords);
                     const track = createdRecords[0];
                     const records = await Promise.all(
                       users.map(async user => {
@@ -162,7 +162,7 @@ module.exports = async (fastify, _options) => {
         } else {
           const createdRecords = await fastify.writeDb('spotify_tracks').insert(track, ['*']);
           if (createdRecords && createdRecords.length > 0) {
-            console.log(createdRecords);
+            req.log.debug(createdRecords);
             const track = createdRecords[0];
             insertIntoTracksTable(track);
             const records = await Promise.all(
@@ -199,7 +199,6 @@ module.exports = async (fastify, _options) => {
       .first()
       .then(alreadyTrack => {
         if (!alreadyTrack) {
-          console.log('In here!');
           const newTrack = {};
           newTrack.platform = 'spotify';
           newTrack.track_id = existingTrack.id;
@@ -227,7 +226,7 @@ module.exports = async (fastify, _options) => {
             .insert(newTrack, ['id'])
             .then(insertResults => {
               if (insertResults) {
-                console.log('UPdated tracks table with value', insertResults);
+                fastify.log.debug({ insertResults }, 'Updated tracks table with value');
               }
             });
         }

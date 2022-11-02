@@ -13,7 +13,7 @@ module.exports = async (fastify, _options) => {
           .onConflict(['user_id', 'token'])
           .merge({ token });
         if (insert && insert.length > 0) {
-          console.log(insert);
+          req.log.debug(insert);
           res.status(201).send(insert[0]);
         }
       } catch (error) {

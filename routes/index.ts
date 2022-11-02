@@ -14,9 +14,9 @@ export interface WishrollFastifyInstance extends FastifyInstance {
   writeDb: Knex;
 }
 
-module.exports = async (fastify: WishrollFastifyInstance, _options: any) => {
+export default async (fastify: WishrollFastifyInstance, _options: any, _done: any) => {
   fastify.register(require('fastify-jwt'), {
-    secret: process.env.MASTER_KEY,
+    secret: process.env.MASTER_KEY ?? '',
   });
   fastify.decorate('authenticate', async (req: FastifyRequest, res: FastifyReply) => {
     try {

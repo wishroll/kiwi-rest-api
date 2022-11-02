@@ -39,7 +39,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         return res.status(200).send(users);
       } catch (error) {
-        console.log(error);
+        req.log.error(error);
         return res.status(500).send({ error });
       }
     },
@@ -80,7 +80,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         return res.status(200).send(users);
       } catch (error) {
-        console.log(error);
+        req.log.error(error);
         return res.status(500).send({ error });
       }
     },

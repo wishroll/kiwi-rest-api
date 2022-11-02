@@ -30,13 +30,13 @@ module.exports = async (fastify, _options) => {
             r.artwork_url = r.artwork.url;
             r.artwork = null;
           });
-          console.log(results);
+          req.log.debug(results);
           res.status(200).send(results);
         } else {
           res.status(404).send({ error: true, message: 'Not found' });
         }
       } catch (error) {
-        console.log(error);
+        req.log.error(error);
         res.status(500).send({ error: true, message: error });
       }
     },

@@ -26,10 +26,10 @@ module.exports = async (fastify, _options) => {
         .where({ phone_number: phoneNumber })
         .first();
       if (user) {
-        console.log('The user exists so the account cant be created');
+        req.log.info('The user exists so the account cant be created');
         res.status(409).send();
       } else {
-        console.log('The user does not exist so the account can be created');
+        req.log.debug('The user does not exist so the account can be created');
         res.status(200).send();
       }
     } catch (error) {
@@ -115,7 +115,7 @@ module.exports = async (fastify, _options) => {
         const uuid = user.uuid;
         const token = fastify.jwt.sign({ id, uuid }, { expiresIn: '365 days' });
         createUserNode(user).catch(err =>
-          console.log(`An error occured when creating the user node for the graph db\n${err}`),
+          req.log.error(err, 'An error occured when creating the user node for the graph db'),
         );
         res.status(201).send({ access_token: token });
       } else {

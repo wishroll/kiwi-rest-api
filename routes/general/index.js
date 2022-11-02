@@ -13,7 +13,9 @@ module.exports = async (fastify, _options) => {
     if (!notificationTitle || notificationTitle.length < 1) {
       return res.status(400).send({ error: true, message: 'Missing notification title' });
     }
-    sendDailyNotificationBlast(notificationTitle, notificationBody).catch(err => console.log(err));
+    sendDailyNotificationBlast(notificationTitle, notificationBody).catch(err =>
+      req.log.error(err),
+    );
     return res.send();
   });
 };

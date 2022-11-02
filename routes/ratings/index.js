@@ -16,7 +16,7 @@ module.exports = async (fastify, _options) => {
           .insert({ user_id: currentUserId, message_id: messageId, score }, ['*']);
         if (inserts.length > 0) {
           updateMessageSenderRating(messageId, score);
-          sendNotificationOnCreatedRating(messageId).catch(error => console.log(error));
+          sendNotificationOnCreatedRating(messageId).catch(error => req.log.error(error));
           res.status(201).send();
         } else {
           res.status(400).send({ error: true, message: 'Failed to create rating' });

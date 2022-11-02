@@ -1,5 +1,6 @@
 'use-strict';
 const { driver } = require('../index');
+const { logError, default: logger } = require('../../../../logger');
 /**
  * @param {number} user1Id - the first user to create the friend relationship with
  * @param {number} user2Id - the second user to create the friend relationship with
@@ -13,11 +14,14 @@ async function createFriendship(user1Id, user2Id, id, uuid, createdAt, updatedAt
                        MERGE (u2)-[:FRIENDS_WITH {id: ${id}, uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u1)
                        RETURN u1, u2`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
-    console.log(writeResult.summary);
     const records = writeResult.records;
-    console.log(records);
+    logger.debug(
+      { summary: writeResult.summary, records: writeResult.records },
+      `These are the results of creating friendship of ${user1Id} and ${user2Id}`,
+    );
     return records;
   } catch (error) {
+    logError(error, `An error occured when creating friendship of ${user1Id} and ${user2Id}`);
     return error;
   } finally {
     await session.close();
@@ -43,9 +47,16 @@ async function createFriendRequest(
                         MERGE (u1)-[fr:FRIEND_REQUESTED {id: ${id}, uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u2)
                         RETURN u1, u2, fr`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
-    console.log(writeResult.summary);
+    logger.debug(
+      { summary: writeResult.summary },
+      `These are the summary of creating friendship request from ${requestingUserId} to ${requestedUserId}`,
+    );
     return writeResult.records;
   } catch (error) {
+    logError(
+      error,
+      `An error occured when creating friendship request from ${requestingUserId} to ${requestedUserId}`,
+    );
     return error;
   } finally {
     await session.close();
@@ -66,10 +77,10 @@ async function getFriends(userId, limit = 10, offset = 0) {
         avatar_url: r.get('avatar_url'),
       };
     });
-    console.log(`These are the results of fetching user: ${userId}'s friends ${records}`);
+    logger.debug({ records }, `These are the results of fetching user: ${userId}'s friends`);
     return records;
   } catch (error) {
-    console.log(error);
+    logError(error, `An error occured when fetching friends of user ${userId}`);
     return error;
   } finally {
     await session.close();
@@ -84,7 +95,7 @@ async function getFriendsRequested(userId) {
     const records = result.records;
     return records;
   } catch (error) {
-    console.log(`An error occured when fetching user ${userId}'s friends`);
+    logError(error, `An error occured when fetching user ${userId}'s friends`);
     return error;
   } finally {
     await session.close();
@@ -97,9 +108,10 @@ async function getFriendsRequesting(userId) {
     const query = `MATCH (User {id: ${userId}})<-[:FRIENDS_REQUESTED]-(u:User) RETURN u`;
     const result = await session.readTransaction(tx => tx.run(query));
     const records = result.records;
-    console.log(`These are the results of fetching user: ${userId}'s friends ${records}`);
+    logger.debug({ records }, `These are the results of fetching user: ${userId}'s friends`);
     return records;
   } catch (error) {
+    logError(error, `An error occured when fetching user ${userId}'s requesting friends`);
     return error;
   } finally {
     await session.close();
@@ -115,9 +127,13 @@ async function deleteFriendshipRelationship(user1Id, user2Id) {
         MATCH (u2)-[fr2:FRIENDS_WITH]->(u1)
         DELETE fr, fr2`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
-    console.log(writeResult.summary);
+    logger.debug(
+      { summary: writeResult.summary },
+      `deleteFriendshipRelationship summary of ${user1Id} and ${user2Id}`,
+    );
     return writeResult.records;
   } catch (error) {
+    logError(error, `An error occured when deleting friendship of ${user1Id} and ${user2Id}`);
     return error;
   } finally {
     await session.close();
@@ -132,9 +148,16 @@ async function deleteFriendRequestRelationship(requestingUserId, requestedUserId
                         MATCH (u1)-[fr:FRIEND_REQUESTED]->(u2)
                         DELETE fr`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
-    console.log(writeResult.summary);
+    logger.debug(
+      { summary: writeResult.summary },
+      `deleteFriendRequestRelationship summary of ${requestingUserId} and ${requestedUserId}`,
+    );
     return writeResult.records;
   } catch (error) {
+    logError(
+      error,
+      `An error occured when deleting friendship request of ${requestingUserId} and ${requestedUserId}`,
+    );
     return error;
   } finally {
     await session.close();
