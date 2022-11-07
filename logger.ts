@@ -22,9 +22,15 @@ interface WishrollLogger {
  * For those places, where a built-in logger can not be used,
  * we can use a standalone pino instance.
  *
- * @param fastify Instance of Fastify, FastifyRequest, FastifyReply
+ * @param fastify An instance of Fastify, FastifyRequest, FastifyReply.
+ * If none of them are available, pass `null` to use standalone logger
  *
- * @returns A set of logging functions (error, info, trace, debug)
+ * @returns A set of logging functions (`error`, `info`, `trace`, `debug`)
+ *
+ * @example
+ * logger(null).info("some info")
+ *
+ * .catch(err => logger(req).error(err, "Some error"))
  */
 const logger = <U extends FastifyInstances>(fastify: U | null): WishrollLogger => {
   const log = fastify
