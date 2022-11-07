@@ -104,7 +104,7 @@ function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, dat
     case 'production':
       // eslint-disable-next-line no-case-declarations
       const url = databaseUrls.sample();
-      logger.debug({ url }, 'This is the chosen url');
+      logger(null).debug({ url }, 'This is the chosen url');
       return knex(generateProductionConfig(url, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));

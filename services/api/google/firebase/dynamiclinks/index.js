@@ -1,4 +1,4 @@
-const { default: logger, logError } = require('../../../../../logger');
+const { default: logger } = require('../../../../../logger');
 const { oauth2Client } = require('../../index');
 function createDynamicProfileLink(user) {
   return new Promise(async (resolve, reject) => {
@@ -54,7 +54,7 @@ function createDynamicProfileLink(user) {
         url: 'https://firebasedynamiclinks.googleapis.com/v1/managedShortLinks:create',
         data,
       });
-      logger.debug(
+      logger(null).debug(
         { status: result.status },
         'This is the result status of creating dynamic profile link',
       );
@@ -65,7 +65,7 @@ function createDynamicProfileLink(user) {
         reject(new Error(result.statusText));
       }
     } catch (error) {
-      logError(error, 'Error when creating dynamic profile link');
+      logger(null).error(error, 'Error when creating dynamic profile link');
       reject(error);
     }
   });

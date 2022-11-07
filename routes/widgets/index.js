@@ -1,3 +1,4 @@
+const { default: logger } = require('../../logger');
 const index = require('./schema/v1/index');
 module.exports = async (fastify, _options) => {
   fastify.get(
@@ -30,13 +31,13 @@ module.exports = async (fastify, _options) => {
             r.artwork_url = r.artwork.url;
             r.artwork = null;
           });
-          req.log.debug(results);
+          logger(req).debug(results);
           res.status(200).send(results);
         } else {
           res.status(404).send({ error: true, message: 'Not found' });
         }
       } catch (error) {
-        req.log.error(error);
+        logger(req).error(error);
         res.status(500).send({ error: true, message: error });
       }
     },

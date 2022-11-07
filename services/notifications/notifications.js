@@ -79,7 +79,7 @@ async function sendPushNotification(userIds, notificationData) {
     }
     const tokens = devices.map(t => t.token);
     const result = await push.send(tokens, notificationData);
-    logger.debug({
+    logger(null).debug({
       errorMsg: result[0].message[0].errorMsg,
       title: notificationData.title,
       body: notificationData.body,

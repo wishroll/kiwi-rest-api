@@ -1,3 +1,5 @@
+const { default: logger } = require('../../../../logger');
+
 module.exports = async (fastify, _options) => {
   const create = require('./schema/create');
   fastify.post(
@@ -13,7 +15,7 @@ module.exports = async (fastify, _options) => {
           .onConflict(['user_id', 'token'])
           .merge({ token });
         if (insert && insert.length > 0) {
-          req.log.debug(insert);
+          logger(req).debug(insert);
           res.status(201).send(insert[0]);
         }
       } catch (error) {

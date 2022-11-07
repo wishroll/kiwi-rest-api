@@ -1,3 +1,5 @@
+const { default: logger } = require('../../logger');
+
 module.exports = async (fastify, _options) => {
   const {
     sendNotificationOnReceivedSong,
@@ -16,7 +18,7 @@ module.exports = async (fastify, _options) => {
         await sendNotificationOnReceivedSong(messageId, currentUserId, recipientId);
         res.status(204);
       } catch (e) {
-        req.log.error(e);
+        logger(req).error(e);
         res.status(500).send({ error: true, message: 'not working' });
       }
     },
@@ -30,7 +32,7 @@ module.exports = async (fastify, _options) => {
       await sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId);
       res.status(204);
     } catch (e) {
-      req.log.error(e);
+      logger(req).error(e);
       res.status(500).send({ error: true, message: 'not working' });
     }
   });
@@ -45,7 +47,7 @@ module.exports = async (fastify, _options) => {
         await sendNotificationOnCreatedRating(messageId);
         res.status(204);
       } catch (e) {
-        req.log.error(e);
+        logger(req).error(e);
         res.status(500).send({ error: true, message: 'not working' });
       }
     },

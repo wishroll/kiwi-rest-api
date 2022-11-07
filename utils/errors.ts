@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { serializeError } from 'serialize-error';
+import logger from '../logger';
 export class BusinessLogicError extends Error {
   public readonly statusCode: number;
   public readonly additionalInfo?: string;
@@ -20,7 +20,7 @@ export const withErrorHandler =
       await fastifyCallback(request, reply);
     } catch (error) {
       if (error instanceof Error) {
-        request.log.error(serializeError(error));
+        logger(request).error(error);
       }
 
       if (error instanceof BusinessLogicError) {

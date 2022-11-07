@@ -1,5 +1,5 @@
 import { createClient } from '@node-redis/client';
-import logger, { logError } from '../../../logger';
+import logger from '../../../logger';
 
 (async () => {
   let client;
@@ -7,7 +7,7 @@ import logger, { logError } from '../../../logger';
     // Connect to redis at localhost port 6379 no password.
     client = createClient({});
     exports.client = client;
-    logger.info(client, 'Redis client');
+    logger(null).info(client, 'Redis client');
   } else if (process.env.NODE_ENV === 'production') {
     client = createClient({
       url: process.env.REDIS_URL,
@@ -20,11 +20,11 @@ import logger, { logError } from '../../../logger';
   }
 
   if (!client) {
-    console.error('Something went wrong with Redis client');
+    logger(null).error(new Error('Something went wrong with Redis client'));
     return;
   }
 
-  client.on('error', (err: Error) => logError(err, 'Redis Client Error'));
+  client.on('error', (err: Error) => logger(null).error(err, 'Redis Client Error'));
   client.connect();
-  logger.info('Redis client connected!');
+  logger(null).info('Redis client connected!');
 })();

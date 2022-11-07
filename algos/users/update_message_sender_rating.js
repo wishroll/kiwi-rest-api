@@ -1,4 +1,4 @@
-const { default: logger, logError } = require('../../logger');
+const { default: logger } = require('../../logger');
 const { readDB } = require('../../services/db/postgres/knex_fastify_plugin');
 const { updateUserRating } = require('./update_user_rating');
 function updateMessageSenderRating(messageId, score) {
@@ -21,7 +21,7 @@ function updateMessageSenderRating(messageId, score) {
       }
     })
     .catch(err => {
-      logError(err, 'An error occured when updating message sender rating');
+      logger(null).error(err, 'An error occured when updating message sender rating');
       return err;
     });
 }

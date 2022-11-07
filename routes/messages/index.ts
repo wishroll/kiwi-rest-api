@@ -232,7 +232,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           .limit(limit)
           .offset(offset);
         const data = tracks.map(track => {
-          logger.debug({ messageCreatedAt: track.message_created_at });
+          logger(req).debug({ messageCreatedAt: track.message_created_at });
           return { track };
         });
 
