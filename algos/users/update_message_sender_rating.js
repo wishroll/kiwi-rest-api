@@ -2,14 +2,14 @@ const { default: logger } = require('../../logger');
 const { readDB } = require('../../services/db/postgres/knex_fastify_plugin');
 const { updateUserRating } = require('./update_user_rating');
 function updateMessageSenderRating(messageId, score) {
-  logger.debug({ score, messageId }, 'This is the score and message id');
+  logger(null).debug({ score, messageId }, 'This is the score and message id');
   readDB('messages')
     .select('sender_id')
     .where({ id: messageId })
     .first()
     .then(result => {
       if (result) {
-        logger.debug(
+        logger(null).debug(
           {
             senderId: result.sender_id,
           },

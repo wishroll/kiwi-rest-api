@@ -1,7 +1,10 @@
 const { default: logger } = require('../../logger');
 const { writeDB } = require('../../services/db/postgres/knex_fastify_plugin');
 function updateUserRating(userId, score) {
-  logger.debug({ userId, score }, 'This is the userId and score of user whom we are updating');
+  logger(null).debug(
+    { userId, score },
+    'This is the userId and score of user whom we are updating',
+  );
 
   writeDB('user_ratings')
     .insert({ user_id: userId, score, num_ratings: 1 }, ['*'])
@@ -17,7 +20,7 @@ function updateUserRating(userId, score) {
       ]),
     })
     .then(result => {
-      logger.debug({ result }, 'This is the result of inserting or updating a users rating');
+      logger(null).debug({ result }, 'This is the result of inserting or updating a users rating');
       return result;
     })
     .catch(err => {
