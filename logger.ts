@@ -14,6 +14,18 @@ interface WishrollLogger {
   debug: LogFn;
 }
 
+/**
+ * This function acts as a facade for logging. For our implementation,
+ * we can not reach FastifyInstance, FastifyRequest, or FastifyReply
+ * in every place to use a logger.
+ *
+ * For those places, where a built-in logger can not be used,
+ * we can use a standalone pino instance.
+ *
+ * @param fastify Instance of Fastify, FastifyRequest, FastifyReply
+ *
+ * @returns A set of logging functions (error, info, trace, debug)
+ */
 const logger = <U extends FastifyInstances>(fastify: U | null): WishrollLogger => {
   const log = fastify
     ? fastify.log
