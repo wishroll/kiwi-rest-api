@@ -1,3 +1,5 @@
+const { STREAMING_PLATFORMS } = require('../../../../utils/const');
+
 module.exports = {
   description: 'Return an array of received song messages',
   tags: ['Widgets'],
@@ -26,7 +28,7 @@ module.exports = {
         properties: {
           message_id: { type: 'number', description: 'The id of the message' },
           track_id: { type: 'string' },
-          platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+          platform: { type: 'string', enum: STREAMING_PLATFORMS },
           artwork_url: { type: 'string', description: 'The url of the album artwork' },
           sender_avatar_url: { type: 'string', description: 'The url of the senders avatar' },
           name: { type: 'string', description: 'The name of the song' },

@@ -1,3 +1,5 @@
+const { STREAMING_PLATFORMS } = require('../../../../utils/const');
+
 const receivedMessagesIndex = {
   description: 'Return a list of song messages that have been sent to the current user',
   tags: ['Messages'],
@@ -51,7 +53,7 @@ const receivedMessagesIndex = {
             type: 'object',
             properties: {
               track_id: { type: 'string' },
-              platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+              platform: { type: 'string', enum: STREAMING_PLATFORMS },
               uri: { type: 'string' },
               external_url: { type: 'string' },
               href: { type: 'string' },
@@ -154,7 +156,7 @@ const sentTracksIndex = {
               last_sender_id: { type: 'integer' },
               seen: { type: 'boolean' },
               track_id: { type: 'string' },
-              platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+              platform: { type: 'string', enum: STREAMING_PLATFORMS },
               uri: { type: 'string' },
               external_url: { type: 'string' },
               href: { type: 'string' },
@@ -279,7 +281,7 @@ const sentMessagesIndex = {
             type: 'object',
             properties: {
               track_id: { type: 'string' },
-              platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+              platform: { type: 'string', enum: STREAMING_PLATFORMS },
               uri: { type: 'string' },
               external_url: { type: 'string' },
               href: { type: 'string' },
