@@ -2,6 +2,8 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import pino from 'pino';
 import { serializeError } from 'serialize-error';
 
+const standaloneLogger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'trace' });
+
 type FastifyInstances = FastifyInstance | FastifyRequest | FastifyReply;
 
 type LogErr = <T extends Error>(err: T, description?: string) => void;
@@ -33,9 +35,7 @@ interface WishrollLogger {
  * .catch(err => logger(req).error(err, "Some error"))
  */
 const logger = <U extends FastifyInstances>(fastify: U | null): WishrollLogger => {
-  const log = fastify
-    ? fastify.log
-    : pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'trace' });
+  const log = fastify ? fastify.log : standaloneLogger;
 
   return {
     error: <T extends Error>(error: T, additionalInfo?: string) =>

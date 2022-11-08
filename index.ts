@@ -3,6 +3,7 @@ import swagger from '@fastify/swagger';
 import swaggerConfiguration from './services/plugins/swagger';
 import compress from '@fastify/compress';
 import { v4 as uuidv4 } from 'uuid';
+import logger from './logger';
 
 const envToLogger: Record<string, any> = {
   development: {
@@ -31,12 +32,12 @@ const server: FastifyInstance = fastify({
 });
 
 server.addHook('onRequest', (req, _reply, done) => {
-  req.log.info({ headers: req.headers }, `[${req.raw.method}] ${req.raw.url} received request`);
+  logger(req).info({ headers: req.headers }, `[${req.raw.method}] ${req.raw.url} received request`);
   done();
 });
 
 server.addHook('onResponse', (req, reply, done) => {
-  req.log.info(
+  logger(req).info(
     { statusCode: reply.raw.statusCode },
     `[${req.raw.method}] ${req.raw.url}: ${reply.raw.statusCode}`,
   );

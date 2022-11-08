@@ -1,5 +1,4 @@
 const { getMutualFriends } = require('../../services/api/neo4j/recommendations');
-const { serializeError } = require('serialize-error');
 const { default: logger } = require('../../logger');
 
 module.exports = async (fastify, _options) => {
