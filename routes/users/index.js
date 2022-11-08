@@ -3,6 +3,7 @@ const { updateUserNode } = require('../../services/api/neo4j/users/index');
 const {
   createDynamicProfileLink,
 } = require('../../services/api/google/firebase/dynamiclinks/index');
+const { default: logger } = require('../../logger');
 module.exports = async (fastify, _options) => {
   const crypto = require('crypto');
   const multer = require('fastify-multer');
@@ -168,7 +169,6 @@ module.exports = async (fastify, _options) => {
         if (updateParams.username) {
           try {
             const shareLink = await createDynamicProfileLink(updatedUser);
-            // console.log(`This is the share link ${shareLink}`);
             const results = await fastify
               .writeDb('users')
               .select('id')
@@ -185,7 +185,7 @@ module.exports = async (fastify, _options) => {
               ]);
             updatedUser = results[0];
           } catch (error) {
-            console.log('An error occured when updating the profile link');
+            logger(req).error(error, 'An error occured when updating the profile link');
           }
         }
 
@@ -206,11 +206,12 @@ module.exports = async (fastify, _options) => {
         );
 
         updateUserNode(userId, updatedUser).catch(err =>
-          console.log(`An error occured when updating a user node ${err}`),
+          logger(req).error(err, 'An error occured when updating a user node'),
         );
 
         res.status(200).send(updatedUser);
       } catch (error) {
+        logger(req).error(error);
         res.status(500).send({ error: true, message: 'An error occured' });
       }
     },
