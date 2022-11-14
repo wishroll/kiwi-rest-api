@@ -595,6 +595,7 @@ module.exports = async (fastify, _options) => {
         const recommendedUsers = await getMutualFriends(currentUserId, limit, offset);
         res.status(200).send(recommendedUsers);
       } catch (error) {
+        logger(req).error(error, 'Something went wrong with friends suggestions');
         res.status(500).send({ error: true, message: error });
       }
     },
