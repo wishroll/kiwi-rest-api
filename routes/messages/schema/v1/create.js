@@ -1,5 +1,3 @@
-const { STREAMING_PLATFORMS } = require('../../../../utils/const');
-
 module.exports = {
   description: 'Create a new message',
   tags: ['Messages'],
@@ -18,7 +16,7 @@ module.exports = {
         type: 'object',
         properties: {
           track_id: { type: 'string' },
-          platform: { type: 'string', enum: STREAMING_PLATFORMS },
+          platform: { type: 'string', enum: ['spotify', 'apple_music'] },
           uri: { type: 'string' },
           external_url: { type: 'string' },
           href: { type: 'string' },
