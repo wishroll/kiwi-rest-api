@@ -1,5 +1,7 @@
 // const { phone } = require('phone');
 
+const { default: logger } = require('../../logger');
+
 module.exports = async (fastify, _options) => {
   const loginVerifiedPhoneNumberCacheKey = phoneNumber => {
     return `login-verified-phone-number-${phoneNumber}`;
@@ -19,7 +21,7 @@ module.exports = async (fastify, _options) => {
         .readDb('users')
         .select('phone_number')
         .where({ phone_number: phoneNumber });
-      console.log(`This is the rows ${rows}`);
+      logger(req).debug({ rows }, 'This is the rows');
       rows && rows.length > 0 ? res.status(200).send() : res.status(404).send();
     } catch (error) {
       res.status(500).send();
@@ -57,7 +59,7 @@ module.exports = async (fastify, _options) => {
         await fastify.redisClient.set(cacheKey, token);
         return res.status(200).send({ success: true });
       } catch (error) {
-        console.log(`Redis Error: ${error}`);
+        logger(req).error(error, 'Redis error');
         return res.status(500).send();
       }
     }
@@ -72,7 +74,7 @@ module.exports = async (fastify, _options) => {
       await fastify.redisClient.set(cacheKey, token);
       res.status(200).send({ success: true, message: 'Verification Token verified' });
     } catch (error) {
-      console.log(error);
+      logger(req).error(error);
       res.status(500).send();
     }
   });

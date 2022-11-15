@@ -1,3 +1,5 @@
+const { STREAMING_PLATFORMS } = require('../../../../utils/const');
+
 module.exports = {
   description: 'Create a new message',
   tags: ['Messages'],
@@ -16,7 +18,7 @@ module.exports = {
         type: 'object',
         properties: {
           track_id: { type: 'string' },
-          platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+          platform: { type: 'string', enum: STREAMING_PLATFORMS },
           uri: { type: 'string' },
           external_url: { type: 'string' },
           href: { type: 'string' },
@@ -64,12 +66,15 @@ module.exports = {
       },
       recipient_ids: {
         type: 'array',
-        minItems: 1,
         items: {
           type: 'integer',
         },
       },
       text: { type: 'string' },
+      send_to_all: {
+        type: 'boolean',
+        description: 'If set to true, recipient_ids will be ignored',
+      },
     },
     required: ['track', 'recipient_ids'],
   },

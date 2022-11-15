@@ -1,5 +1,6 @@
 const push = require('./notification_settings');
 const { readDB } = require('../db/postgres/knex_fastify_plugin');
+const { default: logger, logError } = require('../../logger');
 function generateNotificationData() {
   const data = {
     title: '', // REQUIRED for Android
@@ -78,10 +79,14 @@ async function sendPushNotification(userIds, notificationData) {
     }
     const tokens = devices.map(t => t.token);
     const result = await push.send(tokens, notificationData);
-    console.log(result[0].message[0].errorMsg, notificationData.title, notificationData.body);
+    logger(null).debug({
+      errorMsg: result[0].message[0].errorMsg,
+      title: notificationData.title,
+      body: notificationData.body,
+    });
     return result;
   } catch (error) {
-    console.log('An error occured when sending notification', error);
+    logError(error, 'An error occured when sending notification');
     return error;
   }
 }
@@ -91,18 +96,29 @@ async function sendPushNotification(userIds, notificationData) {
  * @returns {Promise<any>}
  */
 const sendNotificationOnCreatedRating = async messageId => {
-  const userId = await readDB('users')
-    .select('users.id')
+  const senderUser = await readDB('users')
+    .select(['users.id', 'messages.id as message_id'])
     .innerJoin('messages', 'users.id', '=', 'messages.sender_id')
     .where('messages.id', '=', messageId)
     .first();
-  console.log('This is the userId of the message sender', userId.id);
+  const recipientUser = await readDB('users')
+    .select(['users.id', 'users.username', 'users.display_name', 'messages.id as message_id'])
+    .innerJoin('messages', 'users.id', '=', 'messages.recipient_id')
+    .where('messages.id', '=', messageId)
+    .first();
   const notificationData = generateNotificationData();
-  notificationData.body = 'Someone just rated a song you sent! Check out your updated music rating';
+  notificationData.body = `${
+    recipientUser.display_name || recipientUser.username
+  } just rated a song you sent!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'New rating 👀';
+  notificationData.custom = {
+    type: 'sent_message',
+    message_id: recipientUser.message_id,
+    link: `kiwi://messages/sent/${recipientUser.message_id}`,
+  };
   notificationData.mutableContent = 1;
-  return sendPushNotification([userId.id], notificationData);
+  return sendPushNotification([senderUser.id], notificationData);
 };
 
 const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requesterUserId) => {
@@ -112,16 +128,15 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${
-    requesterUser.display_name || requesterUser.username
-  } added you!\nAdd them back to start sending songs.`;
+  notificationData.body = `${requesterUser.display_name || requesterUser.username} added you!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
   notificationData.mutableContent = 1;
   notificationData.custom = {
-    requester_user: requesterUser,
-    type: 'ReceivedFriendRequest',
+    type: 'user',
+    user_id: requesterUser.id,
+    link: `kiwi://v1/users/${requesterUser.id}`,
   };
   return sendPushNotification([requestedUserId], notificationData);
 };
@@ -169,7 +184,7 @@ async function promiseAllInBatches(task, items, batchSize) {
   return results;
 }
 
-async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
+async function sendNotificationOnReceivedSong(messageId, senderUserId, recipientUserId) {
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
   if (!senderUser || !recipientUser) {
@@ -182,6 +197,11 @@ async function sendNotificationOnReceivedSong(senderUserId, recipientUserId) {
   notification.pushType = 'alert';
   notification.mutableContent = 1;
   notification.topic = 'org.reactjs.native.example.mutualsapp';
+  notification.custom = {
+    type: 'received_message',
+    message_id: messageId,
+    link: `kiwi://messages/received/${messageId}`,
+  };
   return sendPushNotification([recipientUserId], notification);
 }
 
@@ -192,23 +212,35 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
     return new Error('No users found');
   }
   const notificationData = generateNotificationData();
-  notificationData.body = `${
-    requestedUser.display_name || requestedUser.username
-  } added you back! You can now send songs to each other.`;
+  notificationData.body = `${requestedUser.display_name || requestedUser.username} added you back!`;
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.title = 'More songs coming your way!';
   notificationData.sound = 'activity_notification_sound.caf';
   notificationData.mutableContent = 1;
   notificationData.custom = {
-    requested_user: requestedUser,
-    type: 'AcceptedFriendRequest',
+    type: 'user',
+    user_id: requestedUser.id,
+    link: `kiwi://v1/users/${requestedUser.id}`,
   };
   return sendPushNotification([requesterUserId], notificationData);
 };
+
+const sendNotificationOnNewReply = async ({ recipientId, text, senderId, messageId }) => {
+  const data = await readDB('users').select('*').where({ id: senderId }).first();
+  const notificationData = generateNotificationData();
+  notificationData.body = text;
+  notificationData.topic = 'org.reactjs.native.example.mutualsapp';
+  notificationData.title = data.display_name;
+  notificationData.custom = { type: 'received_reply', message_id: messageId };
+  notificationData.mutableContent = 1;
+  return sendPushNotification([recipientId], notificationData);
+};
+
 module.exports = {
   sendPushNotificationOnReceivedFriendRequest,
   sendPushNotificationOnAcceptedFriendRequest,
   sendDailyNotificationBlast,
   sendNotificationOnReceivedSong,
   sendNotificationOnCreatedRating,
+  sendNotificationOnNewReply,
 };

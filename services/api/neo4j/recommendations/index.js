@@ -1,10 +1,11 @@
 'use-strict';
+const { default: logger } = require('../../../../logger');
 const { driver } = require('../index');
 
 async function getMutualFriends(userId, limit = 10, offset = 0) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (user1 { id: ${userId} })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
+    const query = `MATCH (user1:User { id: ${userId} })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
             WHERE NOT (user1)-[:FRIENDS_WITH]-(friend_of_friend)
             AND NOT (user1)-[:FRIEND_REQUESTED]-(friend_of_friend)
             AND user1.id <> friend_of_friend.id
@@ -28,12 +29,18 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
-        friendship_status: r.get('is_friends') ? 'friends' : r.get('is_pending_received') ? 'pending_received' : r.get('is_pending_sent') ? 'pending_sent' : 'none'
+        friendship_status: r.get('is_friends')
+          ? 'friends'
+          : r.get('is_pending_received')
+          ? 'pending_received'
+          : r.get('is_pending_sent')
+          ? 'pending_sent'
+          : 'none',
       };
     });
     return records;
   } catch (error) {
-    console.log(error);
+    logger(null).error(error, `An error occured when fetching mutual friends of user: ${userId}`);
     return error;
   } finally {
     await session.close();
@@ -41,6 +48,6 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
 }
 
 // eslint-disable-next-line no-unused-vars
-async function getRecommendedTracks() { }
+async function getRecommendedTracks() {}
 
 module.exports = { getMutualFriends };

@@ -1,4 +1,4 @@
-module.exports = {
+const search = {
   description: 'Return an array of users',
   tags: ['Search'],
   summary: 'Returns a list of users',
@@ -58,4 +58,8 @@ module.exports = {
       },
     },
   },
+};
+
+module.exports = {
+  search,
 };

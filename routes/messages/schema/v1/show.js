@@ -1,3 +1,5 @@
+const { STREAMING_PLATFORMS } = require('../../../../utils/const');
+
 const show = {
   description: 'Return a message',
   tags: ['Messages'],
@@ -35,13 +37,29 @@ const show = {
             avatar_url: { type: 'string' },
           },
         },
+        recipient: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              minimum: 1,
+              description: 'The id of the user who created the message',
+            },
+            uuid: { type: 'string' },
+            display_name: { type: 'string' },
+            username: { type: 'string' },
+            avatar_url: { type: 'string' },
+          },
+        },
         text: { type: 'string' },
+        last_sender_id: { type: 'integer' },
+        seen: { type: 'boolean' },
         is_rated: { type: 'boolean', description: 'Whether the message has been rated' },
         track: {
           type: 'object',
           properties: {
             track_id: { type: 'string' },
-            platform: { type: 'string', enum: ['spotify', 'apple_music'] },
+            platform: { type: 'string', enum: STREAMING_PLATFORMS },
             uri: { type: 'string' },
             external_url: { type: 'string' },
             href: { type: 'string' },

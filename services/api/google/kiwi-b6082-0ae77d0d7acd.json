@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "kiwi-b6082",
+  "private_key_id": "0ae77d0d7acd319d03c28574d5cd181943ea62fe",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC6CzSP6xDIq1OW\n7rbyMyf5eRTyUSDcl7yRB/rvt2e/YuVkFNqGXI//ErRg8yoV7AoyYaUZa7R85C0V\nPTrKArWM6YLUJH68pKJIWcBn0O/0OQcnOnvZyVmBG5YEfYg9VtTCLgYRQsxAem6y\n+vDcVBk5w5/XNrH8jSBTKJH5fHzJGnvOB6Y/WjboWdolnz+9SfVWbi8ogjAH69tH\n5X28VlUvzhweuRfmSVDSvb+5GUAxgOUyL7C4wZOuzAiFl0Y8g6mOA/KDieON9wX9\nT883Aagv7YbxpHNdseP8E1Q/DbUVb4nap4iwuWvg1aDjpF6yb+OxdFZzAOvQj0Nf\nTd7DfxLxAgMBAAECggEAEoAMwQb6C0pmLIsebCVEI120BIimwOjh2nY1sOLHEVQP\nRY2BUX0g4JeGkmF73OQ0+1+UYFvCfezews7s6qusTA/ob5oVdELW1GUAahJv2hRV\nrsP1Duoj2V/Z4iZthtP8ojabadn/n6XNHkUv8Gj4fTMD0Q3iUx/hiANvyKRlcEXj\nTcXExev5aqb0m2ZZEZwbRdMAiO2/Ew/6rKeRsn+W8krqwTTN/rllSqkDJDkxQZ/D\nbyPpsxJfp7pG2JeiraaLKYUCtJ+NOiH0uyTB6Aoccz1Mis6l123QKL9pDba3WsT3\nbVfd/rxsRVFslMBBHYix8TCqRzkiHxdUlhOI4U+6sQKBgQDw/8uAqPZSVTKRkWsI\nW1REi0JRNRZ6bVKT+rtbWwig/sNzF1ijHLXp6FBQxMa7Ntgcrtv0T4IVywxyzChE\nckLYviVMPKVc/iyoq4cSOR91U8FCg+Lmp7ObLEEzJrszkpZ+wwiD0CJZbyRV1+gI\nXtQbGmgdZOqKIL3Prpva30GHvQKBgQDFn7jshebYaYAC1vIWJt92MBNhWfmEUAol\nTDZWTt56ug/sFADqLh8+sFtfHVHLJM7YWO2mD3JfXRfACTxIkJQjz+b360b4zkfg\nH8xjtkWkIp18etRXFo/M+SmKDSLQpSDXxykK0w+MnvUO8AxmIFBX+TB2Lpi+nnAV\ntkTGJYDBRQKBgBBB4TODsmIpdyjUu3ir2IprLoUV5LdLiqeK4XqvMGzT4tFvwL34\nINlvn4NjUtisQXXl4dagSnE36lYQKaM8ZgADC7cR3EHir5aNQ6ZaDiI3DTF0fij7\nJSWRnbBaq4Q2Hkrc00U5FCgeVEAqOW/fHcXaSS26cgvxW3yYFdF1ABGtAoGANbnz\nk1Hf7WvZImx/SihtTftJ+Yh1flQoPfWXPCWa9HCLDZpumTvKwMc/P/9/kiPCnCyp\nByFh7a0oXMvl+LBdpdLKrxHmrJOgFL1wWpdeHX5PpFzcR4TZuVbvxRlHIsQRxrfd\nX5T7wDYi11nJdSZJ0XDsjOSkIAaA4FY6Ikhl1aUCgYEAqWpqPBVQ6Jl0+djyk7Dn\n3wYTrQXFBgc31vP1CEii3kVv24K68Wit2rZWRY+WvEeWdB9kSahKHbyPHOilpSY9\n0eM4T56gugbFH2iNXMTHAWbshwC5sSrQedkhTMbDRfe+a3v7O9+Uhziin1L/eZbN\nP0b6P6ScWuaRMH9EvygOJso=\n-----END PRIVATE KEY-----\n",
+  "client_email": "kiwi-service-account@kiwi-b6082.iam.gserviceaccount.com",
+  "client_id": "106805272009107951207",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kiwi-service-account%40kiwi-b6082.iam.gserviceaccount.com"
+}
