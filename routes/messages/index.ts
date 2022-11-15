@@ -373,7 +373,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           .where({ track_id: track.track_id, platform: track.platform })
           .first();
         if (existingTrack) {
-          insertIntoSpotifyTracks(existingTrack);
+          await insertIntoSpotifyTracks(existingTrack);
           trackId = existingTrack.track_id;
         } else {
           const results = await fastify.writeDb('tracks').insert(track, ['*']);
@@ -381,7 +381,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
             return res.status(500).send({ error: true, message: 'Could not create a new track' });
           } else {
             trackId = results[0].track_id;
-            insertIntoSpotifyTracks(results[0]);
+            await insertIntoSpotifyTracks(results[0]);
           }
         }
         const insertData = await Promise.all(
@@ -414,8 +414,8 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
     },
   );
 
-  function insertIntoSpotifyTracks(existingTrack) {
-    fastify
+  async function insertIntoSpotifyTracks(existingTrack) {
+    await fastify
       .readDb('spotify_tracks')
       .select('id')
       .where({ id: existingTrack.track_id })
@@ -435,12 +435,12 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           newTrack.external_ids = { isrc: existingTrack.isrc };
           newTrack.album = { artists: existingTrack.artists, images: [existingTrack.artwork] };
           newTrack.artists = existingTrack.artists;
-          fastify
+          return fastify
             .writeDb('spotify_tracks')
             .insert(newTrack, ['id'])
             .then(insertResults => {
               if (insertResults) {
-                logging.debug({ insertResults }, 'Updated tracks table with value');
+                logger(null).debug({ insertResults }, 'Updated tracks table with value');
               }
             });
         }
