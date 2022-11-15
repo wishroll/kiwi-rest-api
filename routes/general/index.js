@@ -1,5 +1,3 @@
-const { default: logger } = require('../../logger');
-
 module.exports = async (fastify, _options) => {
   const { sendDailyNotificationBlast } = require('../../services/notifications/notifications');
   fastify.get('/:platform/appstore', (req, res) => {
@@ -15,9 +13,7 @@ module.exports = async (fastify, _options) => {
     if (!notificationTitle || notificationTitle.length < 1) {
       return res.status(400).send({ error: true, message: 'Missing notification title' });
     }
-    sendDailyNotificationBlast(notificationTitle, notificationBody).catch(err =>
-      logger(req).error(err),
-    );
+    sendDailyNotificationBlast(notificationTitle, notificationBody).catch(err => console.log(err));
     return res.send();
   });
 };

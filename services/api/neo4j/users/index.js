@@ -1,5 +1,4 @@
 'use-strict';
-const { default: logger } = require('../../../../logger');
 const { driver } = require('../index');
 /**
  * Create a user node in graph db
@@ -11,12 +10,12 @@ async function createUserNode(user) {
     const query = `MERGE (u:User {id: ${user.id}, uuid: "${user.uuid}", username: "${user.username}", display_name: "${user.display_name}", phone_number: "${user.phone_number}", created_at: "${user.created_at}", updated_at: "${user.updated_at}"})
                         RETURN u`;
     const result = await session.writeTransaction(tx => tx.run(query));
-    logger(null).debug('User has been successfully created');
+    console.log('User has been successfully created');
     return result.records.find(r => r.get('u'));
   } catch (error) {
-    logger(null).error(
-      error,
+    console.log(
       'An error occured when writing to neo4j aurardb instance with function: create user',
+      error,
     );
     return error;
   } finally {
@@ -45,10 +44,9 @@ async function updateUserNode(userId, updates) {
         avatar_url: r.get('avatar_url'),
       };
     });
-    logger(null).debug({ user }, 'User has been successfully updated');
+    console.log('User has been successfully updated', user);
     return user;
   } catch (error) {
-    logger(null).error(error, `An error occured when updating user ${userId}`);
     return error;
   } finally {
     await session.close();

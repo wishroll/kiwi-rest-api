@@ -1,19 +1,16 @@
-const { default: logger } = require('../../logger');
 const { readDB } = require('../../services/db/postgres/knex_fastify_plugin');
 const { updateUserRating } = require('./update_user_rating');
 function updateMessageSenderRating(messageId, score) {
-  logger(null).debug({ score, messageId }, 'This is the score and message id');
+  console.log('This is the score', score, 'This is the message id', messageId);
   readDB('messages')
     .select('sender_id')
     .where({ id: messageId })
     .first()
     .then(result => {
       if (result) {
-        logger(null).debug(
-          {
-            senderId: result.sender_id,
-          },
+        console.log(
           'This is the result from fetching the sender id from messages',
+          result.sender_id,
         );
         updateUserRating(result.sender_id, score);
       } else {
@@ -21,7 +18,6 @@ function updateMessageSenderRating(messageId, score) {
       }
     })
     .catch(err => {
-      logger(null).error(err, 'An error occured when updating message sender rating');
       return err;
     });
 }

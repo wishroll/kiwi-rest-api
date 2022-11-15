@@ -2,8 +2,6 @@
 // TODO: Create interfaces for every schema and remove nocheck
 
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { logging } from 'googleapis/build/src/apis/logging';
-import logger from '../../logger';
 import { getAllUserFriendIds } from '../../utils/friends';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
@@ -232,7 +230,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           .limit(limit)
           .offset(offset);
         const data = tracks.map(track => {
-          logger(req).debug({ messageCreatedAt: track.message_created_at });
+          console.log(track.message_created_at);
           return { track };
         });
 
@@ -440,7 +438,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
             .insert(newTrack, ['id'])
             .then(insertResults => {
               if (insertResults) {
-                logging.debug({ insertResults }, 'Updated tracks table with value');
+                console.log('UPdated tracks table with value', insertResults);
               }
             });
         }
