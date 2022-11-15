@@ -6,7 +6,6 @@ import { search } from './schema/v1/users/index';
 import { search as searchV2 } from './schema/v2/users/index';
 import { searchUsers } from '../../services/api/neo4j/search/index';
 import { MAX_32INT_NEO4J, MAX_SEARCH_MATCH_SCORE } from '../../utils/numbers';
-import logger from '../../logger';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
   fastify.get(
@@ -40,11 +39,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         return res.status(200).send(users);
       } catch (error) {
-        if (error instanceof Error) {
-          logger(req).error(error);
-        } else {
-          req.log.error(error);
-        }
+        console.log(error);
         return res.status(500).send({ error });
       }
     },
@@ -85,11 +80,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         return res.status(200).send(users);
       } catch (error) {
-        if (error instanceof Error) {
-          logger(req).error(error);
-        } else {
-          req.log.error(error);
-        }
+        console.log(error);
         return res.status(500).send({ error });
       }
     },
