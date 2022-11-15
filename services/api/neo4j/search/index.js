@@ -1,7 +1,6 @@
 'use-strict';
 const { driver } = require('../index');
 const { MAX_32INT_NEO4J, MAX_SEARCH_MATCH_SCORE } = require('../../../../utils/numbers');
-const { default: logger } = require('../../../../logger');
 
 async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
   const session = driver.session({ database: 'neo4j' });
@@ -36,10 +35,10 @@ async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
           : 'none',
       };
     });
-    logger(null).debug({ records }, `Results of searching user for query: ${q}`);
+    console.log(records);
     return records;
   } catch (error) {
-    logger(null).error(error, 'An error occured when searching user nodes');
+    console.log('An error occured when searching user nodes', error);
     return error;
   } finally {
     await session.close();
@@ -88,10 +87,10 @@ async function searchUsersV2(
         score: r.get('score'),
       };
     });
-    logger(null).debug({ records }, `Results of searching user for query: ${q}`);
+    console.log(records);
     return records;
   } catch (error) {
-    logger(null).error(error, 'An error occured when searching user nodes');
+    console.log('An error occured when searching user nodes', error);
     return error;
   } finally {
     await session.close();
@@ -106,7 +105,7 @@ async function searchFriends(query, userId, _offset = 0, _limit = 10) {
     const records = result.records;
     return records;
   } catch (error) {
-    logger(null).error(error, 'An error occured when searching user nodes');
+    console.log('An error occured when searching user nodes', error);
     return error;
   } finally {
     await session.close();
