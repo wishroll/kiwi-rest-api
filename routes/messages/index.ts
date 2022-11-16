@@ -2,7 +2,6 @@
 // TODO: Create interfaces for every schema and remove nocheck
 
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { logging } from 'googleapis/build/src/apis/logging';
 import logger from '../../logger';
 import { getAllUserFriendIds } from '../../utils/friends';
 import { MAX_BIGINT } from '../../utils/numbers';
