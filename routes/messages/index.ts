@@ -2,6 +2,7 @@
 // TODO: Create interfaces for every schema and remove nocheck
 
 import { FastifyReply, FastifyRequest } from 'fastify';
+import logger from '../../logger';
 import { getAllUserFriendIds } from '../../utils/friends';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
@@ -230,7 +231,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           .limit(limit)
           .offset(offset);
         const data = tracks.map(track => {
-          console.log(track.message_created_at);
+          logger(req).debug({ messageCreatedAt: track.message_created_at });
           return { track };
         });
 
@@ -371,7 +372,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           .where({ track_id: track.track_id, platform: track.platform })
           .first();
         if (existingTrack) {
-          insertIntoSpotifyTracks(existingTrack);
+          await insertIntoSpotifyTracks(existingTrack);
           trackId = existingTrack.track_id;
         } else {
           const results = await fastify.writeDb('tracks').insert(track, ['*']);
@@ -379,7 +380,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
             return res.status(500).send({ error: true, message: 'Could not create a new track' });
           } else {
             trackId = results[0].track_id;
-            insertIntoSpotifyTracks(results[0]);
+            await insertIntoSpotifyTracks(results[0]);
           }
         }
         const insertData = await Promise.all(
@@ -412,8 +413,8 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
     },
   );
 
-  function insertIntoSpotifyTracks(existingTrack) {
-    fastify
+  async function insertIntoSpotifyTracks(existingTrack) {
+    await fastify
       .readDb('spotify_tracks')
       .select('id')
       .where({ id: existingTrack.track_id })
@@ -433,12 +434,12 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           newTrack.external_ids = { isrc: existingTrack.isrc };
           newTrack.album = { artists: existingTrack.artists, images: [existingTrack.artwork] };
           newTrack.artists = existingTrack.artists;
-          fastify
+          return fastify
             .writeDb('spotify_tracks')
             .insert(newTrack, ['id'])
             .then(insertResults => {
               if (insertResults) {
-                console.log('UPdated tracks table with value', insertResults);
+                logger(null).debug({ insertResults }, 'Updated tracks table with value');
               }
             });
         }

@@ -1,4 +1,5 @@
 const { getMutualFriends } = require('../../services/api/neo4j/recommendations');
+const { default: logger } = require('../../logger');
 
 module.exports = async (fastify, _options) => {
   const {
@@ -225,7 +226,7 @@ module.exports = async (fastify, _options) => {
           request.uuid,
           request.created_at,
           request.updated_at,
-        ).catch(err => console.log(err));
+        ).catch(err => logger(req).error(err, 'An error occured when creating friends request'));
         sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId).catch(); // Send out notification
         res.status(201).send();
       } catch (error) {
@@ -268,7 +269,7 @@ module.exports = async (fastify, _options) => {
           friendship.uuid,
           friendship.created_at,
           friendship.updated_at,
-        ).catch(err => console.log('An error occured when creating the friendship', err));
+        ).catch(err => logger(req).error(err, 'An error occured when creating the friendship'));
         sendPushNotificationOnAcceptedFriendRequest(requestingUserId, currentUserId).catch();
         res.status(201).send();
       } catch (error) {
@@ -339,7 +340,7 @@ module.exports = async (fastify, _options) => {
           .del('id');
         if (friendships && friendships.length > 0) {
           deleteFriendshipRelationship(userId, currentUserId).catch(err =>
-            console.log(`An error occured when deleting friendship relationship ${err}`),
+            logger(req).error(err, 'An error occured when deleting friendship relationship'),
           );
           res.status(200).send();
         } else {
@@ -366,7 +367,7 @@ module.exports = async (fastify, _options) => {
           return res.status(500).send({ error: true });
         }
         deleteFriendRequestRelationship(currentUserId, userId).catch(err =>
-          console.log(`Error occured when deleting friend request relationship ${err}`),
+          logger(req).error(err, 'Error occured when deleting friend request relationship'),
         );
         res.status(200).send();
       } catch (error) {
@@ -383,7 +384,7 @@ module.exports = async (fastify, _options) => {
       const offset = req.query.offset;
       const currentUserId = req.user.id;
       const contacts = req.body.contacts;
-      console.log('Theses are the contacts from the query string', contacts);
+      logger(req).debug({ contacts }, 'Theses are the contacts from the query string');
       if (!contacts || contacts.length < 0) {
         return res.status(400).send({ message: 'No contacts' });
       }
@@ -568,8 +569,6 @@ module.exports = async (fastify, _options) => {
     '/users/:id/friends',
     { onRequest: [fastify.authenticate], schema: friends },
     async (req, res) => {
-      // const currentUserId = req.user.id;
-
       const userId = req.params.id;
       const offset = req.query.offset;
       const limit = req.query.limit;
@@ -577,6 +576,7 @@ module.exports = async (fastify, _options) => {
         const friends = await getFriends(userId, limit, offset);
         res.status(200).send(friends);
       } catch (error) {
+        logger(req).error(error);
         res.status(500).send({ error: true, message: error });
       }
     },
