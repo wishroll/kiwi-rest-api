@@ -1,3 +1,4 @@
+import 'newrelic';
 import fastify, { FastifyInstance } from 'fastify';
 import swagger from '@fastify/swagger';
 import swaggerConfiguration from './services/plugins/swagger';
