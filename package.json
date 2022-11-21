@@ -5,7 +5,7 @@
   "main": "master.js",
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
-    "dev": "nodemon",
+    "dev": "nodemon | pino-pretty",
     "start": "node build/master.js",
     "deploy": "npm run start",
     "migrate": "knex migrate:latest --knexfile knexfile.js",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.2.1",
     "@fastify/compress": "5.0.0",
+    "@fastify/jwt": "^6.3.2",
     "@fastify/swagger": "^6.1.0",
     "aws-sdk": "^2.1099.0",
     "config": "^3.3.7",
@@ -42,10 +43,13 @@
     "node-pushnotifications": "^2.0.3",
     "pg": "^8.7.3",
     "phone": "^3.1.12",
+    "pino": "^8.7.0",
     "redis": "^4.0.3",
     "rimraf": "^3.0.2",
+    "serialize-error": "^7.0.1",
     "spotify-web-api-node": "^5.0.2",
-    "twilio": "^3.74.0"
+    "twilio": "^3.74.0",
+    "uuid": "^9.0.0"
   },
   "engines": {
     "node": "16.x"
@@ -54,6 +58,7 @@
     "@faker-js/faker": "^6.0.0-alpha.6",
     "@types/node": "^18.7.15",
     "@types/node-fetch": "^2.6.2",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
     "dotenv": "^16.0.0",
@@ -66,6 +71,7 @@
     "eslint-plugin-promise": "^6.0.0",
     "json-schema-to-ts": "^2.5.5",
     "nodemon": "^2.0.15",
+    "pino-pretty": "^9.1.1",
     "prettier": "2.7.1",
     "standard": "^16.0.4",
     "tap": "^16.0.1"
