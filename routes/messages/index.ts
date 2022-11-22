@@ -366,12 +366,23 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
           });
         }
         let trackId: any;
-        const existingTrack = await fastify
+        let existingTrack = await fastify
           .readDb('tracks')
           .select()
           .where({ track_id: track.track_id, platform: track.platform })
           .first();
         if (existingTrack) {
+          // Update existing tracks with preview_url if user will reuse track
+          if (!existingTrack.preview_url && track.preview_url) {
+            existingTrack = await fastify
+              .writeDb('tracks')
+              .select()
+              .where({ uuid: existingTrack.uuid })
+              .update({ preview_url: track.preview_url }, ['*'])
+              .then(rows => rows[0]);
+            logger(req).debug(existingTrack, 'updated track with preview_url');
+          }
+
           await insertIntoSpotifyTracks(existingTrack);
           trackId = existingTrack.track_id;
         } else {
