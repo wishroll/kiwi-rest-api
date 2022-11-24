@@ -50,6 +50,7 @@ module.exports = {
             },
             required: ['url'],
           },
+          preview_url: { type: 'string' },
         },
         required: [
           'track_id',

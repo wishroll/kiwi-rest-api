@@ -193,6 +193,7 @@ export const sentTracksIndex = {
                 required: ['url'],
               },
               id: { type: 'integer' },
+              preview_url: { type: 'string', nullable: true },
             },
           },
         },
