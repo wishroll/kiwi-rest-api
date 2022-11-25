@@ -1,13 +1,13 @@
 import { WishrollFastifyInstance } from '../../../routes';
 import { withErrorHandler } from '../../../utils/errors';
-import { CallbackQuery, callbackSchema } from './schema';
+import { callbackSchema } from './schema';
 
 export default async (fastify: WishrollFastifyInstance) => {
-  fastify.get<{ Querystring: CallbackQuery }>(
+  fastify.get(
     `/deezer/callback`,
     { schema: callbackSchema },
-    withErrorHandler(async (req, res) => {
-      res.redirect(301, `kiwi://deezer/auth/${req.query.auth_token}`);
+    withErrorHandler(async (_, res) => {
+      res.redirect(301, `kiwi://deezer/auth`);
     }),
   );
 };
