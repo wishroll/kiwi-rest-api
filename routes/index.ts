@@ -48,4 +48,5 @@ export default async (fastify: WishrollFastifyInstance, _options: any, _done: an
   fastify.register(require('../services/api/spotify/tokens'));
   fastify.register(require('./replies/index'));
   fastify.register(require('./notifications/index'));
+  fastify.register(require('../services/api/deezer/index'));
 };
