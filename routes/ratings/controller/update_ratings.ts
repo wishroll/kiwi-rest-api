@@ -31,10 +31,7 @@ export default (fastify: WishrollFastifyInstance) =>
         throw new Error('could not update message score/like');
       }
 
-      const ratedMessage = await trx('messages')
-        .select('sender_id')
-        .where({ id: messageId })
-        .first();
+      const ratedMessage = await trx('messages').where({ id: messageId }).first();
 
       logger(fastify).trace({ ratedMessage }, 'message that will be rated');
 
@@ -42,7 +39,7 @@ export default (fastify: WishrollFastifyInstance) =>
         throw new Error('could not find message to score/like');
       }
 
-      return trx('user_ratings')
+      await trx('user_ratings')
         .insert(
           {
             user_id: ratedMessage.sender_id,
@@ -70,4 +67,6 @@ export default (fastify: WishrollFastifyInstance) =>
             newLike: like ? 1 : 0,
           }),
         });
+
+      return ratedMessage;
     });

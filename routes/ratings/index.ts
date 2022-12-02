@@ -13,6 +13,7 @@ export default async (fastify: WishrollFastifyInstance) => {
     '/v1/messages/:message_id/ratings',
     { onRequest: [fastify.authenticate], schema: create },
     async (req, res) => {
+      // TO DO: Migrate schema to typescript and update types
       // @ts-ignore
       const messageId = req.params.message_id;
       // @ts-ignore
@@ -56,13 +57,13 @@ export default async (fastify: WishrollFastifyInstance) => {
       const like = req.body.like;
       const messageId = req.params.message_id;
 
-      await updateRatingController(fastify)({
+      const updatedMessage = await updateRatingController(fastify)({
         currentUserId,
         like,
         messageId,
       });
 
-      res.status(201).send();
+      res.status(201).send(updatedMessage);
     }),
   );
 };
