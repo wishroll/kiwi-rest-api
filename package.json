@@ -15,7 +15,8 @@
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix --cache",
     "postinstall": "npm run clean && npm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "score-migration": "node ./build/utils/score_migration.js"
   },
   "author": "Great Okonkwo",
   "license": "ISC",
