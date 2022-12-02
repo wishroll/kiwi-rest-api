@@ -41,3 +41,9 @@ async function customMigration() {
 }
 
 customMigration();
+
+// UPDATE ratings
+// SET "like" = CASE
+//   WHEN "score" < 0.5 THEN false
+//   ELSE true
+// END
