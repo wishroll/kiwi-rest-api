@@ -17,7 +17,7 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
             friend_of_friend.uuid as uuid, 
             friend_of_friend.username as username, friend_of_friend.display_name as display_name,
             friend_of_friend.avatar_url as avatar_url, COUNT(*)
-            ORDER BY COUNT(*) DESC
+            ORDER BY COUNT(*) DESC, id DESC
             SKIP ${offset}
             LIMIT ${limit}
         `;

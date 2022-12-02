@@ -4,6 +4,7 @@ import swaggerConfiguration from './services/plugins/swagger';
 import compress from '@fastify/compress';
 import { v4 as uuidv4 } from 'uuid';
 import logger from './logger';
+import 'newrelic';
 
 const envToLogger: Record<string, any> = {
   development: {
