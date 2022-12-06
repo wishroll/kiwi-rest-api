@@ -236,6 +236,17 @@ const sendNotificationOnNewReply = async ({ recipientId, text, senderId, message
   return sendPushNotification([recipientId], notificationData);
 };
 
+const sendNotificationOnLikeAction = async ({ recipientId, senderId, messageId, like }) => {
+  const data = await readDB('users').select('*').where({ id: recipientId }).first();
+  const notificationData = generateNotificationData();
+  const bodyText = `${data.display_name || data.username} ${like ? 'liked' : 'disliked'} your song`;
+  notificationData.mutableContent = 1;
+  notificationData.title = 'Kiwi';
+  notificationData.custom = { link: `kiwi://messages/received/${messageId}` };
+  notificationData.body = bodyText;
+  return sendPushNotification([senderId], notificationData);
+};
+
 module.exports = {
   sendPushNotificationOnReceivedFriendRequest,
   sendPushNotificationOnAcceptedFriendRequest,
@@ -243,4 +254,5 @@ module.exports = {
   sendNotificationOnReceivedSong,
   sendNotificationOnCreatedRating,
   sendNotificationOnNewReply,
+  sendNotificationOnLikeAction,
 };

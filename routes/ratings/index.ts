@@ -1,5 +1,8 @@
 import { updateMessageSenderRating } from '../../algos/users/update_message_sender_rating';
-import { sendNotificationOnCreatedRating } from '../../services/notifications/notifications';
+import {
+  sendNotificationOnCreatedRating,
+  sendNotificationOnLikeAction,
+} from '../../services/notifications/notifications';
 import logger from '../../logger';
 import { mapScoreToLike } from '../../algos/users/score_likes_mappers';
 import create from './schema/v1/create';
@@ -62,6 +65,12 @@ export default async (fastify: WishrollFastifyInstance) => {
         like,
         messageId,
       });
+      sendNotificationOnLikeAction({
+        recipientId: currentUserId,
+        senderId: updatedMessage.sender_id,
+        messageId,
+        like,
+      }).catch(error => logger(req).error(error));
 
       res.status(201).send(updatedMessage);
     }),
