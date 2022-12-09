@@ -257,6 +257,9 @@ export const receivedNewMessagesIndex = {
           text: { type: 'string' },
           last_sender_id: { type: 'integer' },
           seen: { type: 'boolean' },
+          ratings_id: { type: 'integer', nullable: true },
+          like: { type: 'boolean', nullable: true },
+          score: { type: 'number', nullable: true },
           sender: {
             type: 'object',
             properties: {
