@@ -1,5 +1,6 @@
 import { mapLikeToScore } from '../../../algos/users/score_likes_mappers';
 import logger from '../../../logger';
+import { ForbiddenError } from '../../../utils/errors';
 import { WishrollFastifyInstance } from '../../index';
 
 export interface UpdateRatingAttributes {
@@ -37,6 +38,10 @@ export default (fastify: WishrollFastifyInstance) =>
 
       if (ratedMessage === null || typeof ratedMessage !== 'object') {
         throw new Error('could not find message to score/like');
+      }
+
+      if (ratedMessage.recipient_id !== currentUserId) {
+        throw new ForbiddenError('current user id does not match recipient_id');
       }
 
       await trx('user_ratings')
