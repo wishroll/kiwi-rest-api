@@ -7,7 +7,9 @@ import { getAllUserFriendIds } from '../../utils/friends';
 import { MAX_BIGINT } from '../../utils/numbers';
 import { WishrollFastifyInstance } from '../index';
 import {
+  NewSongsQuery,
   receivedMessagesIndex as receivedMessagesIndexV2,
+  receivedNewMessagesIndex,
   sentTracksIndex as sentTracksIndexV2,
 } from './schema/v2';
 
@@ -122,6 +124,81 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
 
         res.status(200).send(data);
       } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
+    },
+  );
+
+  fastify.get<{ Querystring: NewSongsQuery }>(
+    '/v2/me/messages/new',
+    { onRequest: [fastify.authenticate], schema: receivedNewMessagesIndex },
+    async (
+      req: FastifyRequest<{
+        Querystring: { limit: number; lastId?: number };
+      }>,
+      res: FastifyReply,
+    ) => {
+      // @ts-ignore
+      const currentUserId = req.user.id;
+
+      const limit = req.query.limit;
+      const lastId = req.query.lastId ?? MAX_BIGINT;
+
+      try {
+        const messages = await fastify
+          .readDb('messages')
+          .select([
+            'messages.id as id',
+            'messages.uuid as uuid',
+            'messages.created_at as created_at',
+            'messages.updated_at as updated_at',
+            'messages.text as text',
+            'messages.last_sender_id as last_sender_id',
+            'messages.sender_id as sender_id',
+            'messages.seen as seen',
+            'messages.track_id as track_id',
+            'messages.recipient_id as recipient_id',
+            'ratings.id as ratings_id',
+            'ratings.like as like',
+            'ratings.score as score',
+          ])
+          .whereNull('ratings.id')
+          .where('messages.recipient_id', currentUserId)
+          .andWhere('messages.id', '<', lastId)
+          .orderBy('messages.id', 'desc')
+          .leftOuterJoin('ratings', 'ratings.message_id', '=', 'messages.id')
+          .limit(limit);
+
+        if (messages.length < 1) {
+          return res.status(200).send([]);
+        }
+
+        const formatedPayload = messages.reduce(
+          (prev, curr) => {
+            return {
+              trackIds: [...prev.trackIds, curr.track_id],
+              userIds: [...prev.userIds, curr.sender_id],
+            };
+          },
+          { trackIds: [], userIds: [] },
+        );
+
+        const [tracks, users] = await Promise.all([
+          fastify.readDb('tracks').select().whereIn('track_id', formatedPayload.trackIds),
+          fastify.readDb('users').select().whereIn('id', formatedPayload.userIds),
+        ]);
+
+        const data = messages.map(message => {
+          return {
+            ...message,
+            track: tracks.find(track => track.track_id === message.track_id),
+            sender: users.find(user => user.id === message.sender_id),
+          };
+        });
+
+        res.status(200).send(data);
+      } catch (error) {
+        logger(req).error(error, 'An error occured during fetching messages without score');
         res.status(500).send({ error: true, message: error });
       }
     },
