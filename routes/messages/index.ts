@@ -160,8 +160,9 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
             'messages.recipient_id as recipient_id',
             'ratings.id as ratings_id',
             'ratings.like as like',
+            'ratings.score as score',
           ])
-          .whereNull('ratings.like')
+          .whereNull('ratings.id')
           .where('messages.recipient_id', currentUserId)
           .andWhere('messages.id', '<', lastId)
           .orderBy('messages.id', 'desc')

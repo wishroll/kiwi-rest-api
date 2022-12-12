@@ -11,6 +11,13 @@ export class BusinessLogicError extends Error {
   }
 }
 
+export class ForbiddenError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, ForbiddenError.prototype);
+  }
+}
+
 export const withErrorHandler =
   <T extends FastifyRequest, U extends FastifyReply>(
     fastifyCallback: (request: T, reply: U) => Promise<any>,
@@ -25,6 +32,10 @@ export const withErrorHandler =
 
       if (error instanceof BusinessLogicError) {
         return reply.status(error.statusCode).send({ ...error, message: error.message });
+      }
+
+      if (error instanceof ForbiddenError) {
+        return reply.status(403).send({ ...error, message: error.message });
       }
 
       const errorMessage = {
