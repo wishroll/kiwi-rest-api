@@ -244,6 +244,10 @@ const sendNotificationOnLikeAction = async ({ recipientId, senderId, messageId, 
   notificationData.title = 'Kiwi';
   notificationData.custom = { link: `kiwi://messages/received/${messageId}` };
   notificationData.body = bodyText;
+  notificationData.sound = 'activity_notification_sound.caf';
+  notificationData.pushType = 'alert';
+  notificationData.topic = 'org.reactjs.native.example.mutualsapp';
+
   return sendPushNotification([senderId], notificationData);
 };
 
