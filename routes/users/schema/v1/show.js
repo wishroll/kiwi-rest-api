@@ -35,6 +35,7 @@ module.exports = {
               type: 'string',
               description: "The hex value mapping to and representing the user's score",
             },
+            likes: { type: 'number', minimum: 0 },
           },
         },
       },
