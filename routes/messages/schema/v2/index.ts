@@ -170,7 +170,7 @@ export const sentTracksIndex = {
               duration: { type: 'integer' },
               track_number: { type: 'integer' },
               release_date: { type: 'string' },
-              preview_url: { type: 'string' },
+              preview_url: { type: 'string', nullable: true },
               isrc: { type: 'string' },
               artists: {
                 type: 'array',
@@ -196,7 +196,6 @@ export const sentTracksIndex = {
                 required: ['url'],
               },
               id: { type: 'integer' },
-              preview_url: { type: 'string', nullable: true },
             },
           },
         },
