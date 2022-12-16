@@ -41,6 +41,15 @@ export default (fastify: WishrollFastifyInstance) =>
       }
 
       if (ratedMessage.recipient_id !== currentUserId) {
+        logger(fastify).info(
+          {
+            recipient_id: ratedMessage.recipient_id,
+            currentUserId,
+            recipient_id_type: typeof ratedMessage.recipient_id,
+            currentUserId_type: typeof currentUserId,
+          },
+          'Recipient ID does not match current user ID',
+        );
         throw new ForbiddenError('current user id does not match recipient_id');
       }
 

@@ -65,6 +65,7 @@ export const receivedMessagesIndex = {
               track_number: { type: 'integer' },
               release_date: { type: 'string' },
               isrc: { type: 'string' },
+              preview_url: { type: 'string' },
               artists: {
                 type: 'array',
                 items: {
@@ -169,6 +170,7 @@ export const sentTracksIndex = {
               duration: { type: 'integer' },
               track_number: { type: 'integer' },
               release_date: { type: 'string' },
+              preview_url: { type: 'string', nullable: true },
               isrc: { type: 'string' },
               artists: {
                 type: 'array',
@@ -194,7 +196,6 @@ export const sentTracksIndex = {
                 required: ['url'],
               },
               id: { type: 'integer' },
-              preview_url: { type: 'string', nullable: true },
             },
           },
         },
@@ -287,6 +288,7 @@ export const receivedNewMessagesIndex = {
               track_number: { type: 'integer' },
               release_date: { type: 'string' },
               isrc: { type: 'string' },
+              preview_url: { type: 'string' },
               artists: {
                 type: 'array',
                 items: {
