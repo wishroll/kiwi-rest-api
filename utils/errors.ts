@@ -35,6 +35,7 @@ export const withErrorHandler =
       }
 
       if (error instanceof ForbiddenError) {
+        logger(request).error(error, 'Forbidden Error');
         return reply.status(403).send({ ...error, message: error.message });
       }
 
