@@ -59,6 +59,8 @@ export default async (fastify: WishrollFastifyInstance) => {
       const currentUserId = req.user.id;
       const like = req.body.like;
       const messageId = req.params.message_id;
+      // TODO: change to 'debug'
+      logger(req).info({ currentUserId, like, messageId }, 'parameters');
 
       const updatedMessage = await updateRatingController(fastify)({
         currentUserId,
