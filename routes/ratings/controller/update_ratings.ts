@@ -40,7 +40,7 @@ export default (fastify: WishrollFastifyInstance) =>
         throw new Error('could not find message to score/like');
       }
 
-      if (ratedMessage.recipient_id !== currentUserId) {
+      if (Number(ratedMessage.recipient_id ?? '-1') !== currentUserId) {
         logger(fastify).info(
           {
             recipient_id: ratedMessage.recipient_id,
