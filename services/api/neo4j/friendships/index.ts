@@ -1,72 +1,74 @@
 'use-strict';
-const { driver } = require('../index');
-const { default: logger } = require('../../../../logger');
-/**
- * @param {number} user1Id - the first user to create the friend relationship with
- * @param {number} user2Id - the second user to create the friend relationship with
- */
-async function createFriendship(user1Id, user2Id, id, uuid, createdAt, updatedAt) {
+import logger from '../../../../logger';
+import driver from '../index';
+import { FriendRequest } from '../../../../models/friend_request';
+import { Friend } from '../../../../models/friend';
+
+export const createFriendship = async ({
+  user_id,
+  friend_id,
+  id,
+  uuid,
+  created_at,
+  updated_at,
+}: Friend) => {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (u1:User {id: ${user1Id}})
-                       MATCH (u2:User {id: ${user2Id}})
-                       MERGE (u1)-[:FRIENDS_WITH {id: ${id}, uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u2)
-                       MERGE (u2)-[:FRIENDS_WITH {id: ${id}, uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u1)
+    const query = `MATCH (u1:User {id: ${user_id}})
+                       MATCH (u2:User {id: ${friend_id}})
+                       MERGE (u1)-[:FRIENDS_WITH {id: ${id}, uuid: '${uuid}', created_at: '${created_at}', updated_at: '${updated_at}'}]->(u2)
+                       MERGE (u2)-[:FRIENDS_WITH {id: ${id}, uuid: '${uuid}', created_at: '${created_at}', updated_at: '${updated_at}'}]->(u1)
                        RETURN u1, u2`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
     const records = writeResult.records;
     logger(null).debug(
       { summary: writeResult.summary, records: writeResult.records },
-      `These are the results of creating friendship of ${user1Id} and ${user2Id}`,
+      `These are the results of creating friendship of ${user_id} and ${friend_id}`,
     );
     return records;
   } catch (error) {
     logger(null).error(
       error,
-      `An error occured when creating friendship of ${user1Id} and ${user2Id}`,
+      `An error occured when creating friendship of ${user_id} and ${friend_id}`,
     );
     return error;
   } finally {
     await session.close();
   }
-}
-/**
- *
- * @param {number} requestingUserId
- * @param {number} requestedUserId
- */
-async function createFriendRequest(
-  requestingUserId,
-  requestedUserId,
+};
+
+export const createFriendRequest = async ({
+  requesting_user_id,
+  requested_user_id,
   id,
   uuid,
-  createdAt,
-  updatedAt,
-) {
+  created_at,
+  updated_at,
+}: FriendRequest) => {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (u1:User {id: ${requestingUserId}})
-                        MATCH (u2:User {id: ${requestedUserId}})
-                        MERGE (u1)-[fr:FRIEND_REQUESTED {id: ${id}, uuid: '${uuid}', created_at: '${createdAt}', updated_at: '${updatedAt}'}]->(u2)
+    const query = `MATCH (u1:User {id: ${requesting_user_id}})
+                        MATCH (u2:User {id: ${requested_user_id}})
+                        MERGE (u1)-[fr:FRIEND_REQUESTED {id: ${id}, uuid: '${uuid}', created_at: '${created_at}', updated_at: '${updated_at}'}]->(u2)
                         RETURN u1, u2, fr`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
     logger(null).debug(
       { summary: writeResult.summary },
-      `These are the summary of creating friendship request from ${requestingUserId} to ${requestedUserId}`,
+      `These are the summary of creating friendship request from ${requesting_user_id} to ${requested_user_id}`,
     );
     return writeResult.records;
   } catch (error) {
     logger(null).error(
       error,
-      `An error occured when creating friendship request from ${requestingUserId} to ${requestedUserId}`,
+      `An error occured when creating friendship request from ${requesting_user_id} to ${requested_user_id}`,
     );
     return error;
   } finally {
     await session.close();
   }
-}
+};
 
-async function getFriends(userId, limit = 10, offset = 0) {
+export const getFriends = async (userId: number, limit = 10, offset = 0) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `MATCH (:User {id: ${userId}})-[:FRIENDS_WITH]->(u:User) return u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
@@ -88,9 +90,9 @@ async function getFriends(userId, limit = 10, offset = 0) {
   } finally {
     await session.close();
   }
-}
+};
 
-async function getFriendsRequested(userId) {
+export const getFriendsRequested = async (userId: number) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `MATCH (User {id: ${userId}})-[:FRIENDS_REQUESTED]->(u:User) return u`;
@@ -103,9 +105,9 @@ async function getFriendsRequested(userId) {
   } finally {
     await session.close();
   }
-}
+};
 
-async function getFriendsRequesting(userId) {
+export const getFriendsRequesting = async (userId: number) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `MATCH (User {id: ${userId}})<-[:FRIENDS_REQUESTED]-(u:User) RETURN u`;
@@ -119,63 +121,56 @@ async function getFriendsRequesting(userId) {
   } finally {
     await session.close();
   }
-}
+};
 
-async function deleteFriendshipRelationship(user1Id, user2Id) {
+export const deleteFriendshipRelationship = async (user_1_id: number, user_2_id: number) => {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (u1:User {id: ${user1Id}})
-        MATCH (u2:User {id: ${user2Id}})
+    const query = `MATCH (u1:User {id: ${user_1_id}})
+        MATCH (u2:User {id: ${user_2_id}})
         MATCH (u1)-[fr:FRIENDS_WITH]->(u2)
         MATCH (u2)-[fr2:FRIENDS_WITH]->(u1)
         DELETE fr, fr2`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
     logger(null).debug(
       { summary: writeResult.summary },
-      `deleteFriendshipRelationship summary of ${user1Id} and ${user2Id}`,
+      `deleteFriendshipRelationship summary of ${user_1_id} and ${user_2_id}`,
     );
     return writeResult.records;
   } catch (error) {
     logger(null).error(
       error,
-      `An error occured when deleting friendship of ${user1Id} and ${user2Id}`,
+      `An error occured when deleting friendship of ${user_1_id} and ${user_2_id}`,
     );
     return error;
   } finally {
     await session.close();
   }
-}
+};
 
-async function deleteFriendRequestRelationship(requestingUserId, requestedUserId) {
+export const deleteFriendRequestRelationship = async (
+  requesting_user_id: number,
+  requested_user_id: number,
+) => {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (u1:User {id: ${requestingUserId}})
-                        MATCH (u2:User {id: ${requestedUserId}})
+    const query = `MATCH (u1:User {id: ${requesting_user_id}})
+                        MATCH (u2:User {id: ${requested_user_id}})
                         MATCH (u1)-[fr:FRIEND_REQUESTED]->(u2)
                         DELETE fr`;
     const writeResult = await session.writeTransaction(tx => tx.run(query));
     logger(null).debug(
       { summary: writeResult.summary },
-      `deleteFriendRequestRelationship summary of ${requestingUserId} and ${requestedUserId}`,
+      `deleteFriendRequestRelationship summary of ${requesting_user_id} and ${requested_user_id}`,
     );
     return writeResult.records;
   } catch (error) {
     logger(null).error(
       error,
-      `An error occured when deleting friendship request of ${requestingUserId} and ${requestedUserId}`,
+      `An error occured when deleting friendship request of ${requesting_user_id} and ${requested_user_id}`,
     );
     return error;
   } finally {
     await session.close();
   }
-}
-
-module.exports = {
-  createFriendship,
-  createFriendRequest,
-  getFriends,
-  getFriendsRequested,
-  getFriendsRequesting,
-  deleteFriendshipRelationship,
-  deleteFriendRequestRelationship,
 };

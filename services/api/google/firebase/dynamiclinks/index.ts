@@ -1,10 +1,10 @@
-const { default: logger } = require('../../../../../logger');
-const { oauth2Client } = require('../../index');
-function createDynamicProfileLink(user) {
+import { User } from '../../../../../models/user';
+import logger from '../../../../../logger';
+import oauth2Client from '../../index';
+const createDynamicProfileLink = (user: User) => {
   return new Promise(async (resolve, reject) => {
     const username = user?.username;
     const displayName = user?.display_name;
-    const avatarUrl = user?.avatar_url;
     const userId = user?.id;
     const data = {
       dynamicLinkInfo: {
@@ -69,6 +69,6 @@ function createDynamicProfileLink(user) {
       reject(error);
     }
   });
-}
+};
 
-module.exports = { createDynamicProfileLink };
+export default createDynamicProfileLink;

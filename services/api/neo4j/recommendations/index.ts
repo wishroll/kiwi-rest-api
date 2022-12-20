@@ -1,8 +1,8 @@
 'use-strict';
-const { default: logger } = require('../../../../logger');
-const { driver } = require('../index');
+import logger from '../../../../logger';
+import driver from '../index';
 
-async function getMutualFriends(userId, limit = 10, offset = 0) {
+export const getMutualFriends = async (userId: number, limit = 10, offset = 0) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `MATCH (user1:User { id: ${userId} })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
@@ -45,9 +45,4 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
   } finally {
     await session.close();
   }
-}
-
-// eslint-disable-next-line no-unused-vars
-async function getRecommendedTracks() {}
-
-module.exports = { getMutualFriends };
+};

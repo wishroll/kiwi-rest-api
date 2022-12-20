@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   description: 'Create a new Token or update an existing one',
   summary: 'Create a new Token or update an existing one',
   headers: {

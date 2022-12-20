@@ -1,11 +1,12 @@
 'use-strict';
-const { default: logger } = require('../../../../logger');
-const { driver } = require('../index');
+import logger from '../../../../logger';
+import driver from '../index';
+import { User } from '../../../../models/user';
 /**
  * Create a user node in graph db
  * @param {User} user
  */
-async function createUserNode(user) {
+export const createUserNode = async (user: User) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `MERGE (u:User {id: ${user.id}, uuid: "${user.uuid}", username: "${user.username}", display_name: "${user.display_name}", phone_number: "${user.phone_number}", created_at: "${user.created_at}", updated_at: "${user.updated_at}"})
@@ -22,15 +23,15 @@ async function createUserNode(user) {
   } finally {
     await session.close();
   }
-}
+};
 
-async function updateUserNode(userId, updates) {
+export const updateUserNode = async (userId: number, updates: User) => {
   delete updates.id;
   const session = driver.session({ database: 'neo4j' });
   try {
     let query = `MATCH (u:User {id: ${userId}})`;
     Object.keys(updates).forEach(
-      key => (query = query.concat(` SET u.${key} = '${updates[key]}'`)),
+      key => (query = query.concat(` SET u.${key} = '${updates}'`)),
     );
     query = query.concat(
       ' RETURN u.id as id, u.uuid as uuid, u.username as username, u.dipslay_name as display_name, u.created_at as created_at, u.updated_at as updated_at, u.avatar_url as avatar_url',
@@ -53,6 +54,4 @@ async function updateUserNode(userId, updates) {
   } finally {
     await session.close();
   }
-}
-
-module.exports = { createUserNode, updateUserNode };
+};

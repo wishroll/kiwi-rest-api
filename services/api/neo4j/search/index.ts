@@ -1,9 +1,9 @@
 'use-strict';
-const { driver } = require('../index');
-const { MAX_32INT_NEO4J, MAX_SEARCH_MATCH_SCORE } = require('../../../../utils/numbers');
-const { default: logger } = require('../../../../logger');
+import { MAX_32INT_NEO4J, MAX_SEARCH_MATCH_SCORE } from '../../../../utils/numbers';
+import logger from '../../../../logger';
+import driver from '../index';
 
-async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
+export const searchUsers = async (q: string, offset = 0, limit = 10, currentUserId: number) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `
@@ -44,15 +44,15 @@ async function searchUsers(q, offset = 0, limit = 10, currentUserId) {
   } finally {
     await session.close();
   }
-}
+};
 
-async function searchUsersV2(
-  q,
+export const searchUsersV2 = async (
+  q: string,
   limit = 10,
-  currentUserId,
+  currentUserId: number,
   lastId = MAX_32INT_NEO4J,
   lastScore = MAX_SEARCH_MATCH_SCORE,
-) {
+) => {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `
@@ -96,65 +96,4 @@ async function searchUsersV2(
   } finally {
     await session.close();
   }
-}
-
-async function searchFriends(query, userId, _offset = 0, _limit = 10) {
-  const session = driver.session({ database: 'neo4j' });
-  try {
-    const query = '';
-    const result = await session.readTransaction(tx => tx.run(query));
-    const records = result.records;
-    return records;
-  } catch (error) {
-    logger(null).error(error, 'An error occured when searching user nodes');
-    return error;
-  } finally {
-    await session.close();
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-async function searchFriendsRequested(query, userId, _offset = 0, _limit = 10) {
-  // eslint-disable-next-line no-unused-vars
-  const session = driver.session({ database: 'neo4j' });
-}
-
-// eslint-disable-next-line no-unused-vars
-async function searchFriendsRequesting(query, userId, _offset = 0, _limit = 10) {
-  // eslint-disable-next-line no-unused-vars
-  const session = driver.session({ database: 'neo4j' });
-}
-
-// eslint-disable-next-line no-unused-vars
-async function createUserNodeFullTextSearchIndex() {
-  const session = driver.session({ database: 'neo4j' });
-  try {
-    const query =
-      'CREATE FULLTEXT INDEX INDEX_USERS_FULLTEXT IF NOT EXISTS FOR (u:User) ON EACH [ u.username, u.display_name]';
-    const result = await session.writeTransaction(tx => tx.run(query));
-    return result;
-  } catch (error) {
-    return error;
-  } finally {
-    await session.close();
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-async function createUserNodeTextIndex() {
-  const session = driver.session({ database: 'neo4j' });
-  try {
-    const query = `CREATE TEXT INDEX INDEX_USERSTEXT_USERNAME IF NOT EXISTS FOR (u:User) ON (u.username)
-                        CREATE TEXT INDEX INDEX_USERSTEXT_DISPLAY_NAME IF NOT EXISTS FOR (u:User) ON (u.display_name)
-                        CREATE TEXT INDEX INDEX_USERSTEXT_PHONENUMBER IF NOT EXISTS FOR (u:User) ON (u.phone_number)
-                        `;
-    const result = await session.writeTransaction(tx => tx.run(query));
-    return result;
-  } catch (error) {
-    return error;
-  } finally {
-    await session.close();
-  }
-}
-
-module.exports = { searchUsers, searchFriends, searchUsersV2 };
+};
