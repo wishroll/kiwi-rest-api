@@ -84,13 +84,14 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       try {
         const messagesQuery = fastify.readDb('messages');
 
+        messagesQuery.where('messages.recipient_id', currentUserId);
+
         if (fromSender) {
-          messagesQuery.where('messages.sender_id', fromSender);
+          messagesQuery.andWhere('messages.sender_id', fromSender);
           logger(req).debug({ from: fromSender }, 'Fetching messages from specific sender');
         }
 
         messagesQuery
-          .where('messages.recipient_id', currentUserId)
           .andWhere('messages.id', '<', lastId)
           .orderBy('messages.id', 'desc')
           .limit(limit);
