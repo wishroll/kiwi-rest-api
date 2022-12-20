@@ -7,9 +7,9 @@ export const receivedMessagesQuery = {
     limit: { type: 'integer', minimum: 1 },
     lastId: { type: 'integer', description: 'Id of last message in previous iteration' },
     from: { type: 'string', description: 'The id of user used to filter received messages' },
-    likedOnly: {
+    liked: {
       type: 'boolean',
-      description: 'Determines to respond only with messages that has been liked',
+      description: 'Determines to respond only with messages that has been liked or disliked',
     },
   },
   required: ['limit'],
