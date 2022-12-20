@@ -1,4 +1,4 @@
-const PushNotifications = require('node-pushnotifications');
+import PushNotifications from 'node-pushnotifications'
 const settings = {
   apn: {
     token: {
@@ -10,5 +10,5 @@ const settings = {
   },
 };
 
-const push = new PushNotifications(settings);
-module.exports = push;
+  const push = new PushNotifications(settings);
+  export default push;

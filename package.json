@@ -24,6 +24,7 @@
     "@fastify/compress": "5.0.0",
     "@fastify/jwt": "^6.3.2",
     "@fastify/swagger": "^6.1.0",
+    "@types/node-pushnotifications": "^1.0.4",
     "aws-sdk": "^2.1099.0",
     "config": "^3.3.7",
     "fastify": "^3.27.1",

@@ -1,11 +1,7 @@
-const knex = require('knex');
-const { default: logger } = require('../../../logger');
-// env
-// config file
-// config knex
-// create knex variables
+import knex, { Knex } from 'knex';
+import logger from '../../../logger';
 
-function generateProductionConfig(databaseUrl, client, maxConnections = 400, minConnections = 100) {
+function generateProductionConfig(databaseUrl: string, maxConnections = 400, minConnections = 100) {
   return {
     client: 'postgresql',
     connection: {
@@ -57,22 +53,17 @@ function generateDevelopmentConfig(
 const MAX_CONNECTION_POOL_CONNECTIONS = 10000;
 const MAX_CONNECTIONS = 500;
 
-// eslint-disable-next-line no-extend-native
-Array.prototype.sample = function () {
-  return this[Math.floor(Math.random() * this.length)];
-};
-
 const productionDatabaseUrls = [
-  process.env.HEROKU_POSTGRESQL_PURPLE_URL,
-  process.env.HEROKU_POSTGRESQL_IVORY_URL,
-  process.env.HEROKU_POSTGRESQL_AMBER_URL,
-  process.env.HEROKU_POSTGRESQL_BRONZE_URL,
+  String(process.env.HEROKU_POSTGRESQL_PURPLE_URL),
+  String(process.env.HEROKU_POSTGRESQL_IVORY_URL),
+  String(process.env.HEROKU_POSTGRESQL_AMBER_URL),
+  String(process.env.HEROKU_POSTGRESQL_BRONZE_URL),
 ]; // array of db urls
 const stagingDatabaseUrls = [
-  process.env.HEROKU_POSTGRESQL_CRIMSON_URL,
-  process.env.HEROKU_POSTGRESQL_GRAY_URL,
-  process.env.HEROKU_POSTGRESQL_TEAL_URL,
-  process.env.HEROKU_POSTGRESQL_CYAN_URL,
+  String(process.env.HEROKU_POSTGRESQL_CRIMSON_URL),
+  String(process.env.HEROKU_POSTGRESQL_GRAY_URL),
+  String(process.env.HEROKU_POSTGRESQL_TEAL_URL),
+  String(process.env.HEROKU_POSTGRESQL_CYAN_URL),
 ];
 /**
  *
@@ -81,14 +72,18 @@ const stagingDatabaseUrls = [
  * @param {string} databaseUrl
  * @returns
  */
-function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
+function generateAndConfigKnexDB(
+  maxConnections: number,
+  minConnections: number,
+  databaseUrl: string,
+): Knex<any, unknown[]> {
   switch (process.env.NODE_ENV) {
     case 'production':
       return knex(generateProductionConfig(databaseUrl, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
     default:
-      return null;
+      return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
   }
 }
 /**
@@ -99,28 +94,31 @@ function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
  * @override
  * @returns
  */
-function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, databaseUrls) {
+function generateAndConfigKnexDBMultipleUrls(
+  maxConnections: number,
+  minConnections: number,
+  databaseUrls: string[],
+): Knex<any, unknown[]> {
   switch (process.env.NODE_ENV) {
     case 'production':
       // eslint-disable-next-line no-case-declarations
-      const url = databaseUrls.sample();
+      const url: string = databaseUrls[Math.floor(Math.random() * databaseUrls.length)];
       logger(null).debug({ url }, 'This is the chosen url');
       return knex(generateProductionConfig(url, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
     default:
-      return null;
+      return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
   }
 }
 
-const readDB = generateAndConfigKnexDBMultipleUrls(
+export const readDB = generateAndConfigKnexDBMultipleUrls(
   MAX_CONNECTIONS,
   MAX_CONNECTIONS,
   process.env.API_ENV === 'production' ? productionDatabaseUrls : stagingDatabaseUrls,
 );
-const writeDB = generateAndConfigKnexDB(
+export const writeDB = generateAndConfigKnexDB(
   MAX_CONNECTION_POOL_CONNECTIONS,
   MAX_CONNECTION_POOL_CONNECTIONS,
-  process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL,
+  String(process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL),
 );
-module.exports = { readDB, writeDB };

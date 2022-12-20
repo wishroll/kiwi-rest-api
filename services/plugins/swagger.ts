@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   routePrefix: '/documentation',
   exposeRoute: true,
   swagger: {
@@ -43,15 +43,5 @@ module.exports = {
   uiConfig: {
     docExpansion: 'full',
     deepLinking: false,
-  },
-  uiHooks: {
-    onRequest: function (request, reply, next) {
-      next();
-    },
-    preHandler: function (request, reply, next) {
-      next();
-    },
-  },
-  staticCSP: true,
-  transformStaticCSP: header => header,
+  }
 };
