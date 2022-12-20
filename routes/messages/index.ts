@@ -9,6 +9,7 @@ import { WishrollFastifyInstance } from '../index';
 import {
   NewSongsQuery,
   receivedMessagesIndex as receivedMessagesIndexV2,
+  ReceivedMessagesQuery,
   receivedNewMessagesIndex,
   sentTracksIndex as sentTracksIndexV2,
 } from './schema/v2';
@@ -69,28 +70,33 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
     },
   );
 
-  fastify.get(
+  fastify.get<{ Querystring: ReceivedMessagesQuery }>(
     '/v2/me/messages',
     { onRequest: [fastify.authenticate], schema: receivedMessagesIndexV2 },
-    async (
-      req: FastifyRequest<{
-        Querystring: { limit: number; lastId?: number };
-      }>,
-      res: FastifyReply,
-    ) => {
+    async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
       const limit = req.query.limit;
       const lastId = req.query.lastId ?? MAX_BIGINT;
+      const fromSender = req.query.from;
 
       try {
-        const messages = await fastify
-          .readDb('messages')
+        const messagesQuery = fastify.readDb('messages');
+
+        if (fromSender) {
+          messagesQuery.where('messages.sender_id', fromSender);
+          logger(req).debug({ from: fromSender }, 'Fetching messages from specific sender');
+        }
+
+        messagesQuery
           .where('messages.recipient_id', currentUserId)
           .andWhere('messages.id', '<', lastId)
           .orderBy('messages.id', 'desc')
           .limit(limit);
+
+        const messages = await messagesQuery;
+
         if (messages.length < 1) {
           return res.status(200).send([]);
         }

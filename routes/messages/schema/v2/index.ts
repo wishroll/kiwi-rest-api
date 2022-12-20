@@ -1,18 +1,21 @@
 import { FromSchema } from 'json-schema-to-ts';
 import { STREAMING_PLATFORMS } from '../../../../utils/const';
 
+export const receivedMessagesQuery = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', minimum: 1 },
+    lastId: { type: 'integer', description: 'Id of last message in previous iteration' },
+    from: { type: 'string', description: 'The id of user used to filter received messages' },
+  },
+  required: ['limit'],
+} as const;
+
 export const receivedMessagesIndex = {
   description: 'Return a list of song messages that have been sent to the current user.',
   tags: ['Messages'],
   summary: "Returns an array of a user's receieved song messages",
-  query: {
-    type: 'object',
-    properties: {
-      limit: { type: 'integer', minimum: 1 },
-      lastId: { type: 'integer', description: 'Id of last message in previous iteration' },
-    },
-    required: ['limit'],
-  },
+  query: receivedMessagesQuery,
   headers: {
     type: 'object',
     properties: {
@@ -338,3 +341,4 @@ export const receivedNewMessagesIndex = {
 };
 
 export type NewSongsQuery = FromSchema<typeof receivedNewMessagesQuery>;
+export type ReceivedMessagesQuery = FromSchema<typeof receivedMessagesQuery>;
