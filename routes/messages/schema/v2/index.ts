@@ -7,6 +7,10 @@ export const receivedMessagesQuery = {
     limit: { type: 'integer', minimum: 1 },
     lastId: { type: 'integer', description: 'Id of last message in previous iteration' },
     from: { type: 'string', description: 'The id of user used to filter received messages' },
+    likedOnly: {
+      type: 'boolean',
+      description: 'Determines to respond only with messages that has been liked',
+    },
   },
   required: ['limit'],
 } as const;
@@ -97,6 +101,7 @@ export const receivedMessagesIndex = {
           rating: {
             type: 'object',
             properties: {
+              like: { type: 'boolean', description: 'Is song liked' },
               score: { type: 'number', minimum: 0.0, description: 'The score' },
             },
           },

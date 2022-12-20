@@ -80,6 +80,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const limit = req.query.limit;
       const lastId = req.query.lastId ?? MAX_BIGINT;
       const fromSender = req.query.from;
+      const likedOnly = req.query.likedOnly;
 
       try {
         const messagesQuery = fastify.readDb('messages');
@@ -115,17 +116,26 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const users = await fastify.readDb('users').select().whereIn('id', userIds);
 
-        const data = messages.map(message => {
+        let data = [];
+
+        messages.forEach(message => {
           const rating = ratings.find(rating => rating.message_id === message.id);
           const isMessageRated = rating !== undefined;
 
-          return {
-            ...message,
-            track: tracks.find(track => track.track_id === message.track_id),
-            rating,
-            is_rated: isMessageRated,
-            sender: users.find(user => user.id === message.sender_id),
-          };
+          if (likedOnly && (!isMessageRated || !rating.like)) {
+            return;
+          }
+
+          data = [
+            ...data,
+            {
+              ...message,
+              track: tracks.find(track => track.track_id === message.track_id),
+              rating,
+              is_rated: isMessageRated,
+              sender: users.find(user => user.id === message.sender_id),
+            },
+          ];
         });
 
         res.status(200).send(data);
