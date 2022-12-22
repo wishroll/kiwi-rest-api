@@ -118,7 +118,7 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const users = await fastify.readDb('users').select().whereIn('id', userIds);
 
-        const data = messages.forEach(message => {
+        const data = messages.map(message => {
           const rating = ratings.find(rating => rating.message_id === message.id);
           const isMessageRated = rating !== undefined;
 
