@@ -12,6 +12,8 @@ import {
   ReceivedMessagesQuery,
   receivedNewMessagesIndex,
   sentTracksIndex as sentTracksIndexV2,
+  RatedMessagesQuery,
+  ratedMessagesSchema,
 } from './schema/v2';
 
 module.exports = async (fastify: WishrollFastifyInstance) => {
@@ -80,12 +82,11 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
       const limit = req.query.limit;
       const lastId = req.query.lastId ?? MAX_BIGINT;
       const fromSender = req.query.from;
-      const liked = req.query.liked;
 
       try {
-        const messagesQuery = fastify.readDb('messages');
-
-        messagesQuery.where('messages.recipient_id', currentUserId);
+        const messagesQuery = fastify
+          .readDb('messages')
+          .where('messages.recipient_id', currentUserId);
 
         if (fromSender) {
           messagesQuery.andWhere('messages.sender_id', fromSender);
@@ -117,26 +118,17 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
         const ratings = await fastify.readDb('ratings').select().whereIn('message_id', messageIds);
         const users = await fastify.readDb('users').select().whereIn('id', userIds);
 
-        let data = [];
-
-        messages.forEach(message => {
+        const data = messages.forEach(message => {
           const rating = ratings.find(rating => rating.message_id === message.id);
           const isMessageRated = rating !== undefined;
 
-          if (typeof liked === 'boolean' && (!isMessageRated || rating.like !== liked)) {
-            return;
-          }
-
-          data = [
-            ...data,
-            {
-              ...message,
-              track: tracks.find(track => track.track_id === message.track_id),
-              rating,
-              is_rated: isMessageRated,
-              sender: users.find(user => user.id === message.sender_id),
-            },
-          ];
+          return {
+            ...message,
+            track: tracks.find(track => track.track_id === message.track_id),
+            rating,
+            is_rated: isMessageRated,
+            sender: users.find(user => user.id === message.sender_id),
+          };
         });
 
         res.status(200).send(data);
@@ -210,6 +202,80 @@ module.exports = async (fastify: WishrollFastifyInstance) => {
             ...message,
             track: tracks.find(track => track.track_id === message.track_id),
             sender: users.find(user => user.id === message.sender_id),
+          };
+        });
+
+        res.status(200).send(data);
+      } catch (error) {
+        logger(req).error(error, 'An error occured during fetching messages without score');
+        res.status(500).send({ error: true, message: error });
+      }
+    },
+  );
+
+  fastify.get<{ Querystring: RatedMessagesQuery }>(
+    '/v2/me/messages/rated',
+    { onRequest: [fastify.authenticate], schema: ratedMessagesSchema },
+    async (req, res) => {
+      // @ts-ignore
+      const currentUserId = req.user.id;
+
+      const limit = req.query.limit;
+      const lastId = req.query.lastId ?? MAX_BIGINT;
+      const liked = req.query.liked;
+
+      try {
+        const messages = await fastify
+          .readDb('messages')
+          .select([
+            'messages.id as id',
+            'messages.uuid as uuid',
+            'messages.created_at as created_at',
+            'messages.updated_at as updated_at',
+            'messages.text as text',
+            'messages.last_sender_id as last_sender_id',
+            'messages.sender_id as sender_id',
+            'messages.seen as seen',
+            'messages.track_id as track_id',
+            'messages.recipient_id as recipient_id',
+            'ratings.id as ratings_id',
+            'ratings.like as like',
+            'ratings.score as score',
+          ])
+          .whereNotNull('ratings.id')
+          .andWhere('ratings.like', liked)
+          .andWhere('messages.recipient_id', currentUserId)
+          .andWhere('messages.id', '<', lastId)
+          .orderBy('messages.id', 'desc')
+          .innerJoin('ratings', 'ratings.message_id', '=', 'messages.id')
+          .limit(limit);
+
+        if (messages.length < 1) {
+          return res.status(200).send([]);
+        }
+        const formatedPayload = messages.reduce(
+          (prev, curr) => {
+            return {
+              trackIds: [...prev.trackIds, curr.track_id],
+              userIds: [...prev.userIds, curr.sender_id],
+            };
+          },
+          { trackIds: [], userIds: [] },
+        );
+
+        const [tracks, users] = await Promise.all([
+          fastify.readDb('tracks').select().whereIn('track_id', formatedPayload.trackIds),
+          fastify.readDb('users').select().whereIn('id', formatedPayload.userIds),
+        ]);
+
+        const data = messages.map(message => {
+          return {
+            ...message,
+            track: tracks.find(track => track.track_id === message.track_id),
+            sender: users.find(user => user.id === message.sender_id),
+            rating: {
+              ...message,
+            },
           };
         });
 
