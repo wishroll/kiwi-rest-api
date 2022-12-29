@@ -1,0 +1,119 @@
+import { FromSchema } from 'json-schema-to-ts';
+import { STREAMING_PLATFORMS } from '../../../../utils/const';
+
+const createBody = {
+  type: 'object',
+  properties: {
+    track: {
+      type: 'object',
+      properties: {
+        track_id: { type: 'string' },
+        platform: { type: 'string', enum: STREAMING_PLATFORMS },
+        uri: { type: 'string' },
+        external_url: { type: 'string' },
+        href: { type: 'string' },
+        name: { type: 'string' },
+        duration: { type: 'integer' },
+        track_number: { type: 'integer' },
+        release_date: { type: 'string' },
+        isrc: { type: 'string' },
+        artists: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              uri: { type: 'string' },
+              href: { type: 'string' },
+            },
+          },
+          required: ['id', 'name', 'href'],
+        },
+        explicit: { type: ['boolean'] },
+        artwork: {
+          type: 'object',
+          properties: {
+            width: { type: 'integer' },
+            height: { type: 'integer' },
+            url: { type: 'string' },
+          },
+          required: ['url'],
+        },
+        preview_url: { type: 'string' },
+      },
+      required: [
+        'track_id',
+        'name',
+        'artists',
+        'artwork',
+        'href',
+        'external_url',
+        'duration',
+        'track_number',
+        'isrc',
+        'platform',
+      ],
+    },
+    recipient_ids: {
+      type: 'array',
+      items: {
+        type: 'integer',
+      },
+    },
+    text: { type: 'string' },
+    send_to_all: {
+      type: 'boolean',
+      description: 'If set to true, recipient_ids will be ignored',
+    },
+  },
+  required: ['track', 'recipient_ids'],
+} as const;
+
+const createSchema = {
+  description: 'Create a new message',
+  tags: ['Messages'],
+  summary: 'Create a new message',
+  headers: {
+    type: 'object',
+    properties: {
+      Authorization: { type: 'string', description: 'The token used for authentication' },
+    },
+    required: ['Authorization'],
+  },
+  body: createBody,
+  response: {
+    201: {
+      description: 'The request was successful.',
+      type: 'null',
+    },
+    400: {
+      description: 'Client error',
+      type: 'object',
+      properties: {
+        error: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+    409: {
+      description: 'Client Error',
+      type: 'object',
+      properties: {
+        error: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+    500: {
+      description: 'Internal Server Error',
+      summary: 'A response indicating an error occurred on the server.',
+      type: 'object',
+      properties: {
+        error: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+  },
+};
+
+export default createSchema;
+export type CreateBody = FromSchema<typeof createBody>;

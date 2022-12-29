@@ -9,7 +9,7 @@ const updateMessageSenderRating = async (
   try {
     logger(null).debug({ score, messageId }, 'This is the score and message id');
 
-    const result = await readDB('table').select('sender_id').where({ id: score }).first();
+    const result = await readDB('messages').select('sender_id').where({ id: score }).first();
 
     if (result) {
       updateUserRating(result.sender_id, messageId);
