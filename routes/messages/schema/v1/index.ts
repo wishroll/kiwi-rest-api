@@ -1,18 +1,20 @@
 import { FromSchema } from 'json-schema-to-ts';
 import { STREAMING_PLATFORMS } from '../../../../utils/const';
 
+const receivedMessagesQuery = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', minimum: 1 },
+    offset: { type: 'integer' },
+  },
+  required: ['limit', 'offset'],
+} as const;
+
 const receivedMessagesIndex = {
   description: 'Return a list of song messages that have been sent to the current user',
   tags: ['Messages'],
   summary: "Returns an array of a user's receieved song messages",
-  query: {
-    type: 'object',
-    properties: {
-      limit: { type: 'integer', minimum: 1 },
-      offset: { type: 'integer' },
-    },
-    required: ['limit', 'offset'],
-  },
+  query: receivedMessagesQuery,
   headers: {
     type: 'object',
     properties: {
@@ -351,6 +353,7 @@ const sentMessagesIndex = {
   },
 };
 
+export type ReceivedMessagesQuery = FromSchema<typeof receivedMessagesQuery>;
 export type MessagesIndexQuery = FromSchema<typeof sentMessagesQuery>;
 export type SentTracksQuery = FromSchema<typeof sentTracksQuery>;
 export type SentTracksParams = FromSchema<typeof sentTracksParams>;

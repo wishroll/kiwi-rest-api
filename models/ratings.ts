@@ -4,8 +4,8 @@ export const ratingSchema = zod.object({
   id: zod.coerce.bigint(),
   uuid: zod.string().uuid(),
   score: zod.coerce.number(),
-  user_id: zod.coerce.number(),
-  message_id: zod.coerce.number(),
+  user_id: zod.coerce.bigint(),
+  message_id: zod.coerce.bigint(),
   like: zod.coerce.boolean().optional().nullable(),
 });
 

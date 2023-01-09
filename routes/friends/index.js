@@ -20,9 +20,6 @@ module.exports = async (fastify, _options) => {
   const { getAllUserFriendIds } = require('../../utils/friends');
 
   fastify.get('/friends/requests', { onRequest: [fastify.authenticate] }, async (req, res) => {
-    // const limit = req.query.limit;
-    // const offset = req.query.offset;
-
     const currentUserId = req.user.id;
     try {
       const currentUserPhoneNumber = await fastify
