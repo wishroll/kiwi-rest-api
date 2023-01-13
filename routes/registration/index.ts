@@ -1,19 +1,16 @@
-const { default: logger } = require('../../logger');
+import { WishrollFastifyInstance } from '..';
+import logger from '../../logger';
+import { createUserNode } from '../../services/api/neo4j/users/index';
 
-module.exports = async (fastify, _options) => {
-  const signupVerifiedCacheKey = phoneNumber => {
-    return `signup-verified-phone-number ${phoneNumber}`;
-  };
-  const { createUserNode } = require('../../services/api/neo4j/users/index');
+const signupVerifiedCacheKey = (phoneNumber: string) => {
+  return `signup-verified-phone-number ${phoneNumber}`;
+};
 
-  /**
-   *
-   *
-   */
+export default async (fastify: WishrollFastifyInstance) => {
   fastify.post('/signup/validate', async (req, res) => {
+    // TODO: write schema
+    // @ts-ignore
     const phoneNumber = req.body.phone_number;
-    // const countryCode = req.body.country_code
-    // phoneNumber = phone(phoneNumber).phoneNumber
     if (!phoneNumber) {
       return res.status(400).send();
     }
@@ -33,20 +30,28 @@ module.exports = async (fastify, _options) => {
         res.status(200).send();
       }
     } catch (error) {
-      res.status(500).send({ message: `An error occured: ${error.message}` });
+      let message = 'unknown error';
+      if (error instanceof Error) {
+        message = error.message;
+        logger(req).error(error, 'An error occured during validating phone number');
+      }
+
+      res.status(500).send({ message: 'An error occured: ' + message });
     }
   });
 
   fastify.post('/signup/send-token', async (req, res) => {
+    // TODO: write schema
+    // @ts-ignore
     const phoneNumber = req.body.phone_number;
-    // const countryCode = req.body.country_code
-    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
 
     if (!phoneNumber) {
       return res.status(400).send();
     }
 
     try {
+      // TODO: Verify if we still are using twilio
+      // @ts-ignore
       const verification = await fastify.twilioClient.sendToken(phoneNumber);
       res.status(201).send({
         success: true,
@@ -58,10 +63,9 @@ module.exports = async (fastify, _options) => {
   });
 
   fastify.post('/signup/verify', async (req, res) => {
-    const phoneNumber = req.body.phone_number;
-    const token = req.body.token;
-    // const countryCode = req.body.country_code
-    // phoneNumber = phone(phoneNumber, { country: countryCode }).phoneNumber
+    // TODO: write schema
+    // @ts-ignore
+    const { phone_number: phoneNumber, token } = req.body;
 
     if (phoneNumber === '+16462471839' && token === '000000') {
       const cacheKey = signupVerifiedCacheKey(phoneNumber);
@@ -78,6 +82,8 @@ module.exports = async (fastify, _options) => {
     }
 
     try {
+      // TODO: Verify if we still are using twilio
+      // @ts-ignore
       const verificationCheck = await fastify.twilioClient.verify(phoneNumber, token);
       if (verificationCheck.status === 'approved') {
         const cacheKey = signupVerifiedCacheKey(phoneNumber);
@@ -92,6 +98,8 @@ module.exports = async (fastify, _options) => {
   });
 
   fastify.post('/signup', async (req, res) => {
+    // TODO: write schema
+    // @ts-ignore
     const phoneNumber = req.body.phone_number;
     if (!phoneNumber) {
       return res.status(400).send();
