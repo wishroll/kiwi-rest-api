@@ -32,8 +32,7 @@ module.exports = async (fastify, _options) => {
     if (agent.os.family.toLowerCase() === 'ios') {
       redirectUrl = 'https://apps.apple.com/us/app/kiwi-live-music-recs-widget/id1614352817';
     } else if (agent.os.family.toLowerCase() === 'android') {
-      // TODO: Update with actual google play store redirect
-      redirectUrl = 'https://google.com';
+      redirectUrl = 'https://play.google.com/store/apps/details?id=co.wishroll';
     } else {
       logger(req).error(
         { agent, family: agent.os.family.toLowerCase() },
