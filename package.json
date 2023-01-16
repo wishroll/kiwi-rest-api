@@ -61,6 +61,7 @@
     "@types/multer-s3": "^3.0.0",
     "@types/node": "^18.7.15",
     "@types/node-fetch": "^2.6.2",
+    "@types/useragent": "^2.3.1",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
