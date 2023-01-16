@@ -124,25 +124,29 @@ export const receivedMessagesIndex = {
   },
 };
 
+export const sentTracksIndexQuery = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', minimum: 1 },
+    lastId: { type: 'integer', description: 'Id of last message in previous iteration' },
+  },
+  required: ['limit'],
+} as const;
+
+export const sentTracksIndexParams = {
+  type: 'object',
+  properties: {
+    id: { type: 'integer', description: 'The id of the user' },
+  },
+  required: ['id'],
+} as const;
+
 export const sentTracksIndex = {
   description: 'Return a list of song messages that have been sent by a user',
   tags: ['Messages'],
   summary: "Returns an array of a user's sent song messages",
-  query: {
-    type: 'object',
-    properties: {
-      limit: { type: 'integer', minimum: 1 },
-      lastId: { type: 'integer', description: 'Id of last message in previous iteration' },
-    },
-    required: ['limit'],
-  },
-  params: {
-    type: 'object',
-    properties: {
-      id: { type: 'integer', description: 'The id of the user' },
-    },
-    required: ['id'],
-  },
+  query: sentTracksIndexQuery,
+  params: sentTracksIndexParams,
   headers: {
     type: 'object',
     properties: {
@@ -469,3 +473,6 @@ export const ratedMessagesSchema = {
 export type NewSongsQuery = FromSchema<typeof receivedNewMessagesQuery>;
 export type ReceivedMessagesQuery = FromSchema<typeof receivedMessagesQuery>;
 export type RatedMessagesQuery = FromSchema<typeof ratedMessagesQuery>;
+
+export type SentTracksParams = FromSchema<typeof sentTracksIndexParams>;
+export type SentTracksQuery = FromSchema<typeof sentTracksIndexQuery>;

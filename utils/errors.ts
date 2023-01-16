@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { ZodError } from 'zod';
 import logger from '../logger';
 export class BusinessLogicError extends Error {
   public readonly statusCode: number;
@@ -37,6 +38,11 @@ export const withErrorHandler =
       if (error instanceof ForbiddenError) {
         logger(request).error(error, 'Forbidden Error');
         return reply.status(403).send({ ...error, message: error.message });
+      }
+
+      if (error instanceof ZodError) {
+        logger(request).error(error, 'Validation Error');
+        return reply.status(500).send({ ...error, message: 'Backend validation error' });
       }
 
       const errorMessage = {
