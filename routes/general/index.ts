@@ -36,12 +36,10 @@ export default async (fastify: WishrollFastifyInstance) => {
     } else if (agent.os.family.toLowerCase() === 'android') {
       redirectUrl = 'https://play.google.com/store/apps/details?id=co.wishroll';
     } else {
-      const err = new Error('Could not recognize device family');
       logger(req).info(
         { agent, family: agent.os.family.toLowerCase() },
         'Could not recognize device family',
       );
-      throw err;
     }
 
     return res.redirect(redirectUrl);
