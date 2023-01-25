@@ -8,9 +8,6 @@ const settings = {
     },
     production: process.env.NODE_ENV === 'production',
   },
-  gcm: {
-    id: process.env.GCM_ID,
-  },
 };
 
 const push = new PushNotifications(settings);

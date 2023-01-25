@@ -5,27 +5,28 @@ import {
   sendPushNotificationOnReceivedFriendRequest,
   sendNotificationOnCreatedRating,
 } from '../../services/notifications/notifications';
+import { MessagesBody } from './schema';
 
 export default async (fastify: WishrollFastifyInstance) => {
-  fastify.post(
-    '/v1/notifications/messages/test',
-    { onRequest: [fastify.authenticate] },
-    async (req, res) => {
-      const currentUserId = '481123';
-      const recipientId = '481123';
-      const messageId = '51';
+  fastify.post<{
+    Body: MessagesBody;
+  }>('/v1/notifications/messages/test', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const { recipient_id, sender_id, message_id } = req.body;
 
-      try {
-        await sendNotificationOnReceivedSong(messageId, currentUserId, recipientId);
-        res.status(204);
-      } catch (e) {
-        if (e instanceof Error) {
-          logger(req).error(e);
-        }
-        res.status(500).send({ error: true, message: 'not working' });
+    try {
+      await sendNotificationOnReceivedSong(
+        message_id ?? '51',
+        sender_id ?? '481123',
+        recipient_id ?? '481123',
+      );
+      res.status(204);
+    } catch (e) {
+      if (e instanceof Error) {
+        logger(req).error(e);
       }
-    },
-  );
+      res.status(500).send({ error: true, message: 'not working' });
+    }
+  });
 
   fastify.post('/v2/friends/test', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const currentUserId = '481123';
