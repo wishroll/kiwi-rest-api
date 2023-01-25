@@ -72,6 +72,8 @@ module.exports = async (fastify, _options) => {
           'username',
           'bio',
           'location',
+          'display_name_updated_at',
+          'username_updated_at',
         ])
         .where({ id: userId })
         .first();
@@ -89,23 +91,28 @@ module.exports = async (fastify, _options) => {
   /**
    * Checks the availability of a username
    */
-  fastify.get('/users/username', { onRequest: [fastify.authenticate] }, async (req, res) => {
-    const username = req.query.username;
-    try {
-      const existingUsername = await fastify
-        .readDb('users')
-        .select(['username'])
-        .where({ username });
+  const checkUsername = require('./schema/v1/checkUsername');
+  fastify.get(
+    '/users/username',
+    { onRequest: [fastify.authenticate], schema: checkUsername },
+    async (req, res) => {
+      const username = req.query.username;
+      try {
+        const existingUsername = await fastify
+          .readDb('users')
+          .select(['username'])
+          .where({ username });
 
-      if (existingUsername.length > 0) {
-        res.status(400).send({ error: true, message: 'Username already taken' });
-      } else {
-        res.status(200).send();
+        if (existingUsername.length > 0) {
+          res.status(400).send({ error: true, message: 'Username already taken' });
+        } else {
+          res.status(200).send('available');
+        }
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
       }
-    } catch (error) {
-      res.status(500).send({ error: true, message: error });
-    }
-  });
+    },
+  );
 
   fastify.get('/users/:id/tracks/sent', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit;
@@ -320,6 +327,10 @@ module.exports = async (fastify, _options) => {
             'avatar_url',
             'username',
             'share_link',
+            'bio',
+            'location',
+            'display_name_updated_at',
+            'username_updated_at',
           ])
           .where({ id: userId })
           .first();
