@@ -26,6 +26,7 @@
     "@fastify/swagger": "^6.1.0",
     "aws-sdk": "^2.1099.0",
     "config": "^3.3.7",
+    "dayjs": "^1.11.7",
     "fastify": "^3.27.1",
     "fastify-formbody": "^5.3.0",
     "fastify-jwt": "^4.1.3",
