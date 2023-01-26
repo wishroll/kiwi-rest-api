@@ -33,7 +33,6 @@ export default async (fastify: WishrollFastifyInstance, _options: any, _done: an
   fastify.register(require('./users'));
   fastify.register(require('./registration'));
   fastify.register(require('./sessions'));
-  fastify.register(require('./conversations/index'));
   fastify.register(require('./media'));
   fastify.register(require('../services/api/spotify/spotify_authorization_controller'));
   fastify.register(require('../services/api/spotify/spotify_controller'));
