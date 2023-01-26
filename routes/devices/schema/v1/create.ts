@@ -1,4 +1,15 @@
-module.exports = {
+import { FromSchema } from 'json-schema-to-ts';
+
+const createBody = {
+  type: 'object',
+  properties: {
+    os: { type: 'string', description: 'The os of the device' },
+    token: { type: 'string', description: 'The registration token of the device' },
+  },
+  required: ['os', 'token'],
+} as const;
+
+export const create = {
   description: 'Create a new device',
   tags: ['Devices'],
   summary: 'Create a new device',
@@ -9,14 +20,7 @@ module.exports = {
     },
     required: ['Authorization'],
   },
-  body: {
-    type: 'object',
-    properties: {
-      os: { type: 'string', description: 'The os of the device' },
-      token: { type: 'string', description: 'The registration token of the device' },
-    },
-    required: ['os', 'token'],
-  },
+  body: createBody,
   response: {
     201: {
       description: 'The request was successful.',
@@ -59,3 +63,5 @@ module.exports = {
     },
   },
 };
+
+export type CreateBody = FromSchema<typeof createBody>;

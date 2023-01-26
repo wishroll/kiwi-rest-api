@@ -1,11 +1,12 @@
-const { default: logger } = require('../../logger');
+import { WishrollFastifyInstance } from '..';
+import logger from '../../logger';
+import {
+  sendNotificationOnReceivedSong,
+  sendPushNotificationOnReceivedFriendRequest,
+  sendNotificationOnCreatedRating,
+} from '../../services/notifications/notifications';
 
-module.exports = async (fastify, _options) => {
-  const {
-    sendNotificationOnReceivedSong,
-    sendPushNotificationOnReceivedFriendRequest,
-    sendNotificationOnCreatedRating,
-  } = require('../../services/notifications/notifications');
+export default async (fastify: WishrollFastifyInstance) => {
   fastify.post(
     '/v1/notifications/messages/test',
     { onRequest: [fastify.authenticate] },
@@ -18,7 +19,9 @@ module.exports = async (fastify, _options) => {
         await sendNotificationOnReceivedSong(messageId, currentUserId, recipientId);
         res.status(204);
       } catch (e) {
-        logger(req).error(e);
+        if (e instanceof Error) {
+          logger(req).error(e);
+        }
         res.status(500).send({ error: true, message: 'not working' });
       }
     },
@@ -32,7 +35,9 @@ module.exports = async (fastify, _options) => {
       await sendPushNotificationOnReceivedFriendRequest(requestedUserId, currentUserId);
       res.status(204);
     } catch (e) {
-      logger(req).error(e);
+      if (e instanceof Error) {
+        logger(req).error(e);
+      }
       res.status(500).send({ error: true, message: 'not working' });
     }
   });
@@ -41,13 +46,15 @@ module.exports = async (fastify, _options) => {
     '/messages/ratings/test',
     { onRequest: [fastify.authenticate] },
     async (req, res) => {
-      const messageId = '51';
+      const messageId = 51;
 
       try {
         await sendNotificationOnCreatedRating(messageId);
         res.status(204);
       } catch (e) {
-        logger(req).error(e);
+        if (e instanceof Error) {
+          logger(req).error(e);
+        }
         res.status(500).send({ error: true, message: 'not working' });
       }
     },

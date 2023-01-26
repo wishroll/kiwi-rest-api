@@ -1,6 +1,7 @@
-const { default: logger } = require('../../logger');
+import { WishrollFastifyInstance } from '../index';
+import logger from '../../logger';
 
-module.exports = async (fastify, _options) => {
+export default async (fastify: WishrollFastifyInstance) => {
   const index = require('./schema/v1/index');
   const show = require('./schema/v1/show');
   const jsf = require('json-schema-faker');

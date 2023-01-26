@@ -1,11 +1,12 @@
-const knex = require('knex');
-const { default: logger } = require('../../../logger');
-// env
-// config file
-// config knex
-// create knex variables
+import knex, { Knex } from 'knex';
+import logger from '../../../logger';
+import { getArraySample } from '../../../utils/array';
 
-function generateProductionConfig(databaseUrl, client, maxConnections = 400, minConnections = 100) {
+const generateProductionConfig = (
+  databaseUrl: string,
+  maxConnections = 400,
+  minConnections = 100,
+): Knex.Config => {
   return {
     client: 'postgresql',
     connection: {
@@ -22,28 +23,27 @@ function generateProductionConfig(databaseUrl, client, maxConnections = 400, min
     seeds: { directory: './services/db/postgres/seeds' },
     useNullAsDefault: true,
   };
-}
+};
 
-function generateDevelopmentConfig(
+const generateDevelopmentConfig = (
   username = 'greatokonkwo',
   password = 'greatokonkwo',
   host = '127.0.0.1',
   database = 'mutual-api-server-development',
   _minConnections = 10,
   _maxConnections = 10,
-) {
+): Knex.Config => {
   return {
     client: 'postgresql',
     connection: {
       host: process.env.DEV_DB_HOST || host,
-      username: process.env.DEV_DB_USERNAME || username,
       user: process.env.DEV_DB_USERNAME || username,
       password: process.env.DEV_DB_PASSWORD || password,
       database: process.env.DEV_DB || database,
     },
     pool: {
-      min: process.env.MIN_CONNECTIONS || 10,
-      max: process.env.MAX_CONNECTIONS || 100,
+      min: Number(process.env.MIN_CONNECTIONS || 10),
+      max: Number(process.env.MAX_CONNECTIONS || 100),
     },
     migrations: {
       directory: './services/db/postgres/migrations',
@@ -52,15 +52,10 @@ function generateDevelopmentConfig(
     debug: true,
     useNullAsDefault: true,
   };
-}
+};
 
 const MAX_CONNECTION_POOL_CONNECTIONS = 10000;
 const MAX_CONNECTIONS = 500;
-
-// eslint-disable-next-line no-extend-native
-Array.prototype.sample = function () {
-  return this[Math.floor(Math.random() * this.length)];
-};
 
 const productionDatabaseUrls = [
   process.env.HEROKU_POSTGRESQL_PURPLE_URL,
@@ -81,37 +76,52 @@ const stagingDatabaseUrls = [
  * @param {string} databaseUrl
  * @returns
  */
-function generateAndConfigKnexDB(maxConnections, minConnections, databaseUrl) {
+const generateAndConfigKnexDB = (
+  maxConnections: number,
+  minConnections: number,
+  databaseUrl: string | undefined,
+) => {
   switch (process.env.NODE_ENV) {
     case 'production':
+      if (!databaseUrl) {
+        const err = new Error('Missing DB URL configuration');
+        logger(null).error(err, 'Issue within knex configuration');
+        throw err;
+      }
       return knex(generateProductionConfig(databaseUrl, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
     default:
-      return null;
+      const err = new Error('Something went wrong. Could not create knex instance');
+      logger(null).error(err, 'Error with knex instance');
+      throw err;
   }
-}
-/**
- *
- * @param {number} maxConnections
- * @param {number} minConnections
- * @param {string[]} databaseUrls
- * @override
- * @returns
- */
-function generateAndConfigKnexDBMultipleUrls(maxConnections, minConnections, databaseUrls) {
+};
+
+const generateAndConfigKnexDBMultipleUrls = (
+  maxConnections: number,
+  minConnections: number,
+  databaseUrls: Array<string | undefined>,
+) => {
   switch (process.env.NODE_ENV) {
     case 'production':
-      // eslint-disable-next-line no-case-declarations
-      const url = databaseUrls.sample();
+      const url = getArraySample(databaseUrls);
+      if (!url) {
+        const err = new Error('Missing DB URL configuration');
+        logger(null).error(err, 'Issue within knex configuration');
+        throw err;
+      }
+
       logger(null).debug({ url }, 'This is the chosen url');
       return knex(generateProductionConfig(url, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
     default:
-      return null;
+      const err = new Error('Something went wrong. Could not create knex instance');
+      logger(null).error(err, 'Error with knex instance');
+      throw err;
   }
-}
+};
 
 const readDB = generateAndConfigKnexDBMultipleUrls(
   MAX_CONNECTIONS,
@@ -123,4 +133,5 @@ const writeDB = generateAndConfigKnexDB(
   MAX_CONNECTION_POOL_CONNECTIONS,
   process.env.DATABASE_CONNECTION_POOL_URL || process.env.DATABASE_URL,
 );
-module.exports = { readDB, writeDB };
+
+export { readDB, writeDB };

@@ -1,4 +1,4 @@
-function getHexCodeForScore(score) {
+const getHexCodeForScore = (score: number): string => {
   switch (true) {
     case score < 0.45:
       return '#EA1D3B';
@@ -7,7 +7,8 @@ function getHexCodeForScore(score) {
     case score < 100:
       return '#EAD51D';
     default:
-      break;
+      return '#000000';
   }
-}
-module.exports = { getHexCodeForScore };
+};
+
+export { getHexCodeForScore };

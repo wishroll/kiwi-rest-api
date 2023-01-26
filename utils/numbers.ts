@@ -6,3 +6,11 @@ export const MAX_32INT_NEO4J = 2147483647;
 
 // Max score for match result of neo4j
 export const MAX_SEARCH_MATCH_SCORE = '100';
+
+export const safeBigIntToNumber = (x: bigint): number => {
+  if (x >= Number.MIN_SAFE_INTEGER && x <= Number.MAX_SAFE_INTEGER) {
+    return Number(x);
+  } else {
+    throw new Error(`${x} exceeded the safe integer range`);
+  }
+};

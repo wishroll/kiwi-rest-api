@@ -1,17 +1,20 @@
-const { STREAMING_PLATFORMS } = require('../../../../utils/const');
+import { FromSchema } from 'json-schema-to-ts';
+import { STREAMING_PLATFORMS } from '../../../../utils/const';
+
+const receivedMessagesQuery = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', minimum: 1 },
+    offset: { type: 'integer' },
+  },
+  required: ['limit', 'offset'],
+} as const;
 
 const receivedMessagesIndex = {
   description: 'Return a list of song messages that have been sent to the current user',
   tags: ['Messages'],
   summary: "Returns an array of a user's receieved song messages",
-  query: {
-    type: 'object',
-    properties: {
-      limit: { type: 'integer', minimum: 1 },
-      offset: { type: 'integer' },
-    },
-    required: ['limit', 'offset'],
-  },
+  query: receivedMessagesQuery,
   headers: {
     type: 'object',
     properties: {
@@ -116,25 +119,29 @@ const receivedMessagesIndex = {
   },
 };
 
+const sentTracksQuery = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', minimum: 1 },
+    offset: { type: 'integer' },
+  },
+  required: ['limit', 'offset'],
+} as const;
+
+const sentTracksParams = {
+  type: 'object',
+  properties: {
+    id: { type: 'integer', description: 'The id of the user' },
+  },
+  required: ['id'],
+} as const;
+
 const sentTracksIndex = {
   description: 'Return a list of song messages that have been sent by a user',
   tags: ['Messages'],
   summary: "Returns an array of a user's sent song messages",
-  query: {
-    type: 'object',
-    properties: {
-      limit: { type: 'integer', minimum: 1 },
-      offset: { type: 'integer' },
-    },
-    required: ['limit', 'offset'],
-  },
-  params: {
-    type: 'object',
-    properties: {
-      id: { type: 'integer', description: 'The id of the user' },
-    },
-    required: ['id'],
-  },
+  query: sentTracksQuery,
+  params: sentTracksParams,
   headers: {
     type: 'object',
     properties: {
@@ -212,18 +219,20 @@ const sentTracksIndex = {
   },
 };
 
+const sentMessagesQuery = {
+  type: 'object',
+  properties: {
+    limit: { type: 'integer', minimum: 1 },
+    offset: { type: 'integer' },
+  },
+  required: ['limit', 'offset'],
+} as const;
+
 const sentMessagesIndex = {
   description: 'Return a list of song messages that the current user has sent',
   tags: ['Messages'],
   summary: "Returns an array of a user's sent song messages",
-  query: {
-    type: 'object',
-    properties: {
-      limit: { type: 'integer', minimum: 1 },
-      offset: { type: 'integer' },
-    },
-    required: ['limit', 'offset'],
-  },
+  query: sentMessagesQuery,
   headers: {
     type: 'object',
     properties: {
@@ -344,8 +353,9 @@ const sentMessagesIndex = {
   },
 };
 
-module.exports = {
-  receivedMessagesIndex,
-  sentMessagesIndex,
-  sentTracksIndex,
-};
+export type ReceivedMessagesQuery = FromSchema<typeof receivedMessagesQuery>;
+export type MessagesIndexQuery = FromSchema<typeof sentMessagesQuery>;
+export type SentTracksQuery = FromSchema<typeof sentTracksQuery>;
+export type SentTracksParams = FromSchema<typeof sentTracksParams>;
+
+export { receivedMessagesIndex, sentMessagesIndex, sentTracksIndex };
