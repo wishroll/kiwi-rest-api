@@ -2,8 +2,8 @@ import * as zod from 'zod';
 export const chatMessageSchema = zod.object({
   id: zod.coerce.bigint(),
   uuid: zod.string().uuid(),
-  created_at: zod.date(),
-  updated_at: zod.date(),
+  created_at: zod.coerce.date(),
+  updated_at: zod.coerce.date(),
   text: zod.string().nullable().optional(),
   sender_id: zod.coerce.bigint(),
   chat_room_id: zod.coerce.bigint(),
