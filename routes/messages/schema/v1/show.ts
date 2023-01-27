@@ -1,16 +1,19 @@
-const { STREAMING_PLATFORMS } = require('../../../../utils/const');
+import { FromSchema } from 'json-schema-to-ts';
+import { STREAMING_PLATFORMS } from '../../../../utils/const';
+
+const showParams = {
+  type: 'object',
+  properties: {
+    id: { type: 'integer', description: 'The id of the message' },
+  },
+  required: ['id'],
+} as const;
 
 const show = {
   description: 'Return a message',
   tags: ['Messages'],
   summary: 'Return the properties of a message',
-  params: {
-    type: 'object',
-    properties: {
-      id: { type: 'integer', description: 'The id of the message' },
-    },
-    required: ['id'],
-  },
+  params: showParams,
   headers: {
     type: 'object',
     properties: {
@@ -120,4 +123,7 @@ const show = {
     },
   },
 };
-module.exports = { show };
+
+export type ShowParams = FromSchema<typeof showParams>;
+
+export { show };
