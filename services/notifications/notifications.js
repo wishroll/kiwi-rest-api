@@ -93,6 +93,7 @@ function separateTokens(devices) {
     },
     { android: [], ios: [] },
   );
+  logger(null).trace(tokens, 'separateTokens');
   return tokens;
 }
 /**
@@ -109,8 +110,10 @@ async function sendPushNotification(userIds, notificationData) {
       .join('users', 'devices.user_id', '=', 'users.id')
       .whereIn('users.id', userIds);
     if (devices.length < 1) {
+      const error = new Error('No devices');
+      logger(null).error(error, 'No devices at sendPushNotification');
       // Check that device tokens isn't empty
-      return new Error('No devices');
+      return error;
     }
 
     // Split tokens into ios and android
@@ -125,7 +128,7 @@ async function sendPushNotification(userIds, notificationData) {
           convertNotificationDataToAndroid(notificationData),
         );
 
-    logger(null).debug({
+    logger(null).trace({
       iosNotificationResult,
       androidNotificationResult,
       title: notificationData.title,
@@ -240,6 +243,10 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
   if (!senderUser || !recipientUser) {
+    logger(null).error(
+      { senderUser, recipientUser },
+      'User not found at sendNotificationOnReceivedSong',
+    );
     return new Error('User not found');
   }
   const notification = generateNotificationData();
