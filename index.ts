@@ -4,7 +4,8 @@ import swaggerConfiguration from './services/plugins/swagger';
 import compress from '@fastify/compress';
 import { v4 as uuidv4 } from 'uuid';
 import logger from './logger';
-import 'newrelic';
+
+require('newrelic');
 
 const envToLogger: Record<string, any> = {
   development: {
@@ -17,6 +18,9 @@ const envToLogger: Record<string, any> = {
       },
     },
   },
+  staging: {
+    level: 'trace',
+  },
   production: {
     level: 'info',
   },
@@ -24,7 +28,7 @@ const envToLogger: Record<string, any> = {
 
 const server: FastifyInstance = fastify({
   logger: {
-    ...envToLogger[process.env.NODE_ENV ?? 'development'],
+    ...envToLogger[process.env.API_ENV ?? 'production'],
     redact: ['headers.authorization'],
   },
   disableRequestLogging: true,

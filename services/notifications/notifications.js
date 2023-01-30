@@ -84,15 +84,16 @@ function convertNotificationDataToAndroid(notificationData) {
 function separateTokens(devices) {
   const tokens = devices.reduce(
     (acc, curr) => {
-      if (curr.token.includes('ios')) {
+      if (curr.os.includes('ios')) {
         acc.ios = [...acc.ios, curr.token];
-      } else if (curr.token.os.includes('android')) {
+      } else if (curr.os.includes('android')) {
         acc.android = [...acc.android, curr.token];
       }
       return acc;
     },
     { android: [], ios: [] },
   );
+  logger(null).trace(tokens, 'separateTokens');
   return tokens;
 }
 /**
@@ -105,12 +106,14 @@ function separateTokens(devices) {
 async function sendPushNotification(userIds, notificationData) {
   try {
     const devices = await readDB('devices')
-      .select('token')
+      .select('*')
       .join('users', 'devices.user_id', '=', 'users.id')
       .whereIn('users.id', userIds);
     if (devices.length < 1) {
+      const error = new Error('No devices');
+      logger(null).error(error, 'No devices at sendPushNotification');
       // Check that device tokens isn't empty
-      return new Error('No devices');
+      return error;
     }
 
     // Split tokens into ios and android
@@ -125,7 +128,7 @@ async function sendPushNotification(userIds, notificationData) {
           convertNotificationDataToAndroid(notificationData),
         );
 
-    logger(null).debug({
+    logger(null).trace({
       iosNotificationResult,
       androidNotificationResult,
       title: notificationData.title,
@@ -191,7 +194,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
 
 async function sendDailyNotificationBlast(title, body) {
   const devices = await readDB('devices')
-    .select('token')
+    .select('*')
     .join('users', 'devices.user_id', '=', 'users.id');
   if (devices.length < 1) {
     return new Error('No devices');
@@ -240,6 +243,10 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
   if (!senderUser || !recipientUser) {
+    logger(null).error(
+      { senderUser, recipientUser },
+      'User not found at sendNotificationOnReceivedSong',
+    );
     return new Error('User not found');
   }
   const notification = generateNotificationData();
