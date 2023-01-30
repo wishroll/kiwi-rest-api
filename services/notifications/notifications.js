@@ -84,9 +84,9 @@ function convertNotificationDataToAndroid(notificationData) {
 function separateTokens(devices) {
   const tokens = devices.reduce(
     (acc, curr) => {
-      if (curr.token.includes('ios')) {
+      if (curr.os.includes('ios')) {
         acc.ios = [...acc.ios, curr.token];
-      } else if (curr.token.os.includes('android')) {
+      } else if (curr.os.includes('android')) {
         acc.android = [...acc.android, curr.token];
       }
       return acc;
