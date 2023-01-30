@@ -106,7 +106,7 @@ function separateTokens(devices) {
 async function sendPushNotification(userIds, notificationData) {
   try {
     const devices = await readDB('devices')
-      .select('token')
+      .select('*')
       .join('users', 'devices.user_id', '=', 'users.id')
       .whereIn('users.id', userIds);
     if (devices.length < 1) {
