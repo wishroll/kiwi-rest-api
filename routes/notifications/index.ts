@@ -14,6 +14,7 @@ export default async (fastify: WishrollFastifyInstance) => {
     const { recipient_id, sender_id, message_id } = req.body;
 
     try {
+      logger(req).trace(req.body, 'send notification on received song (test endpoint)');
       await sendNotificationOnReceivedSong(
         message_id ?? '51',
         sender_id ?? '481123',
