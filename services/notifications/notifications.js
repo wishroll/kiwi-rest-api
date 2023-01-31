@@ -1,6 +1,7 @@
 const push = require('./notification_settings');
 const { readDB } = require('../db/postgres/knex_fastify_plugin');
-const { default: logger, logError } = require('../../logger');
+const { default: logger } = require('../../logger');
+const { default: androidNotification } = require('./android_notification_settings');
 function generateNotificationData() {
   const data = {
     title: '', // REQUIRED for Android
@@ -60,6 +61,41 @@ function generateNotificationData() {
   };
   return data;
 }
+
+function convertNotificationDataToAndroid(notificationData) {
+  const message = {};
+  if (notificationData.title) {
+    message.notification = {};
+    message.notification.title = notificationData.title;
+  }
+  if (notificationData.body) {
+    if (!message.notification) {
+      message.notification = {};
+    }
+    message.notification.body = notificationData.body;
+  }
+  if (notificationData.custom) {
+    message.data = {};
+    message.data = notificationData.custom;
+  }
+  return message;
+}
+
+function separateTokens(devices) {
+  const tokens = devices.reduce(
+    (acc, curr) => {
+      if (curr.os.includes('ios')) {
+        acc.ios = [...acc.ios, curr.token];
+      } else if (curr.os.includes('android')) {
+        acc.android = [...acc.android, curr.token];
+      }
+      return acc;
+    },
+    { android: [], ios: [] },
+  );
+  logger(null).trace(tokens, 'separateTokens');
+  return tokens;
+}
 /**
  * Use the push notification module to push notifications to a list of users
  * @async
@@ -70,23 +106,38 @@ function generateNotificationData() {
 async function sendPushNotification(userIds, notificationData) {
   try {
     const devices = await readDB('devices')
-      .select('token')
+      .select('*')
       .join('users', 'devices.user_id', '=', 'users.id')
       .whereIn('users.id', userIds);
     if (devices.length < 1) {
+      const error = new Error('No devices');
+      logger(null).error(error, 'No devices at sendPushNotification');
       // Check that device tokens isn't empty
-      return new Error('No devices');
+      return error;
     }
-    const tokens = devices.map(t => t.token);
-    const result = await push.send(tokens, notificationData);
-    logger(null).debug({
-      errorMsg: result[0].message[0].errorMsg,
+
+    // Split tokens into ios and android
+    const tokens = separateTokens(devices);
+
+    const iosNotificationResult = await push.send(tokens.ios, notificationData);
+
+    const androidNotificationResult = !tokens.android.length
+      ? { success: 0, failure: 0 }
+      : await androidNotification.sendToDevice(
+          tokens.android,
+          convertNotificationDataToAndroid(notificationData),
+        );
+
+    logger(null).trace({
+      iosNotificationResult,
+      androidNotificationResult,
       title: notificationData.title,
       body: notificationData.body,
     });
-    return result;
+
+    return { iosNotificationResult, androidNotificationResult };
   } catch (error) {
-    logError(error, 'An error occured when sending notification');
+    logger(null).error(error, 'An error occured when sending notification');
     return error;
   }
 }
@@ -143,7 +194,7 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
 
 async function sendDailyNotificationBlast(title, body) {
   const devices = await readDB('devices')
-    .select('token')
+    .select('*')
     .join('users', 'devices.user_id', '=', 'users.id');
   if (devices.length < 1) {
     return new Error('No devices');
@@ -154,10 +205,14 @@ async function sendDailyNotificationBlast(title, body) {
   notificationData.topic = 'org.reactjs.native.example.mutualsapp';
   notificationData.sound = 'activity_notification_sound.caf';
   notificationData.pushType = 'alert';
-  const tokens = devices.map(t => t.token);
+  const tokens = devices.map(t => ({ token: t.token, os: t.os }));
   const batchSize = 100;
-  const task = token => {
-    push.send(token, notificationData);
+  const task = ({ token, os }) => {
+    if (os === 'ios') {
+      push.send(token, notificationData);
+    } else {
+      androidNotification.sendToDevice(token, convertNotificationDataToAndroid(notificationData));
+    }
   };
   return promiseAllInBatches(task, tokens, batchSize);
 }
@@ -188,6 +243,10 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
   if (!senderUser || !recipientUser) {
+    logger(null).error(
+      { senderUser, recipientUser },
+      'User not found at sendNotificationOnReceivedSong',
+    );
     return new Error('User not found');
   }
   const notification = generateNotificationData();

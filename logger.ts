@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import pino from 'pino';
 import { serializeError } from 'serialize-error';
 
-const standaloneLogger = pino({ level: process.env.NODE_ENV === 'production' ? 'info' : 'trace' });
+const standaloneLogger = pino({ level: process.env.API_ENV === 'production' ? 'info' : 'trace' });
 
 type FastifyInstances = FastifyInstance | FastifyRequest | FastifyReply;
 
