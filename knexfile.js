@@ -1,19 +1,20 @@
-import type { Knex } from 'knex';
-
 // Update with your config settings.
-
-const config: { [key: string]: Knex.Config } = {
+/**
+ * @type { Object.<string, import("knex").Knex.Config> }
+ */
+module.exports = {
   development: {
     client: 'postgresql',
     connection: {
       host: process.env.DEV_DB_HOST || '127.0.0.1',
+      username: process.env.DEV_DB_USERNAME || 'greatokonkwo',
       user: process.env.DEV_DB_USERNAME || 'greatokonkwo',
       password: process.env.DEV_DB_PASSWORD || 'greatokonkwo',
       database: process.env.DEV_DB || 'mutual-api-server-development',
     },
     pool: {
-      min: Number(process.env.MIN_CONNECTIONS) || 10,
-      max: Number(process.env.MAX_CONNECTIONS) || 100,
+      min: process.env.MIN_CONNECTIONS || 10,
+      max: process.env.MAX_CONNECTIONS || 100,
     },
     migrations: {
       directory: './services/db/postgres/migrations',
@@ -46,8 +47,8 @@ const config: { [key: string]: Knex.Config } = {
       ssl: { rejectUnauthorized: false },
     },
     pool: {
-      min: Number(process.env.MIN_CONNECTIONS) || 100,
-      max: Number(process.env.MAX_CONNECTIONS) || 9000,
+      min: process.env.MIN_CONNECTIONS || 100,
+      max: process.env.MAX_CONNECTIONS || 9000,
     },
     migrations: {
       directory: './services/db/postgres/migrations',
@@ -56,5 +57,3 @@ const config: { [key: string]: Knex.Config } = {
     useNullAsDefault: true,
   },
 };
-
-module.exports = config;
