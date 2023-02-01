@@ -272,42 +272,47 @@ module.exports = async (fastify, _options) => {
     },
   );
 
-  fastify.delete('/v1/users/me', { onRequest: [fastify.authenticate] }, async (req, res) => {
-    const userId = req.user.id;
+  const deleteSchema = require('./schema/v1/delete');
+  fastify.delete(
+    '/v1/users/me',
+    { onRequest: [fastify.authenticate], schema: deleteSchema },
+    async (req, res) => {
+      const userId = req.user.id;
 
-    try {
-      const user = await fastify
-        .writeDb('users')
-        .where({ id: userId })
-        .update(
-          {
-            display_name: 'user deleted',
-            username: 'user deleted',
+      try {
+        const user = await fastify
+          .writeDb('users')
+          .where({ id: userId })
+          .update(
+            {
+              display_name: 'user deleted',
+              username: 'user deleted',
 
-            // set as uuid as phone_number field should be unique
-            phone_number: v4(),
+              // set as uuid as phone_number field should be unique
+              phone_number: v4(),
 
-            // todo: consider adding deleted-user avatar
-            avatar_url: null,
-            share_link: null,
+              // todo: consider adding deleted-user avatar
+              avatar_url: null,
+              share_link: null,
 
-            is_deleted: true,
-          },
-          '*',
-        )
-        .then(rows => rows[0]);
+              is_deleted: true,
+            },
+            '*',
+          )
+          .then(rows => rows[0]);
 
-      if (user.is_deleted) {
-        logger(req).trace(user, 'user has been safe-deleted');
-        return res.status(202).send({ message: 'user deleted' });
-      } else {
-        const err = new Error(`could not delete user with id: ${userId}`);
-        logger(req).error(err, 'user data has not been updated');
-        return res.status(500).send({ error: true, message: 'could not delete user' });
+        if (user.is_deleted) {
+          logger(req).trace(user, 'user has been safe-deleted');
+          return res.status(204).send({ error: false, message: 'user deleted' });
+        } else {
+          const err = new Error(`could not delete user with id: ${userId}`);
+          logger(req).error(err, 'user data has not been updated');
+          return res.status(500).send({ error: true, message: 'could not delete user' });
+        }
+      } catch (e) {
+        logger(req).error(e, 'An error ocurred during deleting user account');
+        return res.status(500).send({ error: true, message: 'something went wrong' });
       }
-    } catch (e) {
-      logger(req).error(e, 'An error ocurred during deleting user account');
-      return res.status(500).send({ error: e, message: 'something went wrong' });
-    }
-  });
+    },
+  );
 };
