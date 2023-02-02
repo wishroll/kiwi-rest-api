@@ -301,7 +301,7 @@ module.exports = async (fastify, _options) => {
           )
           .then(rows => rows[0]);
 
-        deleteUserNode(userId);
+        await deleteUserNode(userId);
 
         if (user.is_deleted) {
           logger(req).trace(user, 'user has been safe-deleted');
