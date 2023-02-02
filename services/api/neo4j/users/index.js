@@ -55,4 +55,27 @@ async function updateUserNode(userId, updates) {
   }
 }
 
-module.exports = { createUserNode, updateUserNode };
+async function deleteUserNode(userId) {
+  const session = driver.session({ database: 'neo4j' });
+  try {
+    const deleteRelationships = `
+      MATCH (user:User {id: $userId}) -[r]-()
+      DELETE r
+    `;
+
+    const deleteUser = `
+      MATCH (user:User {id: $userId})
+      DELETE user
+    `;
+
+    await session.writeTransaction(tx =>
+      tx.run(deleteRelationships, { userId }).then(() => tx.run(deleteUser, { userId })),
+    );
+  } catch (e) {
+    logger(null).error(e, `An error occurred when deleting user ${userId}`);
+  } finally {
+    await session.close();
+  }
+}
+
+module.exports = { createUserNode, updateUserNode, deleteUserNode };

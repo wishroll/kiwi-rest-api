@@ -1,5 +1,5 @@
 const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score');
-const { updateUserNode } = require('../../services/api/neo4j/users/index');
+const { updateUserNode, deleteUserNode } = require('../../services/api/neo4j/users/index');
 const {
   createDynamicProfileLink,
 } = require('../../services/api/google/firebase/dynamiclinks/index');
@@ -300,6 +300,8 @@ module.exports = async (fastify, _options) => {
             '*',
           )
           .then(rows => rows[0]);
+
+        deleteUserNode(userId);
 
         if (user.is_deleted) {
           logger(req).trace(user, 'user has been safe-deleted');
