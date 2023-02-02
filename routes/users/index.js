@@ -73,6 +73,9 @@ module.exports = async (fastify, _options) => {
           'username',
         ])
         .where({ id: userId })
+        .where(q => {
+          q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+        })
         .first();
       if (user) {
         res.status(200).send(user);

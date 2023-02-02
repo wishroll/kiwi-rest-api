@@ -75,7 +75,13 @@ export default async (fastify: WishrollFastifyInstance) => {
           ratingsSchema,
         );
         const users = withValidation(
-          await fastify.readDb('users').select().whereIn('id', userIds),
+          await fastify
+            .readDb('users')
+            .select()
+            .whereIn('id', userIds)
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            }),
           usersSchema,
         );
 
@@ -151,7 +157,13 @@ export default async (fastify: WishrollFastifyInstance) => {
           ratingsSchema,
         );
         const users = withValidation(
-          await fastify.readDb('users').select().whereIn('id', userIds),
+          await fastify
+            .readDb('users')
+            .select()
+            .whereIn('id', userIds)
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            }),
           usersSchema,
         );
 
@@ -233,7 +245,13 @@ export default async (fastify: WishrollFastifyInstance) => {
           tracksSchema,
         );
         const users = withValidation(
-          await fastify.readDb('users').select().whereIn('id', formatedPayload.userIds),
+          await fastify
+            .readDb('users')
+            .select()
+            .whereIn('id', formatedPayload.userIds)
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            }),
           usersSchema,
         );
 
@@ -314,7 +332,13 @@ export default async (fastify: WishrollFastifyInstance) => {
           tracksSchema,
         );
         const users = withValidation(
-          await fastify.readDb('users').select().whereIn('id', formatedPayload.userIds),
+          await fastify
+            .readDb('users')
+            .select()
+            .whereIn('id', formatedPayload.userIds)
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            }),
           usersSchema,
         );
 
@@ -379,7 +403,13 @@ export default async (fastify: WishrollFastifyInstance) => {
           ratingsSchema,
         );
         const recipientUsers = withValidation(
-          await fastify.readDb('users').select().whereIn('id', recipientIds),
+          await fastify
+            .readDb('users')
+            .select()
+            .whereIn('id', recipientIds)
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            }),
           usersSchema,
         );
         const data = messages.map(message => {
@@ -556,10 +586,16 @@ export default async (fastify: WishrollFastifyInstance) => {
           fastify
             .readDb('users')
             .where({ id: safeBigIntToNumber(message.sender_id) })
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            })
             .first(),
           fastify
             .readDb('users')
             .where({ id: safeBigIntToNumber(message.recipient_id) })
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            })
             .first(),
         ]);
 
@@ -602,7 +638,13 @@ export default async (fastify: WishrollFastifyInstance) => {
         const recipientIds = send_to_all
           ? await getAllUserFriendIds(fastify, currentUserId)
           : recipient_ids;
-        const recipients = await fastify.readDb('users').select('id').whereIn('id', recipientIds);
+        const recipients = await fastify
+          .readDb('users')
+          .select('id')
+          .whereIn('id', recipientIds)
+          .where(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          });
         if (recipients.length < 1) {
           return res.status(400).send({
             error: true,

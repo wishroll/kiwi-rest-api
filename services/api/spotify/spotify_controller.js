@@ -54,7 +54,13 @@ module.exports = async (fastify, _options) => {
         const acceptedFriends = acceptedFriendsRows.map(row => row.user_id);
         const friends = createdFriends.concat(acceptedFriends);
         if (friends.length > 0) {
-          const users = await fastify.readDb('users').select('id').whereIn('id', friends);
+          const users = await fastify
+            .readDb('users')
+            .select('id')
+            .whereIn('id', friends)
+            .where(q => {
+              q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+            });
           if (users.length > 0) {
             const records = await Promise.all(
               tracks.map(async track => {
@@ -135,7 +141,13 @@ module.exports = async (fastify, _options) => {
       }
       try {
         const recipientIds = recipients.map(recipient => recipient.id);
-        const users = await fastify.readDb('users').select('id').whereIn('id', recipientIds);
+        const users = await fastify
+          .readDb('users')
+          .select('id')
+          .whereIn('id', recipientIds)
+          .where(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          });
         if (users.length <= 0) {
           res.status(404).send({ error: true, message: 'No users found' });
         }

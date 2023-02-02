@@ -148,6 +148,9 @@ module.exports = async (fastify, _options) => {
         const users = await fastify
           .readDb('users')
           .select()
+          .where(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          })
           .whereIn('id', friendsIds)
           .limit(limit)
           .offset(offset);
@@ -388,6 +391,9 @@ module.exports = async (fastify, _options) => {
       try {
         const users = await fastify
           .readDb('users')
+          .where(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          })
           .whereNot('id', currentUserId)
           .whereIn('phone_number', contacts)
           .offset(offset)
@@ -453,6 +459,9 @@ module.exports = async (fastify, _options) => {
             'friend_requests.requested_user_id as requested_user_id',
           ])
           .where({ requester_user_id: currentUserId })
+          .where(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          })
           .limit(limit)
           .offset(offset)
           .orderBy('friend_requests.created_at', 'desc');
@@ -517,6 +526,9 @@ module.exports = async (fastify, _options) => {
             'friend_requests.requester_user_id as requester_user_id',
           ])
           .where({ requested_user_id: currentUserId })
+          .where(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          })
           .limit(limit)
           .offset(offset)
           .orderBy('friend_requests.created_at', 'desc');
