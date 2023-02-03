@@ -12,8 +12,8 @@ export const userSchema = zod.object({
   share_link: zod.string().optional().nullable(),
   bio: zod.string().optional().nullable(),
   location: zod.string().optional().nullable(),
-  display_name_updated_at: zod.date(),
-  username_updated_at: zod.date(),
+  display_name_updated_at: zod.date().nullable(),
+  username_updated_at: zod.date().nullable(),
 });
 
 export const usersSchema = zod.array(userSchema);
