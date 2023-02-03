@@ -27,6 +27,10 @@ module.exports = {
         avatar_url: { type: 'string' },
         created_at: { type: 'string' },
         share_link: { type: 'string' },
+        bio: { type: 'string' },
+        location: { type: 'string' },
+        display_name_updated_at: { type: 'string' },
+        username_updated_at: { type: 'string' },
         rating: {
           type: 'object',
           properties: {

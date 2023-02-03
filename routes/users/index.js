@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score');
 const { updateUserNode } = require('../../services/api/neo4j/users/index');
 const {
@@ -69,9 +70,14 @@ module.exports = async (fastify, _options) => {
           'updated_at',
           'avatar_url',
           'username',
+          'bio',
+          'location',
+          'display_name_updated_at',
+          'username_updated_at',
         ])
         .where({ id: userId })
         .first();
+
       if (user) {
         res.status(200).send(user);
       } else {
@@ -81,6 +87,34 @@ module.exports = async (fastify, _options) => {
       res.status(500).send({ error: true, message: error });
     }
   });
+
+  /**
+   * Checks the availability of a username
+   */
+  const checkUsername = require('./schema/v1/checkUsername');
+  fastify.get(
+    '/users/username',
+    { onRequest: [fastify.authenticate], schema: checkUsername },
+    async (req, res) => {
+      const username = req.query.username;
+      try {
+        const existingUsername = await fastify
+          .readDb('users')
+          .select(['username'])
+          .where({ username });
+
+        if (existingUsername.length > 0) {
+          res.status(400).send({ error: true, message: 'Username already taken' });
+        } else {
+          res.status(200).send({
+            message: 'Username available',
+          });
+        }
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
+    },
+  );
 
   fastify.get('/users/:id/tracks/sent', { onRequest: [fastify.authenticate] }, async (req, res) => {
     const limit = req.query.limit;
@@ -148,6 +182,54 @@ module.exports = async (fastify, _options) => {
         updateParams.avatar_url = avatarUrl;
       }
       try {
+        let updatedUser;
+
+        // If updating display name, check if its been 7 days since last updated
+        if (updateParams.display_name) {
+          // Get the date when the display name was last updated
+          const user = await fastify
+            .readDb('users')
+            .select(['display_name_updated_at'])
+            .where({ id: userId });
+
+          const date = user[0].display_name_updated_at;
+
+          // ?Note: Date can be null as it was a newly added column
+          // Check if the date is more than 7 days from last update
+          if (date == null || dayjs().diff(dayjs(date), 'd') > 7) {
+            // Update the time display name is updated
+            updateParams.display_name_updated_at = dayjs().format('YYYY-MM-DD HH:mm:ssZ');
+          } else {
+            // Send an error if the name was updated within the last 7 days
+            return res
+              .status(400)
+              .send({ error: true, message: 'The display name can only be updated every 7 days' });
+          }
+        }
+
+        // If updating username, check if its been 30 days since last updated
+        if (updateParams.username) {
+          // Get the date when the display name was last updated
+          const user = await fastify
+            .readDb('users')
+            .select(['username_updated_at'])
+            .where({ id: userId });
+
+          const date = user[0].username_updated_at;
+
+          // ?Note: Date can be null as it was a newly added column
+          // Check if the date is more than 30 days from last update
+          if (date == null || dayjs().diff(dayjs(date), 'd') > 30) {
+            // Update the time username is updated
+            updateParams.username_updated_at = dayjs().format('YYYY-MM-DD HH:mm:ssZ');
+          } else {
+            // Send an error if the name was updated within the last 7 days
+            return res
+              .status(400)
+              .send({ error: true, message: 'The username can only be updated every 30 days' });
+          }
+        }
+
         const results = await fastify
           .writeDb('users')
           .select('id')
@@ -162,9 +244,13 @@ module.exports = async (fastify, _options) => {
             'updated_at',
             'avatar_url',
             'share_link',
+            'bio',
+            'location',
+            'display_name_updated_at',
+            'username_updated_at',
           ]);
 
-        let updatedUser = results[0];
+        updatedUser = results[0];
 
         if (updateParams.username) {
           try {
@@ -182,6 +268,10 @@ module.exports = async (fastify, _options) => {
                 'updated_at',
                 'avatar_url',
                 'share_link',
+                'bio',
+                'location',
+                'display_name_updated_at',
+                'username_updated_at',
               ]);
             updatedUser = results[0];
           } catch (error) {
@@ -239,6 +329,10 @@ module.exports = async (fastify, _options) => {
             'avatar_url',
             'username',
             'share_link',
+            'bio',
+            'location',
+            'display_name_updated_at',
+            'username_updated_at',
           ])
           .where({ id: userId })
           .first();
