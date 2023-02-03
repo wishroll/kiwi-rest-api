@@ -4,8 +4,8 @@
  */
 exports.up = function (knex) {
   return knex.schema.table('users', table => {
-    table.dateTime('display_name_updated_at');
-    table.dateTime('username_updated_at');
+    table.dateTime('display_name_updated_at').nullable();
+    table.dateTime('username_updated_at').nullable();
   });
 };
 

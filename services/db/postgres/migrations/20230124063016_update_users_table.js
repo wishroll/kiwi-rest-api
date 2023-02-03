@@ -4,8 +4,8 @@
  */
 exports.up = function (knex) {
   return knex.schema.table('users', table => {
-    table.string('bio', 255);
-    table.string('location', 255);
+    table.string('bio', 255).nullable();
+    table.string('location', 255).nullable();
   });
 };
 
