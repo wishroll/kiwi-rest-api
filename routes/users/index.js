@@ -107,7 +107,6 @@ module.exports = async (fastify, _options) => {
           res.status(400).send({ error: true, message: 'Username already taken' });
         } else {
           res.status(200).send({
-            error: false,
             message: 'Username available',
           });
         }
