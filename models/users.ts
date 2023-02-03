@@ -10,6 +10,10 @@ export const userSchema = zod.object({
   avatar_url: zod.string().optional().nullable(),
   username: zod.string().optional().nullable(),
   share_link: zod.string().optional().nullable(),
+  bio: zod.string().optional().nullable(),
+  location: zod.string().optional().nullable(),
+  display_name_updated_at: zod.date(),
+  username_updated_at: zod.date(),
 });
 
 export const usersSchema = zod.array(userSchema);
