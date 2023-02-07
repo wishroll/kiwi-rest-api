@@ -33,7 +33,7 @@ async function updateUserNode(userId, updates) {
       key => (query = query.concat(` SET u.${key} = '${updates[key]}'`)),
     );
     query = query.concat(
-      ' RETURN u.id as id, u.uuid as uuid, u.username as username, u.dipslay_name as display_name, u.created_at as created_at, u.updated_at as updated_at, u.avatar_url as avatar_url',
+      ' RETURN u.id as id, u.uuid as uuid, u.username as username, u.dipslay_name as display_name, u.created_at as created_at, u.updated_at as updated_at, u.avatar_url as avatar_url, u.bio as bio, u.location as location',
     );
     const result = await session.writeTransaction(tx => tx.run(query));
     const user = result.records.map(r => {
@@ -43,6 +43,8 @@ async function updateUserNode(userId, updates) {
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
+        bio: r.get('bio'),
+        location: r.get('location'),
       };
     });
     logger(null).debug({ user }, 'User has been successfully updated');

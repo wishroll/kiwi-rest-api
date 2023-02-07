@@ -11,6 +11,10 @@ export const userSchema = zod.object({
   username: zod.string().optional().nullable(),
   share_link: zod.string().optional().nullable(),
   is_deleted: zod.coerce.boolean().nullable(),
+  bio: zod.string().optional().nullable(),
+  location: zod.string().optional().nullable(),
+  display_name_updated_at: zod.date().nullable(),
+  username_updated_at: zod.date().nullable(),
 });
 
 export const usersSchema = zod.array(userSchema);
