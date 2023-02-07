@@ -391,6 +391,8 @@ module.exports = async (fastify, _options) => {
               // todo: consider adding deleted-user avatar
               avatar_url: null,
               share_link: null,
+              bio: null,
+              location: null,
 
               is_deleted: true,
             },
