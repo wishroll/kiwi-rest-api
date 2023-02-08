@@ -21,6 +21,6 @@
     /* To be removed after full migration */
     "allowJs": true
   },
-  "exclude": ["node_modules", "build"],
+  "exclude": ["node_modules", "build", "**/__test__/"],
   "include": ["**/*.ts", "*.ts", "**/*.js", "*.js"]
 }

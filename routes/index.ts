@@ -1,10 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FastifyInstance } from 'fastify/types/instance';
 import { RedisClientType } from 'redis';
-
-// needed to import to extend fastify types
+const redisMock = require('fastify-redis-mock');
+const fastifyEnv = require('fastify-env');
 import 'fastify-jwt/jwt';
 import { Knex } from 'knex';
+import { options } from '../services/env_schema';
 
 export interface WishrollFastifyInstance extends FastifyInstance {
   authenticate: () => void;
@@ -15,9 +16,13 @@ export interface WishrollFastifyInstance extends FastifyInstance {
 }
 
 export default async (fastify: WishrollFastifyInstance, _options: any, _done: any) => {
+  await fastify.register(fastifyEnv, options);
+
   fastify.register(require('fastify-jwt'), {
     secret: process.env.MASTER_KEY ?? '',
   });
+  fastify.register(require('fastify-formbody'));
+
   fastify.decorate('authenticate', async (req: FastifyRequest, res: FastifyReply) => {
     try {
       await req.jwtVerify();
@@ -25,8 +30,13 @@ export default async (fastify: WishrollFastifyInstance, _options: any, _done: an
       res.send(err);
     }
   });
-  fastify.register(require('fastify-formbody'));
-  fastify.decorate('redisClient', require('../services/db/redis/redis_client').client);
+
+  if (process.env.NODE_ENV === 'test') {
+    fastify.register(redisMock);
+  } else {
+    fastify.decorate('redisClient', require('../services/db/redis/redis_client').client);
+  }
+
   fastify.decorate('readDb', require('../services/db/postgres/knex_fastify_plugin').readDB);
   fastify.decorate('writeDb', require('../services/db/postgres/knex_fastify_plugin').writeDB);
   fastify.decorate('twilioClient', require('../services/api/twilio/twilio_client'));

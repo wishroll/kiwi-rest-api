@@ -7,7 +7,7 @@
     "tsconfig.tsbuildinfo",
     "package-lock.json"
   ],
-  "exec": "tsc --incremental && node build/index.js",
+  "exec": "tsc --incremental && node build/server.js",
   "ext": "ts,js,json",
   "watch": ["**/*.js", "**/*.ts", "**/*.json", ".env", ".envrc"]
 }
