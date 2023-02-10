@@ -49,4 +49,7 @@ export default async (fastify: WishrollFastifyInstance, _options: any, _done: an
   fastify.register(require('./replies/index'));
   fastify.register(require('./notifications/index'));
   fastify.register(require('../services/api/deezer/index'));
+  fastify.register(require('./chat_rooms'));
+  fastify.register(require('./chat_room_members'));
+  fastify.register(require('./chat_room_messages'));
 };

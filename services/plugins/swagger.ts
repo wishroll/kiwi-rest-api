@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   routePrefix: '/documentation',
   exposeRoute: true,
   swagger: {
@@ -16,6 +16,21 @@ module.exports = {
     consumes: ['application/json'],
     produces: ['application/json'],
     tags: [
+      {
+        name: 'Chat Rooms',
+        description:
+          'Get a specific chat room, Get a list of chat rooms, create a new chat room, delete a chat room',
+      },
+      {
+        name: 'Chat Room Users',
+        description:
+          'Get a list of chat room members, create a new chat room member, leave a chat room (destroy chat room member)',
+      },
+      {
+        name: 'Chat Room Messages',
+        description:
+          'Get a list of chat room messages, create a new chat room message, delete a chat room message, and update a message',
+      },
       {
         name: 'Messages',
         description:
@@ -44,14 +59,5 @@ module.exports = {
     docExpansion: 'full',
     deepLinking: false,
   },
-  uiHooks: {
-    onRequest: function (request, reply, next) {
-      next();
-    },
-    preHandler: function (request, reply, next) {
-      next();
-    },
-  },
   staticCSP: true,
-  transformStaticCSP: header => header,
 };

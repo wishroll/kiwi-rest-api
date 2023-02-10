@@ -7,7 +7,7 @@ export async function up(knex: Knex): Promise<void> {
     t.uuid('uuid', { useBinaryUuid: true })
       .notNullable()
       .defaultTo(knex.raw('gen_random_uuid()'))
-      .unique({ indexName: 'index_chat_room_messages', deferrable: 'immediate' });
+      .unique({ indexName: 'index_chat_room_messages_uuid', deferrable: 'immediate' });
     t.dateTime('created_at').notNullable().defaultTo(knex.fn.now());
     t.dateTime('updated_at').notNullable().defaultTo(knex.fn.now());
     t.bigInteger('chat_room_id').unsigned().notNullable().index();

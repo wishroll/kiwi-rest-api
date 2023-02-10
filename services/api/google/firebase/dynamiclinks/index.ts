@@ -1,10 +1,11 @@
-const { default: logger } = require('../../../../../logger');
-const { oauth2Client } = require('../../index');
-function createDynamicProfileLink(user) {
+import { User } from '../../../../../models/users';
+import { default as logger } from '../../../../../logger';
+import { oauth2Client } from '../../index';
+
+export const createDynamicProfileLink = (user: User) => {
   return new Promise(async (resolve, reject) => {
     const username = user?.username;
     const displayName = user?.display_name;
-    const avatarUrl = user?.avatar_url;
     const userId = user?.id;
     const data = {
       dynamicLinkInfo: {
@@ -65,10 +66,8 @@ function createDynamicProfileLink(user) {
         reject(new Error(result.statusText));
       }
     } catch (error) {
-      logger(null).error(error, 'Error when creating dynamic profile link');
+      logger(null).error(new Error(''), 'Error when creating dynamic profile link');
       reject(error);
     }
   });
-}
-
-module.exports = { createDynamicProfileLink };
+};

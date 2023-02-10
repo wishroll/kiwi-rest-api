@@ -3,6 +3,10 @@ import { Knex } from 'knex';
 export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('views', t => {
     knex.raw('CREATE EXTENSION IF NOT EXISTS pgcrypto');
+    t.uuid('uuid', { useBinaryUuid: true })
+      .notNullable()
+      .defaultTo(knex.raw('gen_random_uuid()'))
+      .unique({ indexName: 'index_views_uuid', deferrable: 'immediate' });
     t.bigIncrements('id').unsigned().notNullable().primary().index();
     t.dateTime('created_at').notNullable().defaultTo(knex.fn.now());
     t.dateTime('last_seen_at').notNullable().defaultTo(knex.fn.now());
