@@ -1,22 +1,10 @@
-const body = {
-    type: 'object',
-    properties: {
-        
-    }
-} as const;
+import { authHeaders } from "../../../replies/schema";
 
-const createChatRoomSchema = {
+export const createChatRoomSchema = {
   description: 'Create a new chat room',
   tags: ['Chat Rooms'],
   summary: 'Create a new chat room',
-  headers: {
-    type: 'object',
-    properties: {
-      Authorization: { type: 'string', description: 'The token used for authentication' },
-    },
-    required: ['Authorization'],
-  },
-  body: body,
+  headers: authHeaders,
   response: {
     201: {
       description: 'The request was successful.',
@@ -24,7 +12,22 @@ const createChatRoomSchema = {
       properties: {
         id: { type: 'integer', description: 'The primary key id of the chat room' },
         uuid: { type: 'string', description: 'The alphanumeric id of the chat room' },
-
+      },
+    },
+    404: {
+      description: 'Not found',
+      type: 'object',
+      properties: {
+        error: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+    500: {
+      description: 'Internal Server Error',
+      type: 'object',
+      properties: {
+        error: { type: 'boolean' },
+        message: { type: 'string' },
       },
     },
   },

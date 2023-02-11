@@ -1,15 +1,17 @@
 import { WishrollFastifyInstance } from '../index';
 // import logger from '../../logger';
-import { chatRoomsIndex, ChatRoomsIndexQuery } from './schema/v1';
+import { indexChatRoomsSchema, ChatRoomsIndexQuery } from './schema/v1';
 import { withValidation } from '../../utils/validation';
 import { chatRoomsSchema } from '../../models/chat_rooms';
+import { createChatRoomSchema } from './schema/v1/create';
+import { DeleteChatRoomParams, deleteChatRoomSchema } from './schema/v1/delete';
 
 export default async (fastify: WishrollFastifyInstance) => {
   fastify.get<{ Querystring: ChatRoomsIndexQuery }>(
     '/v1/chat_rooms',
     {
       onRequest: [fastify.authenticate],
-      schema: chatRoomsIndex,
+      schema: indexChatRoomsSchema,
     },
     async (req, res) => {
       // @ts-ignore
@@ -40,9 +42,9 @@ export default async (fastify: WishrollFastifyInstance) => {
     },
   );
 
-  fastify.post<{ Params: ChatRoomsIndexQuery }>(
+  fastify.post(
     '/v1/chat_rooms',
-    { onRequest: [fastify.authenticate], schema: chatRoomsIndex },
+    { onRequest: [fastify.authenticate], schema: createChatRoomSchema },
     async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
@@ -54,16 +56,12 @@ export default async (fastify: WishrollFastifyInstance) => {
     },
   );
 
-  fastify.delete<{}>(
+  fastify.delete<{ Params: DeleteChatRoomParams }>(
     '/v1/chat_rooms/:id',
-    { onRequest: [fastify.authenticate], schema: chatRoomsIndex },
+    { onRequest: [fastify.authenticate], schema: deleteChatRoomSchema },
     async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
     },
   );
-
-  fastify.put<{}>('/v1/chat_rooms/:id', { onRequest: [fastify.authenticate] }, async (req, res) => {
-    const currentUserId = req.user.id;
-  });
 };

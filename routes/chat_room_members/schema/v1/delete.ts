@@ -1,14 +1,19 @@
-export const deleteChatRoomMember = {
+import { FromSchema } from 'json-schema-to-ts';
+import { authHeaders } from '../../../replies/schema';
+export const deleteChatRoomMemberParams = {
+  type: 'object',
+  properties: {
+    id: { type: 'integer', description: 'The id of the chat room member' },
+  },
+  required: ['id'],
+} as const;
+
+export const deleteChatRoomMemberSchema = {
   description: 'Delete a chat room member',
   tags: ['Chat Room Members'],
   summary: 'Remove a user from a chat room',
-  headers: {
-    type: 'object',
-    properties: {
-      Authorization: { type: 'string', description: 'The token used for authentication' },
-    },
-    required: ['Authorization'],
-  },
+  params: deleteChatRoomMemberParams,
+  headers: authHeaders,
   response: {
     200: {
       description: 'The request was successful.',
@@ -31,3 +36,5 @@ export const deleteChatRoomMember = {
     },
   },
 };
+
+export type DeleteChatRoomMemberParams = FromSchema<typeof deleteChatRoomMemberParams>;

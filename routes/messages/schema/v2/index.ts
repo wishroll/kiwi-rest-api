@@ -101,7 +101,7 @@ export const receivedMessagesIndex = {
               score: { type: 'number', minimum: 0.0, description: 'The score' },
             },
           },
-        },
+        },  
         required: ['id', 'uuid', 'created_at', 'updated_at', 'text', 'is_rated'],
       },
     },
