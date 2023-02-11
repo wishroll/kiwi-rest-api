@@ -1,6 +1,6 @@
 const { STREAMING_PLATFORMS } = require('../../../../utils/const');
 
-module.exports = {
+export default {
   description: 'Return an array of received song messages',
   tags: ['Widgets'],
   summary: 'Returns a list of received song messages',

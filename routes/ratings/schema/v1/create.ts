@@ -1,7 +1,7 @@
-module.exports = {
-  description: 'Return the properties of a conversation',
-  tags: ['Conversations'],
-  summary: 'Returns the properties of a conversation',
+export default {
+  description: 'Create a new Rating',
+  tags: ['Ratings'],
+  summary: 'Create a new rating',
   headers: {
     type: 'object',
     properties: {
@@ -12,24 +12,36 @@ module.exports = {
   params: {
     type: 'object',
     properties: {
-      id: { type: 'integer', description: 'The id of the conversation' },
+      message_id: { type: 'integer', description: 'The id of the message' },
     },
-    required: ['id'],
+    required: ['message_id'],
+  },
+  body: {
+    type: 'object',
+    properties: {
+      score: {
+        type: 'number',
+        minimum: 0.0,
+        description: 'The value of the rating: between 0.00 and 1.00',
+      },
+    },
+    required: ['score'],
   },
   response: {
-    200: {
+    201: {
       description: 'The request was successful.',
+      type: 'null',
+    },
+    400: {
+      description: 'Client error',
       type: 'object',
       properties: {
-        id: { type: 'integer', minimum: 1 },
-        uuid: { type: 'string' },
-        created_at: { type: 'string' },
-        updated_at: { type: 'string' },
+        error: { type: 'boolean' },
+        message: { type: 'string' },
       },
-      required: ['id', 'uuid', 'created_at', 'updated_at'],
     },
-    404: {
-      description: 'Not Found',
+    409: {
+      description: 'Client Error',
       type: 'object',
       properties: {
         error: { type: 'boolean' },

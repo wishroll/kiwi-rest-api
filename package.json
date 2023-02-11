@@ -50,6 +50,7 @@
     "rimraf": "^3.0.2",
     "serialize-error": "^7.0.1",
     "spotify-web-api-node": "^5.0.2",
+    "ts-node": "^10.9.1",
     "twilio": "^3.74.0",
     "useragent": "^2.3.0",
     "uuid": "^9.0.0",
