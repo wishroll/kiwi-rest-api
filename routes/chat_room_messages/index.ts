@@ -27,10 +27,9 @@ export default async (fastify: WishrollFastifyInstance) => {
     async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
-      const limit = req.query.limit;
-      const lastId = req.query.lastId;
-      const chatRoomId = req.params.id;
-      
+    //   const limit = req.query.limit;
+    //   const lastId = req.query.lastId;
+    //   const chatRoomId = req.params.id;
 
       try {
       } catch (error) {
@@ -46,7 +45,12 @@ export default async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const chatRoomId = req.params.id;
+    //   const chatRoomId = req.params.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 
@@ -57,7 +61,12 @@ export default async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const chatRoomMessageId = req.params.id;
+    //   const chatRoomMessageId = req.params.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 
@@ -68,7 +77,12 @@ export default async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const chatRoomMessageId = req.params.id;
+    //   const chatRoomMessageId = req.params.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 
@@ -79,7 +93,12 @@ export default async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const chatRoomMessageId = req.params.id;
+    //   const chatRoomMessageId = req.params.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 };

@@ -1,5 +1,6 @@
 import { FromSchema } from 'json-schema-to-ts';
 import { STREAMING_PLATFORMS } from '../../../../utils/const';
+import { authHeaders } from '../../../replies/schema';
 
 export const indexChatRoomsQueryString = {
   type: 'object',
@@ -15,13 +16,7 @@ export const indexChatRoomsSchema = {
   tags: ['Chat Rooms'],
   summary: 'Returns an array of chat rooms that the current user belongs to',
   query: indexChatRoomsQueryString,
-  headers: {
-    type: 'object',
-    properties: {
-      Authorization: { type: 'string', description: 'The token used for authentication' },
-    },
-    required: ['Authorization'],
-  },
+  headers: authHeaders,
   response: {
     200: {
       description: 'The request was successful',

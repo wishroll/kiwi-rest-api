@@ -62,6 +62,11 @@ export default async (fastify: WishrollFastifyInstance) => {
     async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 };

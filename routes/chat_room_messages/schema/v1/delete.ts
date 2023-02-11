@@ -17,6 +17,7 @@ export const deleteChatRoomMessageSchema = {
   response: {
     200: {
       description: 'The request was successful.',
+      type: 'null',
     },
     404: {
       description: 'Not found',

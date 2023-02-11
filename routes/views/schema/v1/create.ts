@@ -17,6 +17,7 @@ export const createViewSchema = {
   response: {
     201: {
       description: 'The request was successful.',
+      type: 'null',
     },
     404: {
       description: 'Not found',

@@ -10,8 +10,13 @@ export default async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      const emojiReactionableType = req.query.type;
-      const emojiReactionableId = req.query.id;
+      //   const emojiReactionableType = req.query.type;
+      //   const emojiReactionableId = req.query.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 
@@ -21,9 +26,14 @@ export default async (fastify: WishrollFastifyInstance) => {
     async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
-      const emojiReactionableType = req.body.type;
-      const emojiReactionableId = req.body.id;
-      const emoji = req.body.emoji;
+      //   const emojiReactionableType = req.body.type;
+      //   const emojiReactionableId = req.body.id;
+      //   const emoji = req.body.emoji;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 
@@ -33,7 +43,12 @@ export default async (fastify: WishrollFastifyInstance) => {
     async (req, res) => {
       // @ts-ignore
       const currentUserId = req.user.id;
-      const emojiReactionId = req.params.id;
+      //   const emojiReactionId = req.params.id;
+      try {
+        res.status(200).send();
+      } catch (error) {
+        res.status(500).send({ error: true, message: error });
+      }
     },
   );
 };
