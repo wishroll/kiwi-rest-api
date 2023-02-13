@@ -1,4 +1,4 @@
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
   const dotenv = require('dotenv');
   dotenv.config();
   module.exports = {

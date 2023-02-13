@@ -44,4 +44,8 @@ export default async (fastify: WishrollFastifyInstance) => {
 
     return res.redirect(redirectUrl);
   });
+
+  fastify.get('/healthcheck', async () => {
+    return { status: 'OK' };
+  });
 };
