@@ -38,6 +38,7 @@ module.exports = {
     migrations: {
       directory: './migrations',
     },
+    seeds: { directory: 'please-do-not-use-seeds-on-staging' },
   },
 
   production: {
@@ -53,7 +54,7 @@ module.exports = {
     migrations: {
       directory: './services/db/postgres/migrations',
     },
-    seeds: { directory: './services/db/postgres/seeds' },
+    seeds: { directory: 'please-do-not-use-seeds-on-production' },
     useNullAsDefault: true,
   },
 };
