@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FastifyInstance } from 'fastify/types/instance';
 import { RedisClientType } from 'redis';
-const redisMock = require('fastify-redis-mock');
 const fastifyEnv = require('fastify-env');
 import 'fastify-jwt/jwt';
 import { Knex } from 'knex';
@@ -31,12 +30,7 @@ export default async (fastify: WishrollFastifyInstance, _options: any, _done: an
     }
   });
 
-  if (process.env.NODE_ENV === 'test') {
-    fastify.register(redisMock);
-  } else {
-    fastify.decorate('redisClient', require('../services/db/redis/redis_client').client);
-  }
-
+  fastify.decorate('redisClient', require('../services/db/redis/redis_client').client);
   fastify.decorate('readDb', require('../services/db/postgres/knex_fastify_plugin').readDB);
   fastify.decorate('writeDb', require('../services/db/postgres/knex_fastify_plugin').writeDB);
   fastify.decorate('twilioClient', require('../services/api/twilio/twilio_client'));

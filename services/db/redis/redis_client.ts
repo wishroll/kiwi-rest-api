@@ -1,8 +1,16 @@
 import { createClient } from '@node-redis/client';
 import logger from '../../../logger';
+import redisMock from 'redis-mock';
 
 (async () => {
   let client;
+
+  if (process.env.NODE_ENV === 'test') {
+    client = redisMock.createClient();
+    exports.client = client;
+    return;
+  }
+
   if (process.env.NODE_ENV === 'development') {
     // Connect to redis at localhost port 6379 no password.
     client = createClient({});
@@ -25,6 +33,5 @@ import logger from '../../../logger';
   }
 
   client.on('error', (err: Error) => logger(null).error(err, 'Redis Client Error'));
-  client.connect();
-  logger(null).info('Redis client connected!');
+  client.connect().then(() => logger(null).info('Redis client connected!'));
 })();

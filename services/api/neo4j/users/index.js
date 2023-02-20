@@ -24,7 +24,8 @@ async function createUserNode(user) {
   }
 }
 
-async function updateUserNode(userId, updates) {
+async function updateUserNode(userId, userPayload) {
+  const updates = { ...userPayload };
   delete updates.id;
   const session = driver.session({ database: 'neo4j' });
   try {
