@@ -5,7 +5,7 @@ const {
   createDynamicProfileLink,
 } = require('../../services/api/google/firebase/dynamiclinks/index');
 const { default: logger } = require('../../logger');
-module.exports = async (fastify, _options) => {
+module.exports = async fastify => {
   const crypto = require('crypto');
   const multer = require('fastify-multer');
   const multerS3 = require('multer-s3');
@@ -30,7 +30,7 @@ module.exports = async (fastify, _options) => {
     }),
   });
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
   const generateSignedUrl = key => {
     return s3.getSignedUrl('getObject', {
       Bucket: process.env.AWS_S3_BUCKET_NAME,

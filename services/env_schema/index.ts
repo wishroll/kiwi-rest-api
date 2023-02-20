@@ -103,6 +103,6 @@ const schema = {
 };
 
 export const options = {
-  schema: schema,
+  schema,
   dotenv: true, // will read .env in root folder
 };

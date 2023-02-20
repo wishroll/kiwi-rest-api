@@ -119,7 +119,7 @@ export default async (fastify: WishrollFastifyInstance) => {
         }
 
         messagesQuery
-          //@ts-ignore
+          // @ts-ignore
           .andWhere('messages.id', '<', lastId)
           .orderBy('messages.id', 'desc')
           .limit(limit);
@@ -206,7 +206,7 @@ export default async (fastify: WishrollFastifyInstance) => {
             ])
             .whereNull('ratings.id')
             .where('messages.recipient_id', currentUserId)
-            //@ts-ignore
+            // @ts-ignore
             .andWhere('messages.id', '<', lastId)
             .orderBy('messages.id', 'desc')
             .leftOuterJoin('ratings', 'ratings.message_id', '=', 'messages.id')
@@ -288,7 +288,7 @@ export default async (fastify: WishrollFastifyInstance) => {
             .whereNotNull('ratings.id')
             .andWhere('ratings.like', liked)
             .andWhere('messages.recipient_id', currentUserId)
-            //@ts-ignore
+            // @ts-ignore
             .andWhere('messages.id', '<', lastId)
             .orderBy('messages.id', 'desc')
             .innerJoin('ratings', 'ratings.message_id', '=', 'messages.id')
@@ -346,7 +346,7 @@ export default async (fastify: WishrollFastifyInstance) => {
       const limit = req.query.limit;
       const offset = req.query.offset;
 
-      //@ts-ignore
+      // @ts-ignore
       const currentUserId = req.user.id;
 
       try {
@@ -506,7 +506,7 @@ export default async (fastify: WishrollFastifyInstance) => {
                 .distinctOn('isrc')
                 .as('tracks'),
             )
-            //@ts-ignore
+            // @ts-ignore
             .where('tracks.message_id', '<', lastId)
             .orderBy('tracks.message_created_at', 'desc')
             .limit(limit),
@@ -528,7 +528,7 @@ export default async (fastify: WishrollFastifyInstance) => {
     '/v1/messages/:id',
     { onRequest: [fastify.authenticate], schema: show },
     async (req, res) => {
-      //@ts-ignore
+      // @ts-ignore
       const currentUserId = req.user.id;
       const messageId = req.params.id;
 
@@ -542,7 +542,7 @@ export default async (fastify: WishrollFastifyInstance) => {
           res.status(404).send({ error: true, message: 'Not found' });
           return;
         }
-        if (message.sender_id != currentUserId && message.recipient_id != currentUserId) {
+        if (message.sender_id !== currentUserId && message.recipient_id !== currentUserId) {
           res.status(403).send({ error: true, message: 'Forbidden' });
           return;
         }
@@ -574,8 +574,8 @@ export default async (fastify: WishrollFastifyInstance) => {
           sender,
         };
 
-        if (currentUserId != safeBigIntToNumber(message.recipient_id)) {
-          //return recipient if the current user isn't equal to the
+        if (currentUserId !== safeBigIntToNumber(message.recipient_id)) {
+          // return recipient if the current user isn't equal to the
           resMessage = {
             ...resMessage,
             recipient,
@@ -609,7 +609,7 @@ export default async (fastify: WishrollFastifyInstance) => {
             message: `Recipients could not be found for the given ids: ${recipientIds.toString()}`,
           });
         }
-        let trackId: any;
+        let trackId: string;
         let existingTrack = await fastify
           .readDb('tracks')
           .select()

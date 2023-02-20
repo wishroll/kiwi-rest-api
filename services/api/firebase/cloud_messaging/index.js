@@ -1,6 +1,6 @@
 const { default: logger } = require('../../../../logger');
 
-module.exports = async (fastify, _options) => {
+module.exports = async fastify => {
   const create = require('./schema/create');
   fastify.post(
     '/firebase/cloud_messaging/users/tokens',

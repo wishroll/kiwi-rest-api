@@ -44,7 +44,7 @@ const buildServer = () => {
     },
     disableRequestLogging: true,
     maxParamLength: 1000,
-    genReqId: _req => uuidv4(),
+    genReqId: () => uuidv4(),
   });
 
   server.addHook('onRequest', (req, _reply, done) => {

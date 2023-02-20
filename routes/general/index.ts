@@ -12,7 +12,7 @@ export default async (fastify: WishrollFastifyInstance) => {
     '/notifications/daily-blast',
     { onRequest: [fastify.authenticate] },
     async (req, res) => {
-      //@ts-ignore
+      // @ts-ignore
       const { body: notificationBody, title: notificationTitle } = req.body;
       if (!notificationBody || notificationBody.length < 1) {
         return res.status(400).send({ error: true, message: 'Missing notification body' });
@@ -20,7 +20,7 @@ export default async (fastify: WishrollFastifyInstance) => {
       if (!notificationTitle || notificationTitle.length < 1) {
         return res.status(400).send({ error: true, message: 'Missing notification title' });
       }
-      sendDailyNotificationBlast(notificationTitle, notificationBody).catch((err: any) =>
+      sendDailyNotificationBlast(notificationTitle, notificationBody).catch((err: Error) =>
         logger(req).error(err),
       );
       return res.send();

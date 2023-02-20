@@ -113,19 +113,7 @@ async function searchFriends(query, userId, _offset = 0, _limit = 10) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-async function searchFriendsRequested(query, userId, _offset = 0, _limit = 10) {
-  // eslint-disable-next-line no-unused-vars
-  const session = driver.session({ database: 'neo4j' });
-}
-
-// eslint-disable-next-line no-unused-vars
-async function searchFriendsRequesting(query, userId, _offset = 0, _limit = 10) {
-  // eslint-disable-next-line no-unused-vars
-  const session = driver.session({ database: 'neo4j' });
-}
-
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 async function createUserNodeFullTextSearchIndex() {
   const session = driver.session({ database: 'neo4j' });
   try {
@@ -140,7 +128,7 @@ async function createUserNodeFullTextSearchIndex() {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 async function createUserNodeTextIndex() {
   const session = driver.session({ database: 'neo4j' });
   try {

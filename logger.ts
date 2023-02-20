@@ -6,7 +6,9 @@ const standaloneLogger = pino({ level: process.env.API_ENV === 'production' ? 'i
 
 type FastifyInstances = FastifyInstance | FastifyRequest | FastifyReply;
 
+// eslint-disable-next-line no-unused-vars
 type LogErr = <T extends Error>(err: T, description?: string) => void;
+// eslint-disable-next-line no-unused-vars
 type LogFn = <T extends object | string>(obj: T, description?: string) => void;
 
 interface WishrollLogger {
