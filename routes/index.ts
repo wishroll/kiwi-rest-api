@@ -1,10 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FastifyInstance } from 'fastify/types/instance';
 import { RedisClientType } from 'redis';
-const fastifyEnv = require('fastify-env');
 import 'fastify-jwt/jwt';
 import { Knex } from 'knex';
-import { options } from '../services/env_schema';
 
 export interface WishrollFastifyInstance extends FastifyInstance {
   authenticate: () => void;
@@ -15,8 +13,6 @@ export interface WishrollFastifyInstance extends FastifyInstance {
 }
 
 export default async (fastify: WishrollFastifyInstance, _options: any, _done: any) => {
-  await fastify.register(fastifyEnv, options);
-
   fastify.register(require('fastify-jwt'), {
     secret: process.env.MASTER_KEY ?? '',
   });
