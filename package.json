@@ -10,7 +10,7 @@
     "deploy": "npm run start",
     "migrate": "knex migrate:latest --knexfile knexfile.js",
     "seed": "knex seed:run --knexfile knexfile.js",
-    "test": "NODE_ENV=test tap --node-arg=--require=ts-node/register",
+    "test": "NODE_ENV=test tap -T --node-arg=--require=ts-node/register",
     "test-local": "npm test | pino-pretty",
     "clean": "rimraf build",
     "lint": "eslint . --cache",

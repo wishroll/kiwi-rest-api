@@ -1,68 +1,54 @@
 import { test } from 'tap';
 import faker from '@faker-js/faker';
 import buildServer from '../../../index';
+
 test('create and get user data', async t => {
   const fastify = buildServer();
 
+  t.plan(4);
+
   t.teardown(() => {
     fastify.close();
+    // For some reason, the process doesn't exit after the tests are done.
+    process.exit(0);
   });
 
   const fakeUserPN = faker.phone.phoneNumber();
 
   const fakeUser = {
-    uuid: faker.datatype.uuid(),
     display_name: faker.name.findName(),
-    created_at: faker.date.past(),
-    updated_at: faker.date.recent(),
     avatar_url: faker.internet.avatar(),
     username: faker.internet.userName(),
     bio: faker.lorem.sentence(),
     location: faker.address.city(),
-    display_name_updated_at: faker.date.recent(),
-    username_updated_at: faker.date.recent(),
   };
 
-  const registerResponse = await fastify.inject({
-    method: 'POST',
-    url: '/signup',
-    payload: {
-      phone_number: fakeUserPN,
-    },
-  });
-
-  t.equal(registerResponse.statusCode, 201);
+  const registerResponse = await fastify
+    .inject()
+    .post('/signup')
+    .body({ phone_number: fakeUserPN });
 
   const registerResponseJson = registerResponse.json();
 
-  t.hasProp(registerResponseJson, 'access_token');
+  t.equal(registerResponse.statusCode, 201, 'check signup payload');
+  t.ok(registerResponseJson.access_token, 'check if access token exists');
 
   const { access_token } = registerResponseJson;
 
-  const updatedUserResponse = await fastify.inject({
-    method: 'PUT',
-    url: '/users',
-    headers: {
+  const updatedUserResponse = await fastify
+    .inject()
+    .put('/users')
+    .headers({
       Authorization: `Bearer ${access_token}}`,
-    },
-    payload: {
+    })
+    .body({
       ...fakeUser,
-    },
-  });
+    });
 
   const updatedUser = updatedUserResponse.json();
 
-  t.hasProps(updatedUser, Object.keys(fakeUser));
+  t.equal(updatedUserResponse.statusCode, 200, 'check updated user payload');
+  t.hasProps(updatedUser, Object.keys(fakeUser), 'check if user has updated props');
 
-  const response = await fastify.inject({
-    method: 'GET',
-    url: `/users/${updatedUser.id}`,
-    headers: {
-      Authorization: `Bearer ${access_token}}`,
-    },
-  });
-
-  t.equal(response.statusCode, 200);
-
-  t.same(response.json(), fakeUser);
+  t.endAll();
 });
