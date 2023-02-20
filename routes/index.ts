@@ -1,9 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FastifyInstance } from 'fastify/types/instance';
 import { RedisClientType } from 'redis';
-const redisMock = require('fastify-redis-mock');
 import 'fastify-jwt/jwt';
 import { Knex } from 'knex';
+
+const redisMock = require('fastify-redis-mock');
 
 export interface WishrollFastifyInstance extends FastifyInstance {
   authenticate: () => void;
