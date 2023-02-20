@@ -1,11 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { FastifyInstance } from 'fastify/types/instance';
 import { RedisClientType } from 'redis';
+const redisMock = require('fastify-redis-mock');
 import 'fastify-jwt/jwt';
 import { Knex } from 'knex';
-import { options } from '../services/env_schema';
-const redisMock = require('fastify-redis-mock');
-const fastifyEnv = require('fastify-env');
 
 export interface WishrollFastifyInstance extends FastifyInstance {
   authenticate: () => void;
@@ -16,8 +14,6 @@ export interface WishrollFastifyInstance extends FastifyInstance {
 }
 
 export default async (fastify: WishrollFastifyInstance) => {
-  await fastify.register(fastifyEnv, options);
-
   fastify.register(require('fastify-jwt'), {
     secret: process.env.MASTER_KEY ?? '',
   });
