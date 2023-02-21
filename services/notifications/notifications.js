@@ -62,6 +62,17 @@ function generateNotificationData() {
   return data;
 }
 
+const getPosterUrl = async message => {
+  let posterUrl;
+
+  if (message.track_id) {
+    const track = await readDB('tracks').where({ id: message.track_id }).first();
+    posterUrl = 'artwork' in track ? track.artwork.url : undefined;
+  }
+
+  return posterUrl;
+};
+
 function convertNotificationDataToAndroid(notificationData) {
   const message = {};
   if (notificationData.title) {
@@ -189,7 +200,8 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
     sub_type: 'friend_request',
     user_id: requesterUser.id,
     link: `kiwi://v1/users/${requesterUser.id}`,
-    user: requesterUser,
+    user_name: requesterUser.display_name || requesterUser.username,
+    user_avatar: requesterUser.avatar_url,
   };
   return sendPushNotification([requestedUserId], notificationData);
 };
@@ -245,6 +257,7 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
   const message = await readDB('messages').where({ id: messageId }).first();
+  const posterUrl = await getPosterUrl(message);
 
   if (!senderUser || !recipientUser) {
     logger(null).error(
@@ -261,8 +274,10 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   notification.mutableContent = 1;
   notification.topic = 'org.reactjs.native.example.mutualsapp';
   notification.custom = {
-    user: senderUser,
-    message,
+    user_id: senderUserId,
+    user_name: senderUser.display_name || senderUser.username,
+    user_avatar: senderUser.avatar_url,
+    poster_url: posterUrl,
     type: 'received_message',
     message_id: messageId,
     link: `kiwi://messages/received/${messageId}`,
@@ -287,7 +302,8 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
     sub_type: 'friend_request_accepted',
     user_id: requestedUser.id,
     link: `kiwi://v1/users/${requestedUser.id}`,
-    user: requestedUser,
+    user_name: requestedUser.display_name || requestedUser.username,
+    user_avatar: requestedUser.avatar_url,
   };
   return sendPushNotification([requesterUserId], notificationData);
 };
@@ -306,14 +322,17 @@ const sendNotificationOnNewReply = async ({ recipientId, text, senderId, message
 const sendNotificationOnLikeAction = async ({ recipientId, senderId, messageId, like }) => {
   const data = await readDB('users').select('*').where({ id: recipientId }).first();
   const message = await readDB('messages').where({ id: messageId }).first();
+  const posterUrl = await getPosterUrl(message);
   const notificationData = generateNotificationData();
   const bodyText = `${data.display_name || data.username} ${like ? 'liked' : 'disliked'} your song`;
   notificationData.mutableContent = 1;
   notificationData.title = 'Kiwi';
   notificationData.custom = {
     link: `kiwi://messages/received/${messageId}`,
-    user: data,
-    message,
+    user_id: data.id,
+    user_name: data.display_name || data.username,
+    user_avatar: data.avatar_url,
+    poster_url: posterUrl,
     type: 'like',
   };
   notificationData.body = bodyText;
