@@ -13,7 +13,7 @@ test('create and get user data', async t => {
     process.exit(0);
   });
 
-  const fakeUserPN = faker.phone.phoneNumber();
+  const userPhoneNumber = faker.phone.phoneNumber();
 
   const fakeUser = {
     display_name: faker.name.findName(),
@@ -26,7 +26,7 @@ test('create and get user data', async t => {
   const registerResponse = await fastify
     .inject()
     .post('/signup')
-    .body({ phone_number: fakeUserPN });
+    .body({ phone_number: userPhoneNumber });
 
   const registerResponseJson = registerResponse.json();
 
