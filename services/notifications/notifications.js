@@ -65,8 +65,12 @@ function generateNotificationData() {
 const getPosterUrl = async message => {
   let posterUrl;
 
+  if (!message) {
+    return undefined;
+  }
+
   if (message.track_id) {
-    const track = await readDB('tracks').where({ id: message.track_id }).first();
+    const track = await readDB('tracks').where({ track_id: message.track_id }).first();
     posterUrl = 'artwork' in track ? track.artwork.url : undefined;
   }
 
