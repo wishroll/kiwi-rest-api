@@ -1,7 +1,7 @@
 const { getMutualFriends } = require('../../services/api/neo4j/recommendations');
 const { default: logger } = require('../../logger');
 
-module.exports = async fastify => {
+module.exports = async (fastify) => {
   const {
     sendPushNotificationOnReceivedFriendRequest,
     sendPushNotificationOnAcceptedFriendRequest,

@@ -30,7 +30,6 @@ module.exports = async fastify => {
     }),
   });
 
-  // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
   const generateSignedUrl = key => {
     return s3.getSignedUrl('getObject', {
       Bucket: process.env.AWS_S3_BUCKET_NAME,

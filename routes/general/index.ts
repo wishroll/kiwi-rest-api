@@ -20,9 +20,14 @@ export default async (fastify: WishrollFastifyInstance) => {
       if (!notificationTitle || notificationTitle.length < 1) {
         return res.status(400).send({ error: true, message: 'Missing notification title' });
       }
-      sendDailyNotificationBlast(notificationTitle, notificationBody).catch((err: Error) =>
-        logger(req).error(err),
-      );
+      sendDailyNotificationBlast(notificationTitle, notificationBody).catch((err: unknown) => {
+        if (err instanceof Error) {
+          logger(req).error(err);
+          return;
+        }
+
+        logger(req).info(`Unexpected error happened! ${err}`);
+      });
       return res.send();
     },
   );
