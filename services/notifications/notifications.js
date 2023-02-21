@@ -186,8 +186,10 @@ const sendPushNotificationOnReceivedFriendRequest = async (requestedUserId, requ
   notificationData.mutableContent = 1;
   notificationData.custom = {
     type: 'user',
+    sub_type: 'friend_request',
     user_id: requesterUser.id,
     link: `kiwi://v1/users/${requesterUser.id}`,
+    user: requesterUser,
   };
   return sendPushNotification([requestedUserId], notificationData);
 };
@@ -242,6 +244,8 @@ async function promiseAllInBatches(task, items, batchSize) {
 async function sendNotificationOnReceivedSong(messageId, senderUserId, recipientUserId) {
   const senderUser = await readDB('users').where({ id: senderUserId }).first();
   const recipientUser = await readDB('users').where({ id: recipientUserId }).first();
+  const message = await readDB('messages').where({ id: messageId }).first();
+
   if (!senderUser || !recipientUser) {
     logger(null).error(
       { senderUser, recipientUser },
@@ -257,6 +261,8 @@ async function sendNotificationOnReceivedSong(messageId, senderUserId, recipient
   notification.mutableContent = 1;
   notification.topic = 'org.reactjs.native.example.mutualsapp';
   notification.custom = {
+    user: senderUser,
+    message,
     type: 'received_message',
     message_id: messageId,
     link: `kiwi://messages/received/${messageId}`,
@@ -278,8 +284,10 @@ const sendPushNotificationOnAcceptedFriendRequest = async (requesterUserId, requ
   notificationData.mutableContent = 1;
   notificationData.custom = {
     type: 'user',
+    sub_type: 'friend_request_accepted',
     user_id: requestedUser.id,
     link: `kiwi://v1/users/${requestedUser.id}`,
+    user: requestedUser,
   };
   return sendPushNotification([requesterUserId], notificationData);
 };
@@ -297,11 +305,17 @@ const sendNotificationOnNewReply = async ({ recipientId, text, senderId, message
 
 const sendNotificationOnLikeAction = async ({ recipientId, senderId, messageId, like }) => {
   const data = await readDB('users').select('*').where({ id: recipientId }).first();
+  const message = await readDB('messages').where({ id: messageId }).first();
   const notificationData = generateNotificationData();
   const bodyText = `${data.display_name || data.username} ${like ? 'liked' : 'disliked'} your song`;
   notificationData.mutableContent = 1;
   notificationData.title = 'Kiwi';
-  notificationData.custom = { link: `kiwi://messages/received/${messageId}` };
+  notificationData.custom = {
+    link: `kiwi://messages/received/${messageId}`,
+    user: data,
+    message,
+    type: 'like',
+  };
   notificationData.body = bodyText;
   notificationData.sound = 'activity_notification_sound.caf';
   notificationData.pushType = 'alert';
