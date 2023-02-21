@@ -329,7 +329,9 @@ const sendNotificationOnLikeAction = async ({ recipientId, senderId, messageId, 
   notificationData.title = 'Kiwi';
   notificationData.custom = {
     link: `kiwi://messages/received/${messageId}`,
-    user: data,
+    user_id: data.id,
+    user_name: data.display_name || data.username,
+    user_avatar: data.avatar_url,
     poster_url: posterUrl,
     type: 'like',
   };
