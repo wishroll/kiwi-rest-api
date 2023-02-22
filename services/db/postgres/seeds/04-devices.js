@@ -15,7 +15,7 @@ exports.seed = async knex => {
     await knex('devices').insert([
       {
         os: getRandomDevice(),
-        token: faker.datatype.string(27),
+        token: faker.datatype.string(163), // Example of android's token
         user_id: results[i].id,
       },
     ]);

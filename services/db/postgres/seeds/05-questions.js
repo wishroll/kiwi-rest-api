@@ -7,7 +7,7 @@ exports.seed = async knex => {
     await knex('questions').insert([
       {
         user_id: results[i].id,
-        body: faker.lorem.paragraph(1),
+        body: faker.random.words(5),
       },
     ]);
   }

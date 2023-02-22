@@ -6,7 +6,7 @@ exports.seed = async knex => {
     .select(['id', 'phone_number'])
     .orderByRaw('RANDOM()');
 
-  for (let i = 0; i < 2500; i++) {
+  for (let i = 0; i < 1500; i++) {
     await knex('friend_requests').insert([
       {
         requester_phone_number: randomFirstUser[i].phone_number,

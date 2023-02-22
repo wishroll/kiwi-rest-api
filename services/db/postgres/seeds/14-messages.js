@@ -17,7 +17,7 @@ exports.seed = async knex => {
     else return randomSecondUser[index];
   };
 
-  for (let i = 0; i < 2500; i++) {
+  for (let i = 0; i < 1500; i++) {
     await knex('messages').insert([
       {
         sender_id: randomFirstUser[i].id,

@@ -5,7 +5,7 @@ exports.seed = async knex => {
   const randomUser = await knex('users').select('id').orderByRaw('RANDOM()');
   const randomMessage = await knex('messages').select('id').orderByRaw('RANDOM()');
 
-  for (let i = 0; i < 2500; i++) {
+  for (let i = 0; i < 1500; i++) {
     await knex('ratings').insert([
       {
         user_id: randomUser[i].id,

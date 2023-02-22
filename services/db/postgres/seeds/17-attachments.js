@@ -4,7 +4,7 @@ exports.seed = async knex => {
   console.log('Starting to seed attachments.js entries...');
   const randomMessage = await knex('messages').select('id').orderByRaw('RANDOM()');
 
-  for (let i = 0; i < 2500; i++) {
+  for (let i = 0; i < 1500; i++) {
     await knex('attachments').insert([
       {
         name: faker.random.words(3),

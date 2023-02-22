@@ -3,7 +3,7 @@ exports.seed = async knex => {
   const randomFirstUser = await knex('users').select('id').orderByRaw('RANDOM()');
   const randomSecondUser = await knex('users').select('id').orderByRaw('RANDOM()');
 
-  for (let i = 0; i < 2500; i++) {
+  for (let i = 0; i < 1500; i++) {
     await knex('friends').insert([
       {
         user_id: randomFirstUser[i].id,

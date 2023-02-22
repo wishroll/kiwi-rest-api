@@ -9,12 +9,12 @@ exports.seed = async knex => {
   const randomPrompt = await knex('prompts').select('id').orderByRaw('RANDOM()');
   const randomUser = await knex('users').select('id').orderByRaw('RANDOM()');
 
-  for (let i = 0; i < 2500; i++) {
+  for (let i = 0; i < 1500; i++) {
     await knex('answers').insert([
       {
         prompt_id: randomPrompt[i].id,
         user_id: randomUser[i].id,
-        body: faker.lorem.paragraph(),
+        body: faker.random.words(10),
       },
     ]);
   }
