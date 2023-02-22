@@ -542,7 +542,11 @@ export default async (fastify: WishrollFastifyInstance) => {
           res.status(404).send({ error: true, message: 'Not found' });
           return;
         }
-        if (message.sender_id !== currentUserId && message.recipient_id !== currentUserId) {
+
+        if (
+          safeBigIntToNumber(message.sender_id) !== currentUserId &&
+          safeBigIntToNumber(message.recipient_id) !== currentUserId
+        ) {
           res.status(403).send({ error: true, message: 'Forbidden' });
           return;
         }
