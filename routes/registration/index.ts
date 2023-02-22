@@ -128,7 +128,7 @@ export default async (fastify: WishrollFastifyInstance) => {
         res.status(201).send({ access_token: token });
       } else {
         // User record wasn't created in db
-        res.status(500).send({ message: "An error occured: Couldn't create new user" });
+        res.status(500).send({ message: "An error occurred: Couldn't create new user" });
       }
     } catch (error) {
       res.status(500).send({ message: error });

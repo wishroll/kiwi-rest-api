@@ -15,4 +15,7 @@ newrelic_agent.log
 build
 tsconfig.tsbuildinfo
 
+# IDE
+.idea
+
 .nyc_output

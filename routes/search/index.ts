@@ -1,10 +1,9 @@
 import { WishrollFastifyInstance } from '../index';
 import { FastifyReply } from 'fastify/types/reply';
 import { FastifyRequest } from 'fastify/types/request';
-import { searchUsersV2 } from '../../services/api/neo4j/search';
+import { searchUsersV2, searchUsers } from '../../services/api/neo4j/search';
 import { search } from './schema/v1/users/index';
 import { search as searchV2 } from './schema/v2/users/index';
-import { searchUsers } from '../../services/api/neo4j/search/index';
 import { MAX_32INT_NEO4J, MAX_SEARCH_MATCH_SCORE } from '../../utils/numbers';
 import logger from '../../logger';
 

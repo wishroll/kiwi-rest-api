@@ -1,4 +1,4 @@
-const routes = async (fastify, _options) => {
+const routes = async fastify => {
   const crypto = require('crypto');
   const fetch = require('node-fetch');
   const spotifyAuthUri = process.env.SPOTIFY_AUTH_URI;

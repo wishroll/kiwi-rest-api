@@ -1,4 +1,4 @@
-const routes = async (fastify, _options) => {
+const routes = async fastify => {
   const multer = require('fastify-multer');
   const multerS3 = require('multer-s3');
   const S3 = require('aws-sdk/clients/s3');

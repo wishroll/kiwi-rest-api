@@ -47,7 +47,4 @@ async function getMutualFriends(userId, limit = 10, offset = 0) {
   }
 }
 
-// eslint-disable-next-line no-unused-vars
-async function getRecommendedTracks() {}
-
 module.exports = { getMutualFriends };

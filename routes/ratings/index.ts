@@ -9,7 +9,7 @@ import create from './schema/v1/create';
 import { WishrollFastifyInstance } from '../index';
 import { withErrorHandler } from '../../utils/errors';
 import { RateSongBody, RateSongParams, rateSongSchema } from './schema/v2/create';
-import { default as updateRatingController } from './controller/update_ratings';
+import updateRatingController from './controller/update_ratings';
 
 export default async (fastify: WishrollFastifyInstance) => {
   fastify.post(
@@ -31,7 +31,7 @@ export default async (fastify: WishrollFastifyInstance) => {
             ['*'],
           );
         if (inserts.length > 0) {
-          updateMessageSenderRating(messageId, score);
+          await updateMessageSenderRating(messageId, score);
           sendNotificationOnCreatedRating(messageId).catch(error => logger(req).error(error));
           res.status(201).send();
         } else {

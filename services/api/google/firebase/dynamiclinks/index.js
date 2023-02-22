@@ -1,10 +1,10 @@
 const { default: logger } = require('../../../../../logger');
 const { oauth2Client } = require('../../index');
 function createDynamicProfileLink(user) {
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
     const username = user?.username;
     const displayName = user?.display_name;
-    const avatarUrl = user?.avatar_url;
     const userId = user?.id;
     const data = {
       dynamicLinkInfo: {
