@@ -4,8 +4,6 @@ import { RedisClientType } from 'redis';
 import 'fastify-jwt/jwt';
 import { Knex } from 'knex';
 
-const redisMock = require('fastify-redis-mock');
-
 export interface WishrollFastifyInstance extends FastifyInstance {
   authenticate: () => void;
   redisClient: RedisClientType;
