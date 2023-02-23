@@ -4,9 +4,8 @@ exports.seed = async knex => {
   const getRandomDevice = () => {
     const random = Math.random();
 
-    if (random < 0.3) return 'android';
-    else if (random < 0.7) return 'ios';
-    else return 'windows';
+    if (random < 0.5) return 'android';
+    else return 'ios';
   };
 
   console.log('Starting to seed devices.js entries...');
