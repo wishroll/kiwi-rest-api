@@ -73,6 +73,7 @@ module.exports = async fastify => {
           'location',
           'display_name_updated_at',
           'username_updated_at',
+          'playlist_id',
         ])
         .where({ id: userId })
         .first();
@@ -306,10 +307,27 @@ module.exports = async fastify => {
     },
   );
 
+  fastify.put('/users/playlistId', { onRequest: [fastify.authenticate] }, async (req, res) => {
+    const userId = req.user.id;
+    const updateParams = req.body;
+
+    try {
+      const results = await fastify
+        .writeDb('users')
+        .select('id')
+        .where({ id: userId })
+        .update(updateParams, ['playlist_id']);
+
+      res.status(200).send(results[0]);
+    } catch (error) {
+      logger(req).error(error);
+      res.status(500).send({ error: true, message: 'An error occured' });
+    }
+  });
+
   /**
    * Version 1
    */
-
   fastify.get(
     '/v1/users/:id',
     { onRequest: [fastify.authenticate], schema: show },
@@ -332,6 +350,7 @@ module.exports = async fastify => {
             'location',
             'display_name_updated_at',
             'username_updated_at',
+            'playlist_id',
           ])
           .where({ id: userId })
           .first();
