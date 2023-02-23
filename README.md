@@ -39,3 +39,7 @@ _. Use `> pgcli -h 0.0.0.0 -p 5432 -d wishroll-dev -u wishroll-user -W`
 ### Run app in development mode
 
 1. Use `> npm run dev`
+
+### Run test
+
+1. Use `> npm run test`

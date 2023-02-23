@@ -54,6 +54,23 @@ const generateDevelopmentConfig = (
   };
 };
 
+const generateTestConfig = (): Knex.Config => {
+  return {
+    client: 'postgresql',
+    connection: process.env.DATABASE_URL ?? '',
+    pool: {
+      min: 2,
+      max: 10,
+    },
+    migrations: {
+      directory: './services/db/postgres/migrations',
+    },
+    seeds: { directory: './services/db/postgres/seeds' },
+    debug: true,
+    useNullAsDefault: true,
+  };
+};
+
 const MAX_CONNECTION_POOL_CONNECTIONS = 10000;
 const MAX_CONNECTIONS = 500;
 
@@ -91,6 +108,8 @@ const generateAndConfigKnexDB = (
       return knex(generateProductionConfig(databaseUrl, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
+    case 'test':
+      return knex(generateTestConfig());
     default:
       const err = new Error('Something went wrong. Could not create knex instance');
       logger(null).error(err, 'Error with knex instance');
@@ -116,6 +135,8 @@ const generateAndConfigKnexDBMultipleUrls = (
       return knex(generateProductionConfig(url, maxConnections, minConnections));
     case 'development':
       return knex(generateDevelopmentConfig('greatokonkwo', 'greatokonkwo'));
+    case 'test':
+      return knex(generateTestConfig());
     default:
       const err = new Error('Something went wrong. Could not create knex instance');
       logger(null).error(err, 'Error with knex instance');

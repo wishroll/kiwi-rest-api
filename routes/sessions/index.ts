@@ -114,5 +114,5 @@ export default async (fastify: WishrollFastifyInstance) => {
     }
   });
 
-  fastify.post('/logout', { onRequest: [fastify.authenticate] }, (_req, _res) => {});
+  fastify.post('/logout', { onRequest: [fastify.authenticate] }, () => undefined);
 };

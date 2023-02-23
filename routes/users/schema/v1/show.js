@@ -31,6 +31,9 @@ module.exports = {
         location: { type: 'string' },
         display_name_updated_at: { type: 'string' },
         username_updated_at: { type: 'string' },
+        playlist_id: {
+          type: 'string',
+        },
         rating: {
           type: 'object',
           properties: {

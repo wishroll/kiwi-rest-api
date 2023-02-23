@@ -1,0 +1,18 @@
+{
+  "environments": {
+    "test": {
+      "scripts": {
+        "test-setup": "npm install && npm migrate",
+        "test": "npm test"
+      },
+      "buildpacks": [{ "url": "heroku/nodejs" }],
+      "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"],
+      "formation": {
+        "test": {
+          "quantity": 1,
+          "size": "standard-1x"
+        }
+      }
+    }
+  }
+}

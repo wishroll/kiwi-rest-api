@@ -15,6 +15,7 @@ export const userSchema = zod.object({
   location: zod.string().optional().nullable(),
   display_name_updated_at: zod.date().nullable(),
   username_updated_at: zod.date().nullable(),
+  playlist_id: zod.string().optional().nullable(),
 });
 
 export const usersSchema = zod.array(userSchema);

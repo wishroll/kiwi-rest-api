@@ -1,6 +1,6 @@
 const { default: logger } = require('../../logger');
 const index = require('./schema/v1/index');
-module.exports = async (fastify, _options) => {
+module.exports = async fastify => {
   fastify.get(
     '/v1/widgets/me/tracks/received',
     { onRequest: [fastify.authenticate], schema: index },

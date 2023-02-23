@@ -3,8 +3,8 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-  return knex.schema.alterTable('users', t => {
-    t.string('share_link', 255).nullable();
+  return knex.schema.table('users', table => {
+    table.string('playlist_id', 255).nullable();
   });
 };
 
@@ -13,7 +13,7 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.alterTable('users', t => {
-    t.dropColumn('share_link');
+  return knex.schema.table('users', table => {
+    table.dropColumn('playlist_id');
   });
 };
