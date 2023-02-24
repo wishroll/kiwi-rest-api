@@ -21,7 +21,7 @@ export class ForbiddenError extends Error {
 
 export const withErrorHandler =
   <T extends FastifyRequest, U extends FastifyReply>(
-    fastifyCallback: (request: T, reply: U) => Promise<any>,
+    fastifyCallback: (request: T, reply: U) => Promise<unknown>,
   ) =>
   async (request: T, reply: U) => {
     try {

@@ -5,7 +5,7 @@ export default async (fastify: WishrollFastifyInstance) => {
   fastify.post<{
     Body: CreateBody;
   }>('/v1/devices', { onRequest: [fastify.authenticate], schema: create }, async (req, res) => {
-    //@ts-ignore
+    // @ts-ignore
     const userId = req.user.id;
 
     const token = req.body.token;

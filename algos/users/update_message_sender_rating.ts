@@ -12,7 +12,7 @@ const updateMessageSenderRating = async (
     const result = await readDB('messages').select('sender_id').where({ id: score }).first();
 
     if (result) {
-      updateUserRating(result.sender_id, messageId);
+      await updateUserRating(result.sender_id, messageId);
     } else {
       return new Error(`Couldn't find sender_id for ${score}`);
     }

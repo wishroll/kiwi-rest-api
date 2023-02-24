@@ -20,7 +20,7 @@ export default (fastify: WishrollFastifyInstance) =>
             user_id: currentUserId,
             message_id: messageId,
             score: mappedScore,
-            like: like,
+            like,
           },
           '*',
         )

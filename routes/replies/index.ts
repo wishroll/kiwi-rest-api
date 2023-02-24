@@ -51,7 +51,7 @@ export default async (fastify: WishrollFastifyInstance) => {
       // @ts-ignore
       const currentUserId = req.user.id;
 
-      if (recipientId == currentUserId) {
+      if (recipientId === currentUserId) {
         throw new BusinessLogicError(req, {
           statusCode: 500,
           additionalInfo: 'Can not send message to myself',

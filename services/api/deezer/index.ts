@@ -3,7 +3,7 @@ import { withErrorHandler } from '../../../utils/errors';
 import { callbackSchema } from './schema';
 
 export default async (fastify: WishrollFastifyInstance) => {
-  fastify.get<{}>(
+  fastify.get<Record<string, unknown>>(
     '/deezer/callback',
     { schema: callbackSchema },
     withErrorHandler(async (_, res) => {
