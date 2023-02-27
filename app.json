@@ -2,8 +2,8 @@
   "environments": {
     "test": {
       "scripts": {
-        "test-setup": "npm install && npm migrate",
-        "test": "npm test"
+        "test-setup": "npm run migrate",
+        "test": "npm run test"
       },
       "buildpacks": [{ "url": "heroku/nodejs" }],
       "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"],
