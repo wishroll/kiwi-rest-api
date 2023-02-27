@@ -26,10 +26,13 @@ export default async (fastify: WishrollFastifyInstance) => {
     }
   });
 
+  if (process.env.NODE_ENV !== 'test') {
+    fastify.decorate('twilioClient', require('../services/api/twilio/twilio_client'));
+  }
+
   fastify.decorate('redisClient', require('../services/db/redis/redis_client').client);
   fastify.decorate('readDb', require('../services/db/postgres/knex_fastify_plugin').readDB);
   fastify.decorate('writeDb', require('../services/db/postgres/knex_fastify_plugin').writeDB);
-  fastify.decorate('twilioClient', require('../services/api/twilio/twilio_client'));
   fastify.register(require('./users'));
   fastify.register(require('./registration'));
   fastify.register(require('./sessions'));
