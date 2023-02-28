@@ -2,9 +2,9 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-// eslint-disable-next-line no-unused-vars
+
 exports.up = function (knex) {
-  return knex.schema.alterTable('ratings', function (t) {
+  return knex.schema.alterTable('ratings', t => {
     t.unique('message_id');
   });
 };
@@ -14,7 +14,7 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.alterTable('ratings', function (t) {
+  return knex.schema.alterTable('ratings', t => {
     t.dropUnique('message_id');
   });
 };
