@@ -24,6 +24,8 @@ export default (fastify: WishrollFastifyInstance) =>
           },
           '*',
         )
+        .onConflict('message_id')
+        .merge()
         .then(rows => rows[0]);
 
       logger(fastify).trace({ messageScore, currentUserId }, 'updated ratings table');
@@ -59,7 +61,7 @@ export default (fastify: WishrollFastifyInstance) =>
             user_id: ratedMessage.sender_id,
             score: mappedScore,
             num_ratings: 1,
-            likes: like ? 1 : 0,
+            likes: like ? 1 : -1,
           },
           ['*'],
         )
