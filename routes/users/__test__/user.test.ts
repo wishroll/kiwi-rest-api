@@ -52,4 +52,38 @@ test('create and get user data', async t => {
     t.hasProps(updatedUser, Object.keys(fakeUser));
     t.end();
   });
+
+  const removeUserResponse = await fastify
+    .inject()
+    .delete('/v1/users/me')
+    .headers({
+      Authorization: `Bearer ${access_token}`,
+    });
+
+  t.test('check remove user payload', t => {
+    t.equal(removeUserResponse.statusCode, 204);
+    t.same(removeUserResponse.json(), {
+      error: false,
+      message: 'user deleted',
+    });
+    t.end();
+  });
+
+  const userId = updatedUser.id;
+
+  const deletedUserResponse = await fastify
+    .inject()
+    .get(`/v1/users/${userId}`)
+    .headers({
+      Authorization: `Bearer ${access_token}`,
+    });
+
+  t.test('check deleted user payload', async t => {
+    t.equal(deletedUserResponse.statusCode, 404);
+    t.same(deletedUserResponse.json(), {
+      error: true,
+      message: 'Not found',
+    });
+    t.end();
+  });
 });

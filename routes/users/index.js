@@ -358,6 +358,9 @@ module.exports = async fastify => {
             'playlist_id',
           ])
           .where({ id: userId })
+          .andWhere(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          })
           .first();
 
         if (user === undefined) {
@@ -400,10 +403,9 @@ module.exports = async fastify => {
           .where({ id: userId })
           .update(
             {
-              display_name: 'user deleted',
-              username: 'user deleted',
-
-              // set as uuid as phone_number field should be unique
+              // set as uuid as display_name, username and phone_number field should be unique
+              display_name: v4(),
+              username: v4(),
               phone_number: v4(),
 
               // todo: consider adding deleted-user avatar
