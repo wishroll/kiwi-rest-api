@@ -59,7 +59,7 @@ const generateTestConfig = (): Knex.Config => {
     client: 'postgresql',
     connection: process.env.DATABASE_URL ?? '',
     pool: {
-      min: 2,
+      min: 1,
       max: 10,
     },
     migrations: {

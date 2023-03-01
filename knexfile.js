@@ -3,6 +3,21 @@
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 module.exports = {
+  test: {
+    client: 'postgresql',
+    connection: process.env.DATABASE_URL,
+    pool: {
+      min: process.env.MIN_CONNECTIONS || 1,
+      max: process.env.MAX_CONNECTIONS || 10,
+    },
+    migrations: {
+      directory: './services/db/postgres/migrations',
+    },
+    seeds: { directory: './services/db/postgres/seeds' },
+    debug: true,
+    useNullAsDefault: true,
+  },
+
   development: {
     client: 'postgresql',
     connection: {

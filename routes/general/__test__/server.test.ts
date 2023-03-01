@@ -6,7 +6,7 @@ test('requests the `/healthcheck` route', async t => {
 
   t.teardown(() => {
     fastify.close();
-    process.exit(0);
+    process.exit();
   });
 
   const response = await fastify.inject({
