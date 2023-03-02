@@ -25,4 +25,29 @@ export default async (fastify: WishrollFastifyInstance) => {
       res.status(500).send(error);
     }
   });
+
+  fastify.delete<{
+    Body: CreateBody;
+  }>('/v1/devices', {onRequest: [fastify.authenticate], schema: create}, async (req, res) => {
+    //@ts-ignore
+    const userId = req.user.id;
+    console.log(userId);
+    const token = req.body.token;
+
+    try {
+      const result = await fastify
+        .writeDb('devices')
+        .delete()
+        .where('user_id', userId)
+        .andWhere('token', token);
+
+      if (result) {
+        res.status(200).send();
+      } else {
+        res.status(400).send();
+      }
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  })
 };

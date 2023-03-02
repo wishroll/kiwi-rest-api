@@ -6,7 +6,7 @@ const createBody = {
     os: { type: 'string', description: 'The os of the device' },
     token: { type: 'string', description: 'The registration token of the device' },
   },
-  required: ['os', 'token'],
+  required: ['token'],
 } as const;
 
 export const create = {
