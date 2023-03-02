@@ -31,7 +31,6 @@ export default async (fastify: WishrollFastifyInstance) => {
   }>('/v1/devices', {onRequest: [fastify.authenticate], schema: create}, async (req, res) => {
     //@ts-ignore
     const userId = req.user.id;
-    console.log(userId);
     const token = req.body.token;
 
     try {
@@ -49,5 +48,5 @@ export default async (fastify: WishrollFastifyInstance) => {
     } catch (error) {
       res.status(500).send(error);
     }
-  })
+  });
 };
