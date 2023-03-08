@@ -1,10 +1,12 @@
 import dayjs from 'dayjs';
 const { getHexCodeForScore } = require('../../algos/users/hex_code_for_score');
-const { updateUserNode } = require('../../services/api/neo4j/users/index');
+const { updateUserNode, deleteUserNode } = require('../../services/api/neo4j/users/index');
 const {
   createDynamicProfileLink,
 } = require('../../services/api/google/firebase/dynamiclinks/index');
 const { default: logger } = require('../../logger');
+const { v4 } = require('uuid');
+
 module.exports = async fastify => {
   const crypto = require('crypto');
   const multer = require('fastify-multer');
@@ -76,6 +78,9 @@ module.exports = async fastify => {
           'playlist_id',
         ])
         .where({ id: userId })
+        .where(q => {
+          q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+        })
         .first();
 
       if (user) {
@@ -353,6 +358,9 @@ module.exports = async fastify => {
             'playlist_id',
           ])
           .where({ id: userId })
+          .andWhere(q => {
+            q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+          })
           .first();
 
         if (user === undefined) {
@@ -378,6 +386,53 @@ module.exports = async fastify => {
         }
       } catch (error) {
         res.status(500).send({ error: true, message: error });
+      }
+    },
+  );
+
+  const deleteSchema = require('./schema/v1/delete');
+  fastify.delete(
+    '/v1/users/me',
+    { onRequest: [fastify.authenticate], schema: deleteSchema },
+    async (req, res) => {
+      const userId = req.user.id;
+
+      try {
+        const user = await fastify
+          .writeDb('users')
+          .where({ id: userId })
+          .update(
+            {
+              // set as uuid as display_name, username and phone_number field should be unique
+              display_name: v4(),
+              username: v4(),
+              phone_number: v4(),
+
+              // todo: consider adding deleted-user avatar
+              avatar_url: null,
+              share_link: null,
+              bio: null,
+              location: null,
+
+              is_deleted: true,
+            },
+            '*',
+          )
+          .then(rows => rows[0]);
+
+        await deleteUserNode(userId);
+
+        if (user.is_deleted) {
+          logger(req).trace(user, 'user has been safe-deleted');
+          return res.status(204).send({ error: false, message: 'user deleted' });
+        } else {
+          const err = new Error(`could not delete user with id: ${userId}`);
+          logger(req).error(err, 'user data has not been updated');
+          return res.status(500).send({ error: true, message: 'could not delete user' });
+        }
+      } catch (e) {
+        logger(req).error(e, 'An error ocurred during deleting user account');
+        return res.status(500).send({ error: true, message: 'something went wrong' });
       }
     },
   );

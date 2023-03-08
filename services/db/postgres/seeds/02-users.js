@@ -17,6 +17,7 @@ exports.seed = async knex => {
         share_link: constructShareLink(username),
         bio: faker.random.words(5),
         location: faker.address.streetAddress(true),
+        is_deleted: false,
       },
     ]);
   }

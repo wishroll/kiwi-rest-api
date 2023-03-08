@@ -19,7 +19,10 @@ export default async (fastify: WishrollFastifyInstance) => {
       const rows = await fastify
         .readDb('users')
         .select('phone_number')
-        .where({ phone_number: phoneNumber });
+        .where({ phone_number: phoneNumber })
+        .where(q => {
+          q.where({ is_deleted: false }).orWhere({ is_deleted: null });
+        });
       logger(req).debug({ rows }, 'This is the rows');
       rows && rows.length > 0 ? res.status(200).send() : res.status(404).send();
     } catch (error) {
