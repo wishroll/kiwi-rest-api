@@ -27,7 +27,7 @@ test('create and get user data', async t => {
 
   const registerResponseJson = registerResponse.json();
 
-  t.test('check signup payload', t => {
+  await t.test('check signup payload', t => {
     t.equal(registerResponse.statusCode, 201);
     t.ok(registerResponseJson.access_token);
     t.end();
@@ -47,7 +47,7 @@ test('create and get user data', async t => {
 
   const updatedUser = updatedUserResponse.json();
 
-  t.test('check updated user payload', t => {
+  await t.test('check updated user payload', t => {
     t.equal(updatedUserResponse.statusCode, 200);
     t.hasProps(updatedUser, Object.keys(fakeUser));
     t.end();
