@@ -23,7 +23,7 @@ export default async (fastify: FastifyInstance) => {
    * Spotify redirects to the callback endpoint with a code and state query params. The code param can be used to exchange for an access and refresh token.
    */
   fastify.get<{ Querystring: { state: string } }>(
-    '/spotify/authorize/callback',
+    '/authorize/callback',
     async (req: FastifyRequest<{ Querystring: { state: string } }>, res: FastifyReply) => {
       const state = req.query.state || null;
 

@@ -6,6 +6,6 @@ import { CreateDeviceBody } from './devices.schema';
 const devices: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   fastify.post<{
     Body: CreateDeviceBody;
-  }>('/v1/devices', { onRequest: [fastify.authenticate] }, createDeviceHandler);
+  }>('/', { onRequest: [fastify.authenticate] }, createDeviceHandler);
 };
 export default devices;

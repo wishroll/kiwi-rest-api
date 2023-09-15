@@ -5,7 +5,7 @@ import { handleSpotifyToken, spotifyRedirectUri } from './utils';
 
 export default async (fastify: FastifyInstance) => {
   fastify.post<{ Body: SwapBody }>(
-    '/spotify/token/swap',
+    '/token/swap',
     { schema: swapSchema },
     async (req, res) => {
       const { code } = req.body;
@@ -21,7 +21,7 @@ export default async (fastify: FastifyInstance) => {
   );
 
   fastify.post<{ Body: RefreshBody }>(
-    '/spotify/token/refresh',
+    '/token/refresh',
     { schema: refreshSchema },
     async (req, res) => {
       const { refresh_token } = req.body;

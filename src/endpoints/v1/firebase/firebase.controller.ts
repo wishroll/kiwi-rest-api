@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 export default async (fastify: FastifyInstance) => {
   fastify.post<{ Body: { token: string } }>(
-    '/firebase/cloud_messaging/users/tokens',
+    '/cloud_messaging/tokens',
     { onRequest: [fastify.authenticate] },
     async (req: FastifyRequest<{ Body: { token: string } }>, res: FastifyReply) => {
       const token = req.body.token;

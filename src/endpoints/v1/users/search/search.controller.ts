@@ -5,7 +5,7 @@ import { $ref, SearchUserQueryString } from './search.schema';
 
 const search: FastifyPluginAsync = async (fastify: FastifyInstance): Promise<void> => {
   fastify.get<{ Querystring: SearchUserQueryString }>(
-    '/search',
+    '/',
     {
       onRequest: [fastify.authenticate],
       schema: {

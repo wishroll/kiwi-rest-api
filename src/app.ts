@@ -5,6 +5,8 @@ import compress from '@fastify/compress';
 import multer from 'fastify-multer';
 import { v4 as uuidv4 } from 'uuid';
 import logger from './utils/logger';
+import { authSchemas } from '@endpoints/v1/users/auth/auth.schema';
+import { searchSchemas } from '@endpoints/v1/users/search/search.schema';
 
 const envToLogger: Record<string, any> = {
   development: {
@@ -64,6 +66,8 @@ const app: FastifyPluginAsync<AppOptions> = async (fastify, opts): Promise<void>
     dir: join(__dirname, 'endpoints'),
     options: opts,
   });
+
+  [authSchemas, searchSchemas].flat().forEach((schema) => fastify.addSchema(schema));
 
   fastify.addHook('onRequest', (req, _reply, done) => {
     logger(req).info(
