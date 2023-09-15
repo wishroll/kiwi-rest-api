@@ -1,0 +1,426 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Answer {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique(map: "index_uuid_answers") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  prompt_id  BigInt
+  user_id    BigInt
+  body       String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  prompt    Prompt  @relation(fields: [prompt_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "answers_prompt_id_foreign")
+  user      User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "answers_user_id_foreign")
+
+  @@unique([id, prompt_id, user_id], map: "index_id_prompt_id_user_id")
+  @@unique([prompt_id, user_id], map: "index_prompt_id_user_id")
+  @@map("answers")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Attachment {
+  id              BigInt   @id @default(autoincrement())
+  uuid            String   @unique(map: "index_uuid_attachments") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attachable_id   BigInt
+  attachable_type String   @db.VarChar(255)
+  name            String   @db.VarChar(255)
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([attachable_id], map: "attachments_attachable_id_index")
+  @@index([attachable_type], map: "attachments_attachable_type_index")
+  @@index([name], map: "attachments_name_index")
+  @@map("attachments")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model ChatRoomMember {
+  id                  BigInt     @id @default(autoincrement())
+  uuid                String     @unique(map: "index_chat_room_members_uuid") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at          DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime   @default(now()) @db.Timestamptz(6)
+  user_id             BigInt
+  chat_room_id        BigInt
+  num_unseen_messages Int        @default(0)
+  chat_room          ChatRoom @relation(fields: [chat_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_members_chat_room_id_foreign")
+  user               User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_members_user_id_foreign")
+
+  @@index([chat_room_id], map: "chat_room_members_chat_room_id_index")
+  @@index([num_unseen_messages], map: "chat_room_members_num_unseen_messages_index")
+  @@index([user_id], map: "chat_room_members_user_id_index")
+  @@map("chat_room_members")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model ChatRoomMessage {
+  id              BigInt     @id @default(autoincrement())
+  uuid            String     @unique(map: "index_chat_room_messages_uuid") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at      DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime   @default(now()) @db.Timestamptz(6)
+  chat_room_id    BigInt
+  sender_id       BigInt
+  song_message_id BigInt?
+  type            String
+  text            String?
+  chat_room     ChatRoom @relation(fields: [chat_room_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_messages_chat_room_id_foreign")
+  user           User      @relation(fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_messages_sender_id_foreign")
+  message        Message?  @relation(fields: [song_message_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_messages_song_message_id_foreign")
+
+  @@index([chat_room_id], map: "chat_room_messages_chat_room_id_index")
+  @@index([sender_id], map: "chat_room_messages_sender_id_index")
+  @@index([type], map: "chat_room_messages_type_index")
+  @@map("chat_room_messages")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model ChatRoom {
+  id                 BigInt               @id(map: "chat_rooms_pkey1") @default(autoincrement())
+  uuid               String               @unique(map: "index_chat_rooms_uuid") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  num_users          Int                  @default(0)
+  num_messages       Int                  @default(0)
+  last_message_id    BigInt?
+  chat_room_members  ChatRoomMember[]
+  chat_room_messages ChatRoomMessage[]
+
+  @@index([last_message_id], map: "chat_rooms_last_message_id_index")
+  @@map("chat_rooms")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model ConversationUser {
+  id              BigInt        @id(map: "chat_room_users_pkey") @default(autoincrement())
+  uuid            String        @unique(map: "index_uuid_chat_room_users") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversation_id BigInt
+  user_id         BigInt
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime      @default(now()) @db.Timestamptz(6)
+  conversation   Conversation @relation(fields: [conversation_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_users_chat_room_id_foreign")
+  user            User         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "chat_room_users_user_id_foreign")
+
+  @@unique([conversation_id, user_id], map: "index_id_chat_room_id_user_id")
+  @@map("conversation_users")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Conversation {
+  id                 BigInt               @id(map: "chat_rooms_pkey") @default(autoincrement())
+  uuid               String               @unique(map: "index_uuid_chat_rooms") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  conversation_users ConversationUser[]
+  @@map("conversations")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Device {
+  id      BigInt @id @default(autoincrement())
+  uuid    String @unique(map: "index_uuid_devices") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  os      String
+  token   String @db.VarChar(255)
+  user_id BigInt
+  users   User  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "devices_user_id_foreign")
+
+  @@unique([user_id, token], map: "index_user_id_token_id_devices")
+  @@index([os], map: "index_os_devices")
+  @@index([token], map: "index_token_devices")
+  @@map("devices")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model EmojiReaction {
+  id                      BigInt   @id @default(autoincrement())
+  uuid                    String   @unique(map: "index_emoji_reactions_uuid") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at              DateTime @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime @default(now()) @db.Timestamptz(6)
+  user_id                 BigInt
+  emoji                   String   @db.VarChar(255)
+  emoji_reactionable_id   BigInt
+  emoji_reactionable_type String   @db.VarChar(255)
+  user                  User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "emoji_reactions_user_id_foreign")
+
+  @@index([emoji], map: "emoji_reactions_emoji_index")
+  @@index([emoji_reactionable_id], map: "emoji_reactions_emoji_reactionable_id_index")
+  @@index([emoji_reactionable_type], map: "emoji_reactions_emoji_reactionable_type_index")
+  @@index([user_id], map: "emoji_reactions_user_id_index")
+  @@map("emoji_reactions")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model FirebaseCloudMessagingToken {
+  id      BigInt @id @default(autoincrement())
+  uuid    String @unique(map: "index_uuid_firebase_cloud_messaging_tokens") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token   String @db.VarChar(255)
+  user_id BigInt
+  user   User  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "firebase_cloud_messaging_tokens_user_id_foreign")
+
+  @@unique([user_id, token], map: "index_user_id_token_firebase_cloud_messaging_tokens")
+  @@index([token], map: "index_token_firebase_cloud_messaging_tokens")
+  @@map("firebase_cloud_messaging_tokens")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model FriendRequest {
+  id                                             BigInt   @id @default(autoincrement())
+  uuid                                           String   @unique(map: "index_uuid_friend_requests") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requester_phone_number                         String?  @db.VarChar(255)
+  requested_phone_number                         String?  @db.VarChar(255)
+  created_at                                     DateTime @default(now()) @db.Timestamptz(6)
+  updated_at                                     DateTime @default(now()) @db.Timestamptz(6)
+  requester_user_id                              BigInt?
+  requested_user_id                              BigInt?
+  users_friend_requests_requested_user_idTousers User?   @relation("friend_requests_requested_user_idTousers", fields: [requested_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "friend_requests_requested_user_id_foreign")
+  users_friend_requests_requester_user_idTousers User?   @relation("friend_requests_requester_user_idTousers", fields: [requester_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "friend_requests_requester_user_id_foreign")
+
+  @@unique([requester_phone_number, requested_phone_number], map: "index_requester_phone_number_requested_phone_number")
+  @@unique([requester_user_id, requested_user_id], map: "index_requester_user_id_requested_user_id")
+  @@index([requester_phone_number, requested_phone_number], map: "friend_requests_requester_phone_number_requested_phone_number_i")
+  @@index([requester_user_id, requested_user_id], map: "friend_requests_requester_user_id_requested_user_id_index")
+  @@map("friend_requests")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Friend {
+  id                             BigInt   @id @default(autoincrement())
+  uuid                           String   @unique(map: "index_uuid_friends") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                        BigInt
+  friend_id                      BigInt
+  created_at                     DateTime @default(now()) @db.Timestamptz(6)
+  updated_at                     DateTime @default(now()) @db.Timestamptz(6)
+  users_friends_friend_idTousers User    @relation("friends_friend_idTousers", fields: [friend_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "friends_friend_id_foreign")
+  users_friends_user_idTousers   User    @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "friends_user_id_foreign")
+
+  @@unique([user_id, friend_id], map: "index_user_id_friend_id")
+  @@index([user_id, friend_id], map: "friends_user_id_friend_id_index")
+  @@map("friends")
+}
+
+model knex_migrations {
+  id             Int       @id @default(autoincrement())
+  name           String?   @db.VarChar(255)
+  batch          Int?
+  migration_time DateTime? @db.Timestamptz(6)
+}
+
+model knex_migrations_lock {
+  index     Int  @id @default(autoincrement())
+  is_locked Int?
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Message {
+  id                                   BigInt               @id(map: "sent_spotify_tracks_pkey") @default(autoincrement())
+  uuid                                 String               @unique(map: "index_uuid_sent_spotify_tracks") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sender_id                            BigInt
+  recipient_id                         BigInt
+  track_id                             String               @db.VarChar(255)
+  created_at                           DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at                           DateTime             @default(now()) @db.Timestamptz(6)
+  text                                 String?
+  seen                                 Boolean?
+  last_sender_id                       BigInt?
+  chat_room_messages                   ChatRoomMessage[]
+  users_messages_last_sender_idTousers User?               @relation("messages_last_sender_idTousers", fields: [last_sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "messages_last_sender_id_foreign")
+  users_messages_recipient_idTousers   User                @relation("messages_recipient_idTousers", fields: [recipient_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sent_spotify_tracks_recipient_id_foreign")
+  users_messages_sender_idTousers      User                @relation("messages_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sent_spotify_tracks_sender_id_foreign")
+  ratings                              Rating[]
+  replies                              Reply[]
+
+  @@index([recipient_id, id], map: "messages_recipient_id_idx")
+  @@index([recipient_id], map: "sent_spotify_tracks_recipient_id_index")
+  @@index([sender_id], map: "sent_spotify_tracks_sender_id_index")
+  @@index([sender_id, recipient_id], map: "sent_spotify_tracks_sender_id_recipient_id_index")
+  @@map("messages")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Prompt {
+  id         BigInt    @id @default(autoincrement())
+  uuid       String    @unique(map: "index_uuid_prompts") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @default(now()) @db.Timestamptz(6)
+  title      String?   @unique(map: "index_unique_prompt_title") @db.VarChar(255)
+  subtitle   String?   @db.VarChar(255)
+  answers    Answer[]
+  @@map("prompts")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Question {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique(map: "index_uuid_questions") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+  user_id    BigInt
+  body       String
+  users      User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "questions_user_id_foreign")
+
+  @@index([user_id], map: "index_user_id_on_questions")
+  @@map("questions")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Rating {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique(map: "index_uuid_ratings") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  score      Float    @default(0) @db.Real
+  user_id    BigInt
+  message_id BigInt
+  like       Boolean?
+  message   Message @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ratings_message_id_foreign")
+  user      User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ratings_user_id_foreign")
+
+  @@unique([message_id, user_id], map: "ratings_message_id_user_id_unique")
+  @@index([score], map: "index_score_ratings")
+  @@map("ratings")
+}
+
+model Reply {
+  id                                BigInt   @id @default(autoincrement())
+  created_at                        DateTime @default(now()) @db.Timestamptz(6)
+  text                              String   @db.VarChar(255)
+  sender_id                         BigInt
+  recipient_id                      BigInt
+  message_id                        BigInt
+  message                         Message @relation(fields: [message_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "replies_message_id_foreign")
+  users_replies_recipient_idTousers User    @relation("replies_recipient_idTousers", fields: [recipient_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "replies_recipient_id_foreign")
+  users_replies_sender_idTousers    User    @relation("replies_sender_idTousers", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "replies_sender_id_foreign")
+
+  @@index([message_id])
+  @@index([message_id, recipient_id, id], map: "update_reply_idx")
+  @@map("replies")
+}
+
+model SpotifyTrack {
+  album             Json?
+  artists           Json[]
+  available_markets String[]
+  disc_number       BigInt?
+  duration_ms       BigInt?  @default(0)
+  episode           Boolean? @default(false)
+  explicit          Boolean? @default(false)
+  external_ids      Json?
+  external_urls     Json?
+  href              String?  @db.VarChar(255)
+  is_local          Boolean? @default(false)
+  id                String   @id @unique(map: "spotify_tracks_id_unique") @db.VarChar(255)
+  name              String   @db.VarChar(255)
+  popularity        Int?
+  preview_url       String?  @db.VarChar(255)
+  track             Boolean? @default(true)
+  track_number      Int?
+  type              String?  @db.VarChar(255)
+  uri               String?  @db.VarChar(255)
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime @default(now()) @db.Timestamptz(6)
+  @@map("spotify_tracks")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model Track {
+  id           BigInt   @id @default(autoincrement())
+  uuid         String   @unique(map: "index_uuid_tracks") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  track_id     String   @db.VarChar(255)
+  external_url String   @db.VarChar(255)
+  preview_url  String?  @db.VarChar(255)
+  uri          String?  @db.VarChar(255)
+  href         String   @db.VarChar(255)
+  name         String   @db.VarChar(255)
+  duration     BigInt   @default(0)
+  track_number BigInt
+  release_date String?  @db.VarChar(255)
+  isrc         String?  @db.VarChar(255)
+  explicit     Boolean? @default(false)
+  artwork      Json?
+  artists      Json[]
+  platform     String   @db.VarChar(255)
+
+  @@unique([track_id, platform], map: "tracks_track_id_platform_unique")
+  @@index([name], map: "index_name_tracks")
+  @@index([platform], map: "index_platform_tracks")
+  @@index([track_id], map: "index_track_id_tracks")
+  @@index([track_id], map: "tracks_track_id_index")
+  @@map("tracks")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model UserRating {
+  id          BigInt @id @default(autoincrement())
+  uuid        String @unique(map: "index_uuid_user_ratings") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     BigInt @unique(map: "user_ratings_user_id_unique")
+  score       Float  @default(0.11) @db.Real
+  num_ratings BigInt @default(0)
+  likes       Int?   @default(0)
+  user       User  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_ratings_user_id_foreign")
+
+  @@index([num_ratings], map: "user_ratings_num_ratings_index")
+  @@index([score], map: "user_ratings_score_index")
+  @@map("user_ratings")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model User {
+  id                                                       BigInt                            @id @default(autoincrement())
+  uuid                                                     String                            @unique(map: "index_uuid_users") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  display_name                                             String?                           @db.VarChar(255)
+  phone_number                                             String                            @unique(map: "index_unique_phone_number_users") @db.VarChar(255)
+  created_at                                               DateTime                          @default(now()) @db.Timestamptz(6)
+  updated_at                                               DateTime                          @default(now()) @db.Timestamptz(6)
+  avatar_url                                               String?                           @db.VarChar(255)
+  username                                                 String?                           @unique(map: "index_username_on_users") @db.VarChar(255)
+  share_link                                               String?                           @db.VarChar(255)
+  bio                                                      String?                           @db.VarChar(255)
+  location                                                 String?                           @db.VarChar(255)
+  display_name_updated_at                                  DateTime?                         @db.Timestamptz(6)
+  username_updated_at                                      DateTime?                         @db.Timestamptz(6)
+  answers                                                  Answer[]
+  chat_room_members                                        ChatRoomMember[]
+  chat_room_messages                                       ChatRoomMessage[]
+  conversation_users                                       ConversationUser[]
+  devices                                                  Device[]
+  emoji_reactions                                          EmojiReaction[]
+  firebase_cloud_messaging_tokens                          FirebaseCloudMessagingToken[]
+  friend_requests_friend_requests_requested_user_idTousers FriendRequest[]                 @relation("friend_requests_requested_user_idTousers")
+  friend_requests_friend_requests_requester_user_idTousers FriendRequest[]                 @relation("friend_requests_requester_user_idTousers")
+  friends_friends_friend_idTousers                         Friend[]                         @relation("friends_friend_idTousers")
+  friends_friends_user_idTousers                           Friend[]                         @relation("friends_user_idTousers")
+  messages_messages_last_sender_idTousers                  Message[]                        @relation("messages_last_sender_idTousers")
+  messages_messages_recipient_idTousers                    Message[]                        @relation("messages_recipient_idTousers")
+  messages_messages_sender_idTousers                        Message[]                        @relation("messages_sender_idTousers")
+  questions                                                Question[]
+  ratings                                                  Rating[]
+  replies_replies_recipient_idTousers                      Reply[]                         @relation("replies_recipient_idTousers")
+  replies_replies_sender_idTousers                         Reply[]                         @relation("replies_sender_idTousers")
+  user_rating                                             UserRating?
+  views                                                    View[]
+
+  @@unique([id, phone_number], map: "index_id_phone_number_users")
+  @@map("users")
+}
+
+/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
+model View {
+  uuid          String   @unique(map: "index_views_uuid") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id            BigInt   @id @default(autoincrement())
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  last_seen_at  DateTime @default(now()) @db.Timestamptz(6)
+  user_id       BigInt
+  viewable_id   BigInt
+  viewable_type String   @db.VarChar(255)
+  user         User    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "views_user_id_foreign")
+
+  @@index([user_id], map: "views_user_id_index")
+  @@index([viewable_id], map: "views_viewable_id_index")
+  @@map("views")
+}
