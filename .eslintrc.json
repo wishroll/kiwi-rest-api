@@ -1,15 +1,30 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true
-    },
-    "extends": [
-        "standard"
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true
+  },
+  "plugins": ["prettier"],
+  "extends": ["standard", "eslint:recommended", "plugin:prettier/recommended"],
+  "parserOptions": {
+    "ecmaVersion": 12
+  },
+  "rules": {
+    "semi": ["warn", "always"],
+    "no-unused-vars": ["error", { "ignoreRestSiblings": true, "argsIgnorePattern": "^_+" }],
+    "quotes": [2, "single", { "avoidEscape": true }],
+    "no-duplicate-imports": "error",
+    "space-before-function-paren": [
+      "error",
+      { "anonymous": "always", "named": "never", "asyncArrow": "always" }
     ],
-    "parserOptions": {
-        "ecmaVersion": 12
-    },
-    "rules": {
-    }
+    "prettier/prettier": [
+      "warn",
+      {
+        "singleQuote": true,
+        "semi": true
+      }
+    ]
+  },
+  "ignorePatterns": ["node_modules/*", "build/*"]
 }
