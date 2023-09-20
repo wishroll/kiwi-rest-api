@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import crypto from 'crypto'
-import fetch from 'node-fetch';
 
 export default async (fastify: FastifyInstance) => {
   const spotifyAuthUri = process.env.SPOTIFY_AUTH_URI || '';
@@ -71,7 +70,7 @@ export default async (fastify: FastifyInstance) => {
           return res.status(response.status).send(response.statusText);
         }
 
-        const data = await response.json();
+        const data = await response.json() as {access_token: string, expires_in: string, refresh_token: string};
         const accessToken = data.access_token;
 
         // const tokenType = data.token_type;
@@ -107,7 +106,11 @@ export default async (fastify: FastifyInstance) => {
           },
           body: authOptions,
         });
-        const data = await response.json();
+        const data = (await response.json()) as {
+          access_token: string;
+          expires_in: string;
+          refresh_token: string;
+        };
         const accessToken = data.access_token;
         const expiresIn = data.expires_in;
 

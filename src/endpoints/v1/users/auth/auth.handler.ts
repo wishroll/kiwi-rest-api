@@ -22,7 +22,7 @@ export async function registerUserHandler(
   } catch (error) {
     res.status(500).send({ message: error });
   }
-};
+}
 
 export async function signInUserHandler(
   this: FastifyInstance,
@@ -47,7 +47,7 @@ export async function signInUserHandler(
   } catch (error) {
     res.status(500).send();
   }
-};
+}
 
 export async function authenticatePhoneNumberHandler(
   this: FastifyInstance,
@@ -57,7 +57,7 @@ export async function authenticatePhoneNumberHandler(
   const { phone_number: phoneNumber, device_id: deviceId, device_type: deviceType } = req.body;
   try {
     const auth = await this.dingClient.authenticate(phoneNumber, { deviceId, deviceType });
-    res.status(200).send(auth);
+    res.status(200).send({ uuid: auth.uuid });
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
@@ -82,7 +82,7 @@ export async function checkOTPCodeHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function retryOTPHandler(
   this: FastifyInstance,
@@ -104,4 +104,4 @@ export async function retryOTPHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
