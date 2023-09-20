@@ -1,5 +1,4 @@
 import { FastifyReply } from 'fastify';
-import fetch, { FetchError } from 'node-fetch';
 import { encrypt } from '../../../utils/encrypt';
 
 const spotifyClientID = process.env.SPOTIFY_CLIENT_ID;
@@ -15,7 +14,9 @@ export const authHeader = `Basic ${authString}`;
 
 export const handleSpotifyToken = async (res: FastifyReply, body: Record<string, string>) =>
   tokenRequestHandler(res, async () => {
-    const spotifyResponse = await spotifyPost(body).then(response => response.json());
+    const spotifyResponse = (await spotifyPost(body).then(response => response.json())) as {
+      refresh_token: string;
+    };
 
     if ('error' in spotifyResponse) {
       return res.status(500).send(spotifyResponse);
@@ -34,11 +35,6 @@ export const tokenRequestHandler = async (res: FastifyReply, fetcher: () => Prom
   } catch (error) {
     if (typeof error !== 'object' || error === null) {
       return res.status(500).send({ message: 'something went wrong' });
-    }
-    if (error instanceof FetchError) {
-      return res.status(parseInt(error.code ?? '500')).send(error);
-    } else {
-      return res.status(500).send({ message: 'something went wrong', ...error });
     }
   }
 };
