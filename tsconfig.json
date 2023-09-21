@@ -1,4 +1,5 @@
 {
+  "extends": "fastify-tsconfig",
   "compilerOptions": {
     "target": "es2021",
     "module": "commonjs",
@@ -17,9 +18,16 @@
 
     "outDir": "./build",
     "rootDir": "./",
-
+    "baseUrl": "./",
     /* To be removed after full migration */
-    "allowJs": true
+    "allowJs": true,
+    "paths": {
+      "@endpoints/*": ["src/endpoints/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@plugins/*": ["src/plugins/*"],
+      "@services/*": ["src/services/*"],
+      "@test/*": ["src/test/*"]
+    }
   },
   "exclude": ["node_modules", "build"],
   "include": ["**/*.ts", "*.ts", "**/*.js", "*.js"]
