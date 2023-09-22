@@ -5,6 +5,7 @@ import {
   RegisterUser,
   RetryOTP,
   SignInUserSchema,
+  ValidateUserPhonenumber,
 } from './auth.schema';
 
 export async function registerUserHandler(
@@ -101,6 +102,26 @@ export async function retryOTPHandler(
         res.status(400).send();
         break;
     }
+  } catch (error) {
+    this.errorHandler(error as FastifyError, req, res);
+  }
+}
+
+export async function validateUserHandler(
+  this: FastifyInstance,
+  req: FastifyRequest<{ Body: ValidateUserPhonenumber }>,
+  res: FastifyReply,
+) {
+  try {
+    const { phone_number: phoneNumber } = req.body;
+    const user = await this.prisma.user.findUnique({ where: { phone_number: phoneNumber } });
+
+    if (user) {
+      return res.status(200).send();
+    } else {
+      return res.status(404).send();
+    }
+    
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
