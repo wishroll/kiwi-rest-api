@@ -7,6 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import logger from './utils/logger';
 import { authSchemas } from '@endpoints/v1/users/auth/auth.schema';
 import { searchSchemas } from '@endpoints/v1/users/search/search.schema';
+import { profileSchemas } from '@endpoints/v1/users/profile/profile.schema';
+import { userSchemas } from '@endpoints/v1/users/users.schema';
+import { messagesSchemas } from '@endpoints/v1/messages/messages.schema';
 
 const envToLogger: Record<string, any> = {
   development: {
@@ -67,7 +70,9 @@ const app: FastifyPluginAsync<AppOptions> = async (fastify, opts): Promise<void>
     options: opts,
   });
 
-  [authSchemas, searchSchemas].flat().forEach((schema) => fastify.addSchema(schema));
+  [authSchemas, searchSchemas, profileSchemas, userSchemas, messagesSchemas]
+    .flat()
+    .forEach(schema => fastify.addSchema(schema));
 
   fastify.addHook('onRequest', (req, _reply, done) => {
     logger(req).info(

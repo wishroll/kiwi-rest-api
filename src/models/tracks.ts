@@ -16,7 +16,7 @@ export const trackSchema = zod.object({
   release_date: zod.string().optional().nullable(),
   isrc: zod.string().optional().nullable(),
   explicit: zod.coerce.boolean().optional().nullable(),
-  artwork: jsonb.optional().nullable(),
+  // artwork: jsonb.optional().nullable(),
   artists: zod.array(jsonb),
   platform: zod.string(),
 });
