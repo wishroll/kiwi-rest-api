@@ -25,11 +25,16 @@ export const signInUserSchema = zod.object({
   phone_number: zod.string(),
 });
 
+export const validateUserPhonenumberSchema = zod.object({
+  phone_number: zod.string(),
+});
+
 export type RegisterUser = zod.TypeOf<typeof registerUserSchema>;
 export type CheckOTPCode = zod.TypeOf<typeof checkOTPCodeSchema>;
 export type SignInUserSchema = zod.TypeOf<typeof signInUserSchema>;
 export type AuthenticatePhoneNumber = zod.TypeOf<typeof authenticatePhoneNumberSchema>;
 export type RetryOTP = zod.TypeOf<typeof retryOTPSchema>;
+export type ValidateUserPhonenumber = zod.TypeOf<typeof validateUserPhonenumberSchema>; 
 
 export const { schemas: authSchemas, $ref } = buildJsonSchemas(
   {
@@ -38,6 +43,7 @@ export const { schemas: authSchemas, $ref } = buildJsonSchemas(
     authenticatePhoneNumberSchema,
     checkOTPCodeSchema,
     retryOTPSchema,
+    validateUserPhonenumberSchema
   },
   { $id: 'AuthSchemas' },
 );

@@ -6,8 +6,9 @@ import {
   registerUserHandler,
   retryOTPHandler,
   signInUserHandler,
+  validateUserHandler,
 } from './auth.handler';
-import { $ref } from './auth.schema';
+import { $ref, ValidateUserPhonenumber } from './auth.schema';
 
 const auth: FastifyPluginAsync = async (fastify: FastifyInstance): Promise<void> => {
   fastify.post(
@@ -22,6 +23,11 @@ const auth: FastifyPluginAsync = async (fastify: FastifyInstance): Promise<void>
   );
   fastify.post('/retry-otp-code', { schema: { body: $ref('retryOTPSchema') } }, retryOTPHandler);
   fastify.post('/signup', { schema: { body: $ref('registerUserSchema') } }, registerUserHandler);
+  fastify.post<{ Body: ValidateUserPhonenumber }>(
+    '/validate',
+    { schema: { body: $ref('validateUserPhonenumberSchema') } },
+    validateUserHandler,
+  );
 
   fastify.post('/login', { schema: { body: $ref('signInUserSchema') } }, signInUserHandler);
 };
