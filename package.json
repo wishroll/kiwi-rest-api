@@ -10,7 +10,7 @@
     "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P build/src/app.js",
     "start": "fastify start -l info -s process.env.PORT -a \"::\" build/src/app.js",
     "deploy": "npm run start",
-    "migrate": "npx prisma migrate",
+    "migrate": "npx prisma migrate deploy",
     "seed": "knex seed:run --knexfile knexfile.js",
     "routes": "fastify print-routes ./build/src/app.js",
     "test": "tap && standard --fix",
