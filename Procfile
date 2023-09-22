@@ -1,2 +1,2 @@
 web: npm run deploy
-# release: yarn migrate 
+release: yarn migrate 
