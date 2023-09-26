@@ -21,7 +21,7 @@ export async function registerUserHandler(
     const token = this.jwt.sign({ id, uuid }, { expiresIn: '365 days' });
     res.status(201).send({ access_token: token });
   } catch (error) {
-    res.status(500).send({ message: error });
+    this.errorHandler(error as FastifyError, req, res);
   }
 }
 
@@ -46,7 +46,7 @@ export async function signInUserHandler(
       res.status(404).send({ error: 'Not Found' });
     }
   } catch (error) {
-    res.status(500).send();
+    this.errorHandler(error as FastifyError, req, res);
   }
 }
 
