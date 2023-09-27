@@ -6,7 +6,9 @@ import {
   CreateRelationshipBody,
   DeleteRelationshipRequestBody,
   GetRelationshipStatusQuerystring,
-  getSuggestedRelationshipUsersQuerystring,
+  GetSuggestedRelationshipUsersQuerystring,
+  GetRequestedRelationshipUserQuerystring,
+  GetRequestingRelationshipUserQuerystring,
 } from './relationships.schema';
 import {
   getRelationships,
@@ -31,7 +33,7 @@ export async function createRelationshipHandler(
     await createRelationship(currentUserId, friendId, Date.now().toString(), Date.now().toString());
     return res.status(201).send();
   } catch (error) {}
-};
+}
 
 export async function deleteRelationshipHandler(
   this: FastifyInstance,
@@ -46,7 +48,7 @@ export async function deleteRelationshipHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function getRelationshipsHandler(
   this: FastifyInstance,
@@ -65,7 +67,7 @@ export async function getRelationshipsHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function createRelationshipRequestHandler(
   this: FastifyInstance,
@@ -85,7 +87,7 @@ export async function createRelationshipRequestHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function deleteRelationshipRequestHandler(
   this: FastifyInstance,
@@ -100,16 +102,21 @@ export async function deleteRelationshipRequestHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function getRequestedRelationshipsHandler(
   this: FastifyInstance,
-  req: FastifyRequest,
+  req: FastifyRequest<{ Querystring: GetRequestedRelationshipUserQuerystring }>,
   res: FastifyReply,
 ) {
   try {
     const { id: currentUserId } = req.user;
-    const relationshipRequestedUsers: User[] = await getRelationshipsRequested(currentUserId);
+    const { limit, offset } = req.query;
+    const relationshipRequestedUsers: User[] = await getRelationshipsRequested(
+      currentUserId,
+      limit,
+      offset,
+    );
     if (relationshipRequestedUsers.length > 0) {
       return res.status(200).send(relationshipRequestedUsers);
     } else {
@@ -118,16 +125,21 @@ export async function getRequestedRelationshipsHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function getRequestingRelationshipsHandler(
   this: FastifyInstance,
-  req: FastifyRequest,
+  req: FastifyRequest<{ Querystring: GetRequestingRelationshipUserQuerystring }>,
   res: FastifyReply,
 ) {
   try {
     const { id: currentUserId } = req.user;
-    const relationshipRequestingUsers: User[] = await getRelationshipsRequesting(currentUserId);
+    const { limit, offset } = req.query;
+    const relationshipRequestingUsers: User[] = await getRelationshipsRequesting(
+      currentUserId,
+      limit,
+      offset,
+    );
     if (relationshipRequestingUsers.length > 0) {
       return res.status(200).send(relationshipRequestingUsers);
     } else {
@@ -136,7 +148,7 @@ export async function getRequestingRelationshipsHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function getRelationshipStatusHandler(
   this: FastifyInstance,
@@ -150,11 +162,11 @@ export async function getRelationshipStatusHandler(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}
 
 export async function getRelationshipSuggestions(
   this: FastifyInstance,
-  req: FastifyRequest<{ Querystring: getSuggestedRelationshipUsersQuerystring }>,
+  req: FastifyRequest<{ Querystring: GetSuggestedRelationshipUsersQuerystring }>,
   res: FastifyReply,
 ) {
   try {
@@ -162,8 +174,8 @@ export async function getRelationshipSuggestions(
     const { limit, offset } = req.query;
     const suggestedRelationshipUsers: User[] = await getSuggestedRelationships(
       currentUserId,
-      limit.toString(),
-      offset.toString(),
+      limit,
+      offset,
     );
     if (suggestedRelationshipUsers.length > 0) {
       return res.status(200).send(suggestedRelationshipUsers);
@@ -173,4 +185,4 @@ export async function getRelationshipSuggestions(
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
-};
+}

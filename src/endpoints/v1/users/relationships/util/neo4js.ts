@@ -1,11 +1,6 @@
-import neo4j from 'neo4j-driver';
 import logger from '../../../../../utils/logger';
 import { User } from 'src/models/users';
-
-const driver = neo4j.driver(
-  process.env.NEO4JURI || '',
-  neo4j.auth.basic(process.env.NEO4JUSERNAME || '', process.env.NEO4JPASSWORD || ''),
-);
+import driver from 'src/utils/neo4js';
 
 /**
  * @param {number} user1Id - the first user to create the friend relationship with
@@ -40,7 +35,7 @@ async function createRelationship(
   } finally {
     await session.close();
   }
-}
+};
 
 /**
  *
@@ -74,7 +69,7 @@ async function createRelationshipRequest(
   } finally {
     await session.close();
   }
-}
+};
 
 /**
  *
@@ -83,11 +78,7 @@ async function createRelationshipRequest(
  * @param offset
  * @returns
  */
-async function getRelationships(
-  userId: number,
-  limit: string = '10',
-  offset: string = '0',
-): Promise<User[]> {
+async function getRelationships(userId: number, limit: bigint, offset: bigint): Promise<User[]> {
   const session = driver.session({ database: 'neo4j' });
   try {
     const query = `MATCH (:User {id: ${userId}})-[:FRIENDS_WITH]->(u:User) return u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
@@ -109,18 +100,18 @@ async function getRelationships(
   } finally {
     await session.close();
   }
-}
+};
 
 /**
  *
  * @param userId
  * @returns
  */
-async function getRelationshipsRequested(userId: number) {
+async function getRelationshipsRequested(userId: number, limit: bigint, offset: bigint) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (User {id: ${userId}})-[:FRIENDS_REQUESTED]->(u:User) return u`;
-    const result = await session.executeRead(tx => tx.run(query));
+    const query = `MATCH (User {id: ${userId}})-[:FRIEND_REQUESTED]->(u:User) RETURN u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
+    const result = await session.executeRead(tx => tx.run(query, { userId, offset, limit }));
     const records = result.records.map(r => {
       return {
         id: r.get('id'),
@@ -137,18 +128,18 @@ async function getRelationshipsRequested(userId: number) {
   } finally {
     await session.close();
   }
-}
+};
 
 /**
  *
  * @param userId
  * @returns
  */
-async function getRelationshipsRequesting(userId: number) {
+async function getRelationshipsRequesting(userId: number, limit: bigint, offset: bigint) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (User {id: ${userId}})<-[:FRIENDS_REQUESTED]-(u:User) RETURN u`;
-    const result = await session.executeRead(tx => tx.run(query));
+    const query = `MATCH (User {id: ${userId}})<-[:FRIEND_REQUESTED]-(u:User) RETURN u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
+    const result = await session.executeRead(tx => tx.run(query, { userId, offset, limit }));
     const records = result.records.map(r => {
       return {
         id: r.get('id'),
@@ -169,7 +160,7 @@ async function getRelationshipsRequesting(userId: number) {
   } finally {
     await session.close();
   }
-}
+};
 
 /**
  *
@@ -200,7 +191,7 @@ async function deleteRelationship(user1Id: number, user2Id: number) {
   } finally {
     await session.close();
   }
-}
+};
 
 /**
  *
@@ -230,16 +221,12 @@ async function deleteRelationshipRequest(requestingUserId: number, requestedUser
   } finally {
     await session.close();
   }
-}
+};
 
-async function getSuggestedRelationships(
-  userId: number,
-  limit: string = '10',
-  offset: string = '0',
-) {
+async function getSuggestedRelationships(userId: number, limit: bigint, offset: bigint) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (user1:User { id: ${userId} })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
+    const query = `MATCH (user1:User { id: $userId })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
             WHERE NOT (user1)-[:FRIENDS_WITH]-(friend_of_friend)
             AND NOT (user1)-[:FRIEND_REQUESTED]-(friend_of_friend)
             AND user1.id <> friend_of_friend.id
@@ -252,10 +239,10 @@ async function getSuggestedRelationships(
             friend_of_friend.username as username, friend_of_friend.display_name as display_name,
             friend_of_friend.avatar_url as avatar_url, COUNT(*)
             ORDER BY COUNT(*) DESC, id DESC
-            SKIP ${offset}
-            LIMIT ${limit}
+            SKIP $offset
+            LIMIT $limit
         `;
-    const result = await session.executeWrite(tx => tx.run(query));
+    const result = await session.executeWrite(tx => tx.run(query, { userId, limit, offset }));
     const records = result.records.map(r => {
       return {
         id: r.get('id'),
@@ -282,7 +269,7 @@ async function getSuggestedRelationships(
   } finally {
     await session.close();
   }
-}
+};
 
 export {
   createRelationship,
