@@ -35,7 +35,7 @@ async function createRelationship(
   } finally {
     await session.close();
   }
-};
+}
 
 /**
  *
@@ -69,7 +69,7 @@ async function createRelationshipRequest(
   } finally {
     await session.close();
   }
-};
+}
 
 /**
  *
@@ -78,10 +78,14 @@ async function createRelationshipRequest(
  * @param offset
  * @returns
  */
-async function getRelationships(userId: number, limit: bigint, offset: bigint): Promise<User[]> {
+async function getRelationships(userId: number, _limit: bigint, _offset: bigint): Promise<User[]> {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (:User {id: ${userId}})-[:FRIENDS_WITH]->(u:User) return u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
+    const query = `MATCH (currentUser:User {id: ${userId}})-[:FRIENDS_WITH]->(user:User) return user.id as id, user.uuid as uuid, 
+    user.username as username, user.display_name as display_name, user.avatar_url as avatar_url,
+     EXISTS((currentUser)-[:FRIENDS_WITH]-(user)) as is_friends,
+            EXISTS((currentUser)-[:FRIEND_REQUESTED]->(user)) as is_pending_sent,
+            EXISTS((currentUser)<-[:FRIEND_REQUESTED]-(user)) as is_pending_received`;
     const result = await session.executeWrite(tx => tx.run(query));
     const records = result.records.map(r => {
       return {
@@ -90,6 +94,13 @@ async function getRelationships(userId: number, limit: bigint, offset: bigint): 
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
+        friendship_status: r.get('is_friends')
+          ? 'friends'
+          : r.get('is_pending_received')
+          ? 'pending_received'
+          : r.get('is_pending_sent')
+          ? 'pending_sent'
+          : 'none',
       } as User;
     });
     logger(null).debug({ records }, `These are the results of fetching user: ${userId}'s friends`);
@@ -100,18 +111,25 @@ async function getRelationships(userId: number, limit: bigint, offset: bigint): 
   } finally {
     await session.close();
   }
-};
+}
 
 /**
  *
  * @param userId
  * @returns
  */
-async function getRelationshipsRequested(userId: number, limit: bigint, offset: bigint) {
+async function getRelationshipsRequested(userId: number, _limit: bigint, _offset: bigint) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (User {id: ${userId}})-[:FRIEND_REQUESTED]->(u:User) RETURN u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
-    const result = await session.executeRead(tx => tx.run(query, { userId, offset, limit }));
+    const query = `MATCH (currentUser:User {id: ${userId}})-[:FRIEND_REQUESTED]->(user:User) 
+    RETURN user.id as id, user.uuid as uuid, 
+    user.username as username, 
+    user.display_name as display_name, 
+    user.avatar_url as avatar_url,
+            EXISTS((currentUser)-[:FRIENDS_WITH]-(user)) as is_friends,
+            EXISTS((currentUser)-[:FRIEND_REQUESTED]->(user)) as is_pending_sent,
+            EXISTS((currentUser)<-[:FRIEND_REQUESTED]-(user)) as is_pending_received`;
+    const result = await session.executeRead(tx => tx.run(query));
     const records = result.records.map(r => {
       return {
         id: r.get('id'),
@@ -119,6 +137,13 @@ async function getRelationshipsRequested(userId: number, limit: bigint, offset: 
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
+        friendship_status: r.get('is_friends')
+          ? 'friends'
+          : r.get('is_pending_received')
+          ? 'pending_received'
+          : r.get('is_pending_sent')
+          ? 'pending_sent'
+          : 'none',
       } as User;
     });
     return records;
@@ -128,18 +153,22 @@ async function getRelationshipsRequested(userId: number, limit: bigint, offset: 
   } finally {
     await session.close();
   }
-};
+}
 
 /**
  *
  * @param userId
  * @returns
  */
-async function getRelationshipsRequesting(userId: number, limit: bigint, offset: bigint) {
+async function getRelationshipsRequesting(userId: number, _limit: bigint, _offset: bigint) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (User {id: ${userId}})<-[:FRIEND_REQUESTED]-(u:User) RETURN u.id as id, u.uuid as uuid, u.username as username, u.display_name as display_name, u.avatar_url as avatar_url SKIP ${offset} LIMIT ${limit}`;
-    const result = await session.executeRead(tx => tx.run(query, { userId, offset, limit }));
+    const query = `MATCH (currentUser:User {id: ${userId}})<-[:FRIEND_REQUESTED]-(user:User) RETURN user.id as id, user.uuid as uuid, 
+    user.username as username, user.display_name as display_name, user.avatar_url as avatar_url,
+                EXISTS((currentUser)-[:FRIENDS_WITH]-(user)) as is_friends,
+            EXISTS((currentUser)-[:FRIEND_REQUESTED]->(user)) as is_pending_sent,
+            EXISTS((currentUser)<-[:FRIEND_REQUESTED]-(user)) as is_pending_received`;
+    const result = await session.executeRead(tx => tx.run(query));
     const records = result.records.map(r => {
       return {
         id: r.get('id'),
@@ -147,6 +176,13 @@ async function getRelationshipsRequesting(userId: number, limit: bigint, offset:
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
+        friendship_status: r.get('is_friends')
+          ? 'friends'
+          : r.get('is_pending_received')
+          ? 'pending_received'
+          : r.get('is_pending_sent')
+          ? 'pending_sent'
+          : 'none',
       } as User;
     });
     logger(null).debug({ records }, `These are the results of fetching user: ${userId}'s friends`);
@@ -160,7 +196,7 @@ async function getRelationshipsRequesting(userId: number, limit: bigint, offset:
   } finally {
     await session.close();
   }
-};
+}
 
 /**
  *
@@ -191,7 +227,7 @@ async function deleteRelationship(user1Id: number, user2Id: number) {
   } finally {
     await session.close();
   }
-};
+}
 
 /**
  *
@@ -221,12 +257,12 @@ async function deleteRelationshipRequest(requestingUserId: number, requestedUser
   } finally {
     await session.close();
   }
-};
+}
 
 async function getSuggestedRelationships(userId: number, limit: bigint, offset: bigint) {
   const session = driver.session({ database: 'neo4j' });
   try {
-    const query = `MATCH (user1:User { id: $userId })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
+    const query = `MATCH (user1:User { id: ${userId} })-[:FRIENDS_WITH*2..2]-(friend_of_friend)
             WHERE NOT (user1)-[:FRIENDS_WITH]-(friend_of_friend)
             AND NOT (user1)-[:FRIEND_REQUESTED]-(friend_of_friend)
             AND user1.id <> friend_of_friend.id
@@ -239,10 +275,10 @@ async function getSuggestedRelationships(userId: number, limit: bigint, offset: 
             friend_of_friend.username as username, friend_of_friend.display_name as display_name,
             friend_of_friend.avatar_url as avatar_url, COUNT(*)
             ORDER BY COUNT(*) DESC, id DESC
-            SKIP $offset
-            LIMIT $limit
+            SKIP ${offset}
+            LIMIT ${limit}
         `;
-    const result = await session.executeWrite(tx => tx.run(query, { userId, limit, offset }));
+    const result = await session.executeWrite(tx => tx.run(query));
     const records = result.records.map(r => {
       return {
         id: r.get('id'),
@@ -250,13 +286,13 @@ async function getSuggestedRelationships(userId: number, limit: bigint, offset: 
         username: r.get('username'),
         display_name: r.get('display_name'),
         avatar_url: r.get('avatar_url'),
-        // friendship_status: r.get('is_friends')
-        //   ? 'friends'
-        //   : r.get('is_pending_received')
-        //   ? 'pending_received'
-        //   : r.get('is_pending_sent')
-        //   ? 'pending_sent'
-        //   : 'none',
+        friendship_status: r.get('is_friends')
+          ? 'friends'
+          : r.get('is_pending_received')
+          ? 'pending_received'
+          : r.get('is_pending_sent')
+          ? 'pending_sent'
+          : 'none',
       } as User;
     });
     return records;
@@ -269,7 +305,39 @@ async function getSuggestedRelationships(userId: number, limit: bigint, offset: 
   } finally {
     await session.close();
   }
-};
+}
+
+async function getRelationshipStatus(userId: number, friendId: number) {
+  const session = driver.session({ database: 'neo4j' });
+  try {
+    const query = `           
+            MATCH (currentUser:User {id: ${userId}})
+            MATCH (user:User {id: ${friendId}})
+            RETURN 
+            EXISTS((currentUser)-[:FRIENDS_WITH]-(user)) AS is_friends,
+            EXISTS((currentUser)-[:FRIEND_REQUESTED]->(user)) AS is_pending_sent,
+            EXISTS((currentUser)<-[:FRIEND_REQUESTED]-(user)) AS is_pending_received`;
+    const result = await session.executeWrite(tx => tx.run(query));
+    const relationshipStatus = result.records.flatMap(r => {
+      return r.get('is_friends')
+        ? 'friends'
+        : r.get('is_pending_received')
+        ? 'pending_received'
+        : r.get('is_pending_sent')
+        ? 'pending_sent'
+        : 'none';
+    });
+    return relationshipStatus;
+  } catch (error) {
+    logger(null).error(
+      error as Error,
+      `An error occured when fetching mutual friends of user: ${userId}`,
+    );
+    throw error;
+  } finally {
+    await session.close();
+  }
+}
 
 export {
   createRelationship,
@@ -280,4 +348,5 @@ export {
   deleteRelationship,
   deleteRelationshipRequest,
   getSuggestedRelationships,
+  getRelationshipStatus,
 };

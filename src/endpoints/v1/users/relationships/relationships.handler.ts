@@ -19,6 +19,7 @@ import {
   getRelationshipsRequested,
   getRelationshipsRequesting,
   getSuggestedRelationships,
+  getRelationshipStatus,
 } from './util/neo4js';
 import { User } from 'src/models/users';
 
@@ -156,9 +157,14 @@ export async function getRelationshipStatusHandler(
   res: FastifyReply,
 ) {
   try {
-    // const { id: currentUserId } = req.user;
-    // const { user_id: userId } = req.query;
-    return res.status(200).send();
+    const { id: currentUserId } = req.user;
+    const { user_id: friendId } = req.query;
+    const relationshipStatus = await getRelationshipStatus(currentUserId, friendId);
+    if (relationshipStatus.length > 0) {
+      return res.status(200).send(relationshipStatus[0]);
+    } else {
+      return res.status(400).send(relationshipStatus);
+    }
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
