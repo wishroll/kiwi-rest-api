@@ -14,9 +14,9 @@ export const deleteRelationshipRequestBodySchema = zod.object({
 });
 
 export const getUserRelationshipsQuerySchema = zod.object({
-  user_id: zod.string(),
-  limit: zod.string(),
-  offset: zod.string(),
+  user_id: zod.number(),
+  limit: zod.bigint(),
+  offset: zod.bigint(),
 });
 
 export const deleteRelationshipBodySchema = zod.object({
@@ -24,7 +24,7 @@ export const deleteRelationshipBodySchema = zod.object({
 });
 
 export const getRelationshipsQuerySchema = zod.object({
-  limit: zod.number(),
+  limit: zod.bigint(),
 });
 
 export const getRelationshipStatusQuerystringSchema = zod.object({
@@ -32,8 +32,18 @@ export const getRelationshipStatusQuerystringSchema = zod.object({
 });
 
 export const getSuggestedRelationshipUsersQuerystringSchema = zod.object({
-  limit: zod.number(),
-  offset: zod.number(),
+  limit: zod.bigint(),
+  offset: zod.bigint(),
+});
+
+export const getRequestedRelationshipUserQuerystringSchema = zod.object({
+  limit: zod.bigint(),
+  offset: zod.bigint(),
+});
+
+export const getRequestingRelationshipUserQuerystringSchema = zod.object({
+  limit: zod.bigint(),
+  offset: zod.bigint(),
 });
 
 export type CreateRelationshipBody = zod.TypeOf<typeof createRelationshipBodySchema>;
@@ -44,8 +54,14 @@ export type DeleteRelationshipBody = zod.TypeOf<typeof deleteRelationshipBodySch
 export type GetRelationshipStatusQuerystring = zod.TypeOf<
   typeof getRelationshipStatusQuerystringSchema
 >;
-export type getSuggestedRelationshipUsersQuerystring = zod.TypeOf<
+export type GetSuggestedRelationshipUsersQuerystring = zod.TypeOf<
   typeof getSuggestedRelationshipUsersQuerystringSchema
+>;
+export type GetRequestedRelationshipUserQuerystring = zod.TypeOf<
+  typeof getRequestedRelationshipUserQuerystringSchema
+>;
+export type GetRequestingRelationshipUserQuerystring = zod.TypeOf<
+  typeof getRequestingRelationshipUserQuerystringSchema
 >;
 
 export const { schemas: relationshipSchemas, $ref } = buildJsonSchemas(
@@ -57,6 +73,8 @@ export const { schemas: relationshipSchemas, $ref } = buildJsonSchemas(
     deleteRelationshipRequestBodySchema,
     getSuggestedRelationshipUsersQuerystringSchema,
     getRelationshipStatusQuerystringSchema,
+    getRequestingRelationshipUserQuerystringSchema,
+    getRequestedRelationshipUserQuerystringSchema,
   },
   { $id: 'RelationshipsSchema' },
 );

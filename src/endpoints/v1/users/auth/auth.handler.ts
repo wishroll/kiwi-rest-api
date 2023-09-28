@@ -7,6 +7,7 @@ import {
   SignInUserSchema,
   ValidateUserPhonenumber,
 } from './auth.schema';
+import { createUserNode } from './util/neo4js';
 
 export async function registerUserHandler(
   this: FastifyInstance,
@@ -16,6 +17,7 @@ export async function registerUserHandler(
   try {
     const { phone_number } = req.body;
     const user = await this.prisma.user.create({ data: { phone_number } });
+    await createUserNode(user);
     const id = Number(user.id);
     const uuid = user.uuid;
     const token = this.jwt.sign({ id, uuid }, { expiresIn: '365 days' });
@@ -121,7 +123,6 @@ export async function validateUserHandler(
     } else {
       return res.status(404).send();
     }
-    
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }

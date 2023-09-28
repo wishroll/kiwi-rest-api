@@ -10,6 +10,7 @@ import { searchSchemas } from '@endpoints/v1/users/search/search.schema';
 import { profileSchemas } from '@endpoints/v1/users/profile/profile.schema';
 import { userSchemas } from '@endpoints/v1/users/users.schema';
 import { messagesSchemas } from '@endpoints/v1/messages/messages.schema';
+import { relationshipSchemas } from '@endpoints/v1/users/relationships/relationships.schema';
 
 const envToLogger: Record<string, any> = {
   development: {
@@ -70,7 +71,7 @@ const app: FastifyPluginAsync<AppOptions> = async (fastify, opts): Promise<void>
     options: opts,
   });
 
-  [authSchemas, searchSchemas, profileSchemas, userSchemas, messagesSchemas]
+  [authSchemas, searchSchemas, profileSchemas, userSchemas, messagesSchemas, relationshipSchemas]
     .flat()
     .forEach(schema => fastify.addSchema(schema));
 

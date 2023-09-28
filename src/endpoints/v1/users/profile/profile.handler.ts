@@ -1,5 +1,6 @@
 import { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { UpdateProfileBody } from './profile.schema';
+import { updateUserNode } from '../auth/util/neo4js';
 
 export async function updateProfileHandler(
   this: FastifyInstance,
@@ -9,7 +10,7 @@ export async function updateProfileHandler(
   try {
     const { username, display_name } = req.body;
     const { id } = req.user;
-    
+
     // Create a data object with only defined values
     const updateData = {
       username: username || undefined,
@@ -29,8 +30,9 @@ export async function updateProfileHandler(
       data: updateData,
       select: { username: true, display_name: true },
     });
+    await updateUserNode(id, filteredUpdateData);
 
-    return res.send(updatedUser);
+    return res.status(200).send(updatedUser);
   } catch (error) {
     this.errorHandler(error as FastifyError, req, res);
   }
